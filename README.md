@@ -2,43 +2,140 @@
 
 **Create a beautiful digital bouquet, write a personal message, and send it to
 someone special.** Free, no account, no database — the link **is** the bouquet.
-Every flower, wrapper, ribbon and word lives in the URL itself, so nothing is
-ever stored.
 
-Opens as a soft, animated reveal in the recipient's browser, and every share
-gets a real 1200×630 social card drawn from the **exact same SVG art** the
-sender arranged — so WhatsApp, Telegram and iMessage show the bouquet before
-anyone even clicks.
+- **No sign-up, no server storage** — every flower, wrapper, ribbon and word is
+  compressed into the URL itself, so a bouquet lives exactly as long as it
+  circulates.
+- **Realistic flowers** — a dozen painterly, photo-real bloom illustrations
+  (with their language-of-flowers meanings) plus greenery, arranged in a
+  wrapped paper cone.
+- **It arrives as a gift** — the recipient follows the link and a soft,
+  theatrical reveal plays out before their eyes, ending on the bouquet and a
+  handwritten-style note.
+- **Looks premium everywhere it's pasted** — WhatsApp, iMessage and Telegram
+  show a real 1200×630 social card drawn from the *same* art, generated
+  server-side.
 
 Inspired by the warm, editorial feel of [digibouquet.org](https://digibouquet.org/).
+
+<br />
+
+## Screenshots
+
+> Captured at 1280×900 — every visual below is the real running app.
+
+| The landing page: hero, flower library, presets | The bouquet editor: arrange stems live |
+| --- | --- |
+| ![Landing page](docs/screenshots/home.png) | ![Editor](docs/screenshots/editor.png) |
+
+| The card-message library (`/quotes`) | The share page after sending (`/s/…`) |
+| --- | --- |
+| ![Card messages](docs/screenshots/quotes.png) | ![Share page](docs/screenshots/share.png) |
+
+| The recipient's reveal (`/b/…`) | The generated social card (`/opengraph-image`) |
+| --- | --- |
+| ![Reveal](docs/screenshots/reveal.png) | ![Social card](docs/screenshots/og-card.png) |
+
+<br />
+
+## Features
+
+### 🌸 Realistic, digibouquet-style flower art
+Twelve painterly blooms as transparent cutouts — **rose, peony, dahlia, anemone,
+ranunculus, orchid, carnation, zinnia, daisy, sunflower, tulip, lily** — plus
+three greenery bases (**eucalyptus, fern, baby's breath**). The same art renders
+in the editor, the reveal, the landing page and the social card.
+
+### 💐 The language of flowers
+Every bloom carries its meaning (rose = *deep love & passion*, tulip = *perfect
+love*, peony = *prosperity & romance*, …), shown in the editor under each flower
+and on the landing page — so an arrangement *says* something.
+
+### 🎚 Color or monochrome
+A palette toggle switches the whole bouquet between fully-printed color and a
+graphic ink-and-paper grayscale. It applies live in the editor, in the reveal,
+and even in the exported PNG/GIF and the social card.
+
+### 📜 Note card paper
+The message arrives on a paper you choose — **paper, parchment, ivory, blush** —
+with matching ink tones, exactly like a handwritten card kept inside the gift.
+
+### 🗞 Card-message library (`/quotes`)
+Six categories of ready-to-send notes (love, birthday, thanks, miss you,
+encouragement, friendship). Each quote drops straight into the editor via
+`/create?quote=…`, pre-filled on the note card.
+
+### 🎁 A theatrical reveal
+Four reveal styles — **Gift Box, Envelope, Curtain, Minimal** — open the bouquet
+with a choreographed entrance on the recipient's device.
+
+### 🖐 An editor, not a picker
+Drag every stem into place, rotate and scale it, move it with the arrow keys,
+layer it by z-depth, or hit **"Arrange for me"**. Start from six curated
+presets or an occasion. Finish with wrappers (8), ribbons (8), backgrounds (5)
+and decorations (pearl pins, wax seals, twine, berry sprigs).
+
+### 📤 Everything a bouquet needs to travel
+Copy link · QR code · **keepsake PNG** · **animated looping GIF** · native share
+· socials. A per-bouquet `og:image` preview is generated for every link.
+
+### 🔁 It comes back
+The receiver can reply with a bouquet of their own — because the link already
+carries every detail, "send one back" is free.
+
+<br />
 
 ## How it works
 
 1. **Create** — pick a wrapper, ribbon and background, then compose a bouquet
-   from a dozen painterly, photo-real blooms plus greenery and decorations.
-   Drag each stem into place, rotate and scale it over a live canvas, and
-   finish with a recipient, sender and message. Style it further with a
-   **color or monochrome** palette and choose the **note card paper** (paper,
-   parchment, ivory, blush).
-2. **Share** — the whole layout is serialized (lz-string, URL-safe) into a
-   compact token and handed over as a plain link, a QR code, a **keepsake PNG,
-   or an animated looping GIF**, plus one-tap native share. No accounts, no
-   sync, no server round-trips to edit.
+   from a dozen painterly blooms plus greenery and decorations. Drag each stem
+   into place, rotate and scale it over a live canvas, and finish with a
+   recipient, sender and message. Style it further with a **color or
+   monochrome** palette and choose the **note card paper** (paper, parchment,
+   ivory, blush).
+2. **Share** — the whole layout is serialized into a compact, URL-safe token
+   (`lz-string` + `safe-encode`) and handed over as a plain link, a QR code, a
+   **keepsake PNG, or an animated looping GIF**, plus one-tap native share. No
+   accounts, no sync, no server round-trips.
 3. **Reveal** — `/b/<token>` plays an animated entrance of the bouquet and the
    note. The per-bouquet social preview is generated server-side with
-   `next/og` from the shared SVG components, so the thumbnail is never a
-   generic screenshot.
+   `next/og` from the shared components, so the thumbnail is never a generic
+   screenshot.
 
-## Visual presentation
+<br />
 
-The design language is **"The Pressed Flower Keepsake"** — Bloomly feels like
-something kept between the pages of a book, not a SaaS dashboard with flower
-emoji.
+## The flower catalog
 
-> Warm paper tones, a single deep accent color spent sparingly, hairline
-> borders instead of drop-shadowed cards. The illustrated bouquet carries all
-> the color and detail; the chrome around it steps back so the gift stays the
-> visual hero of every screen.
+| Bloom | Meaning |
+| --- | --- |
+| **Orchid** | rare beauty & strength |
+| **Tulip** | perfect love |
+| **Dahlia** | elegance & dignity |
+| **Anemone** | anticipation & sincerity |
+| **Carnation** | love & admiration |
+| **Zinnia** | lasting affection |
+| **Ranunculus** | charm & radiance |
+| **Sunflower** | loyalty & warmth |
+| **Lily** | purity & devotion |
+| **Daisy** | innocence & joy |
+| **Peony** | prosperity & romance |
+| **Rose** | deep love & passion |
+
+Greenery bases: **Eucalyptus**, **Fern**, **Baby's Breath**. Older catalog ids
+(from the earlier procedural version of Bloomly) still resolve, so share links
+created before the art upgrade keep rendering.
+
+<br />
+
+## Design language — "The Pressed Flower Keepsake"
+
+Bloomly feels like a keepsake pressed between the pages of a book, not a SaaS
+dashboard with flower emoji.
+
+> Warm paper tones, a single deep accent color spent sparingly, hairline borders
+> instead of drop-shadowed cards. The illustrated bouquet carries all the color
+> and detail; the chrome around it steps back so the gift stays the visual hero
+> of every screen.
 
 ### Palette
 
@@ -63,69 +160,83 @@ only place saturated color is allowed to live freely.
 
 - **Playfair Display** (with Georgia fallback) — display type, headlines,
   names, "A DIGITAL BOUQUET".
-- **Cormorant Garamond**, italic — the personal, handwritten-feel accent at
-  the heart of the message.
+- **Cormorant Garamond**, italic — the personal, handwritten-feel accent at the
+  heart of the message.
 - **Inter** — labels, UI chrome, body copy. Serif carries emotion; sans-serif
   carries function.
 
-### The bouquet art
+<br />
 
-Every flower is a **painterly, photo-real raster cutout** — twelve digibouquet-style
-blooms (rose, peony, dahlia, anemone, ranunculus, orchid, carnation, zinnia, daisy,
-sunflower, tulip, lily) plus three greenery bases (eucalyptus, fern, baby's breath) as
-transparent webp art. Each bloom carries its language-of-flowers meaning. In the DOM they
-render as `<img>` with a CSS grayscale filter for monochrome mode; in the social card the
-same cutouts are downscaled to PNG data URIs with `sharp` (grayscaled server-side for mono
-bouquets) so satori embeds the *real* art.
+## The bouquet art, three render paths
 
-Arranged over five background canvases, eight wrappers (cream, kraft, white, blush,
-burgundy, matte black, transparent, vintage) and eight ribbons (silk burgundy, satin red,
-satin pink, velvet cream, silk white, thin black, double gold, silk lavender).
+The art is a set of **raster cutouts** (transparent webp) plus a small set of
+vector decorations. The same `BouquetAsset` component renders them in three
+places, each with its own constraints:
 
-The same components render in three places:
+1. **Editor & reveal (DOM)** — real `<img>` tags with the static `/flora/*.webp`
+   path. Monochrome mode is a CSS `grayscale(1)` filter, which `html-to-image`
+   also captures for PNG/GIF exports. Vector decorations render as SVG.
+2. **The 1200×630 social card (satori)** — satori can't fetch network images,
+   so `lib/og/floraImage.ts` downscales each used cutout with **sharp** into a
+   base64 **PNG data URI** (grayscaled server-side for mono bouquets) and that
+   `imageMap` is threaded into the card. Sharp is externalized
+   (`serverExternalPackages`) so it runs natively at build/request time.
+3. **The landing page** — the hero bouquet and the flower library use the same
+   `BouquetAsset`, so marketing and product stay pixel-identical.
 
-1. **The editor canvas** — living preview while arranging (`className` sizing).
-2. **The reveal page** — animated entrance for the recipient.
-3. **The 1200×630 social card** — `next/og`/satori accepts `style` sizing, so
-   the shared components receive `style={{ width: "100%", height: "100%" }}`
-   and are re-laid-out with an adaptive fit (fitLayout) that keeps the bouquet
-   between the eyebrow and the message plate at any scale.
-   *Note: vector decorations are layered as function components under the
-   `<svg>` subtree (plain render functions emitting raw host elements) so
-   satori doesn't drop them; raster assets use `imageMap` data URIs.*
+Procedural SVG is kept only for decorations (pearl pins, wax seals, twine, berry
+springs) and as a fallback for unknown ids. Old decorative elements render from
+plain render functions emitting raw `<path>`/`<circle>`/`<g>` host elements so
+satori doesn't drop them.
 
-### The social card
+### How a link becomes a bouquet
 
-1200×630. A soft 165° gradient background, a letter-spaced
-`A DIGITAL BOUQUET` eyebrow, the bouquet **contained in its paper cone with
-its ribbon** (matching the sender's wrapper/ribbon choice), and a cream caption
-plate floating at the bottom holding *"For {recipient}"*, the italic message,
-and *sender · bloomly*.
+- **Encode** — `lib/bouquet/encoder.ts` serializes the bouquet object, compresses
+  it with `lz-string`, and applies a URL-safe alphabet.
+- **Decode + validate** — `lib/bouquet/validator.ts` never trusts URL input:
+  freeform text is stripped of control/HTML characters, sizes are clamped,
+  unknown ids are dropped, counts are capped. An element's category is derived
+  from its *canonical* asset definition rather than the value stored in the
+  URL, so old links survive catalog re-organizations (e.g. a baby's breath that
+  was once a "flower" cleanly migrates to "foliage").
+- **Layout** — `lib/bouquet/composer.ts`'s `autoArrange` generates balanced
+  arrangements from a flat id list; `BouquetCanvas` positions each element from
+  its own stem with a computed size and z-depth.
+- **Card fit** — `lib/og/BouquetCard.tsx`'s `fitLayout` re-lays the bouquet out
+  between the eyebrow and the message plate at any scale.
 
-## Featured routes
+<br />
+
+## Routes
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Landing + occasion picker + card-message teaser |
-| `/create` | Bouquet editor (drag / rotate / scale canvas, palette + card paper) |
-| `/quotes` | Card message library — 6 categories, each drops into `/create` via `?quote=` |
+| `/` | Landing — hero bouquet, flower library, presets, occasions, card-message teaser |
+| `/create` | Bouquet editor — drag / rotate / scale canvas, palette, note card paper |
+| `/quotes` | Card-message library — 6 categories, each drops into `/create` via `?quote=` |
 | `/s/<token>` | Post-create share page — copy link, QR, PNG, **GIF**, native share, socials |
 | `/b/<token>` | Recipient's reveal page |
 | `/b/<token>/opengraph-image` | Per-bouquet social card |
-| `/opengraph-image` | Site-level social card |
+| `/opengraph-image` | Site-level social card (sample bouquet) |
 | `/privacy`, `/terms` | Legal pages |
+
+<br />
 
 ## Tech
 
-- **Next.js 16** (App Router, Turbopack)
-- **TypeScript**, Tailwind CSS
-- **`lz-string`** — token compression (pure-JS, decode server-side with
-  `%2B`-corruption recovery)
-- **`next/og` / satori** — real-time social previews from shared SVG art
-- **`html-to-image`** — PNG export of the bouquet card
-- **`gifenc`** — animated GIF export (shared palette, geometric-only loop)
-- **`qrcode`** — share QRs
-- **`sharp`** — raster flower artwork → PNG data URIs for the satori social card
+| Tool | Role |
+| --- | --- |
+| **Next.js 16** (App Router, Turbopack) | App framework, file-based OG routes |
+| **TypeScript · Tailwind CSS** | Typed app + the design-system utilities |
+| **Framer Motion** | Reveal choreography, canvas entrance animations |
+| **`lz-string`** | Token compression (`%2B`-corruption recovery server-side) |
+| **`next/og` (satori)** | Real-time 1200×630 social previews |
+| **`sharp`** | Raster flowers → PNG data URIs (mono-aware) for satori |
+| **`html-to-image`** | PNG export of the bouquet card |
+| **`gifenc`** | Animated GIF export (shared palette, 30-frame loop) |
+| **`qrcode`** | Share QR codes |
+
+<br />
 
 ## Developing
 
