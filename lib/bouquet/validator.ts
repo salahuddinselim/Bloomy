@@ -1,10 +1,10 @@
-import { LIMITS, type Bouquet, type BouquetElement, type ElementCategory, type RevealStyle } from "./types";
+import { LIMITS, type Bouquet, type BouquetElement, type CardPaper, type RevealStyle } from "./types";
 import { getWrapper } from "@/data/wrappers";
 import { getRibbon } from "@/data/ribbons";
 import { getAssetDef } from "@/components/bouquet/BouquetAsset";
 
 const REVEAL_STYLES: RevealStyle[] = ["gift_box", "envelope", "curtain", "minimal"];
-const CATEGORIES: ElementCategory[] = ["flower", "foliage", "decoration"];
+const CARD_PAPERS: CardPaper[] = ["paper", "parchment", "ivory", "blush"];
 const CONTROL_CHARS = new RegExp("[\\u0000-\\u001F\\u007F]", "g");
 
 function isFiniteNumber(v: unknown): v is number {
@@ -25,16 +25,16 @@ function sanitizeElement(raw: unknown): BouquetElement | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
 
-  const category = CATEGORIES.includes(r.category as ElementCategory)
-    ? (r.category as ElementCategory)
-    : null;
-  if (!category) return null;
-
   const type = typeof r.type === "string" ? r.type : null;
   if (!type) return null;
 
   const def = getAssetDef(type);
-  if (!def || def.category !== category) return null;
+  if (!def) return null;
+
+  // The element's category is derived from the canonical asset definition, not
+  // the (possibly stale) value stored in the URL. This lets old share links —
+  // e.g. a baby's breath that was once a "flower" — migrate cleanly.
+  const category = def.category;
 
   const x = isFiniteNumber(r.x) ? Math.min(100, Math.max(0, r.x)) : null;
   const y = isFiniteNumber(r.y) ? Math.min(100, Math.max(0, r.y)) : null;
@@ -91,6 +91,10 @@ export function validateBouquet(raw: unknown): ValidationResult {
     ? (r.revealStyle as RevealStyle)
     : "gift_box";
 
+  const cardPaper = CARD_PAPERS.includes(r.cardPaper as CardPaper)
+    ? (r.cardPaper as CardPaper)
+    : "paper";
+
   const bouquet: Bouquet = {
     version: 1,
     recipient: sanitizeText(r.recipient, LIMITS.MAX_RECIPIENT),
@@ -101,6 +105,8 @@ export function validateBouquet(raw: unknown): ValidationResult {
     ribbon,
     background: typeof r.background === "string" ? r.background.slice(0, 40) : "warm_ivory",
     revealStyle,
+    mono: r.mono === true,
+    cardPaper,
   };
 
   return { valid: true, bouquet };

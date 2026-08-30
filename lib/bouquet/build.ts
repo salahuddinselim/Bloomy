@@ -17,9 +17,9 @@ export function elementsFromPreset(preset: BouquetPreset): BouquetElement[] {
 export const DEFAULT_BOUQUET_FLOWER_IDS = [
   "eucalyptus",
   "eucalyptus",
-  "rose_pink",
-  "rose_pink",
-  "rose_pink",
+  "rose",
+  "rose",
+  "rose",
   "babys_breath",
   "babys_breath",
 ];

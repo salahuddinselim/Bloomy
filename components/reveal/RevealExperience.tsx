@@ -5,6 +5,7 @@ import { AnimatePresence, motion, type TargetAndTransition } from "framer-motion
 import Link from "next/link";
 import type { Bouquet } from "@/lib/bouquet/types";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
+import { getCardPaper } from "@/data/cardPaper";
 import { RevealStage } from "./RevealStage";
 import { AdSlot } from "@/components/ads/AdSlot";
 
@@ -39,6 +40,7 @@ const OPENING_VARIANTS: Record<
 export function RevealExperience({ bouquet }: { bouquet: Bouquet }) {
   const [stage, setStage] = useState<Stage>("invitation");
   const variant = OPENING_VARIANTS[bouquet.revealStyle] ?? OPENING_VARIANTS.minimal;
+  const paper = getCardPaper(bouquet.cardPaper);
 
   function handleOpen() {
     setStage("opening");
@@ -79,16 +81,23 @@ export function RevealExperience({ bouquet }: { bouquet: Bouquet }) {
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.5, duration: 0.6 }}
-              className="max-w-md text-center"
+              className="w-full max-w-md rounded-2xl px-6 py-5 text-center shadow-[0_18px_48px_rgba(40,25,20,0.12)]"
+              style={{ background: paper.surface }}
             >
               {bouquet.recipient && (
-                <p className="font-script text-2xl italic text-charcoal">For {bouquet.recipient}</p>
+                <p className="font-script text-2xl italic" style={{ color: paper.ink }}>
+                  For {bouquet.recipient}
+                </p>
               )}
               {bouquet.message && (
-                <p className="mt-4 text-base leading-relaxed text-charcoal-soft">&ldquo;{bouquet.message}&rdquo;</p>
+                <p className="mt-4 text-base leading-relaxed" style={{ color: paper.inkSoft }}>
+                  &ldquo;{bouquet.message}&rdquo;
+                </p>
               )}
               {bouquet.sender && (
-                <p className="mt-4 text-sm text-charcoal-soft/70">Made with love, {bouquet.sender}</p>
+                <p className="mt-4 text-sm" style={{ color: paper.inkSoft }}>
+                  Made with love, {bouquet.sender}
+                </p>
               )}
             </motion.div>
 

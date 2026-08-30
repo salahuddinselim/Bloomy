@@ -1,8 +1,9 @@
 "use client";
 
-import type { Bouquet, RevealStyle } from "@/lib/bouquet/types";
+import type { Bouquet, CardPaper, RevealStyle } from "@/lib/bouquet/types";
 import { LIMITS } from "@/lib/bouquet/types";
 import { BACKGROUNDS } from "@/data/backgrounds";
+import { CARD_PAPERS } from "@/data/cardPaper";
 import { cn } from "@/lib/utils";
 
 const REVEALS: { id: RevealStyle; label: string; description: string }[] = [
@@ -19,6 +20,8 @@ interface PropertiesPanelProps {
   onMessage: (v: string) => void;
   onReveal: (v: RevealStyle) => void;
   onBackground: (v: string) => void;
+  onMono: (v: boolean) => void;
+  onCardPaper: (v: CardPaper) => void;
   /** Mobile splits this panel across two tabs; desktop renders everything ("all", the default). */
   section?: "all" | "details" | "style";
 }
@@ -92,9 +95,64 @@ function StyleFields({
   bouquet,
   onReveal,
   onBackground,
-}: Pick<PropertiesPanelProps, "bouquet" | "onReveal" | "onBackground">) {
+  onMono,
+  onCardPaper,
+}: Pick<PropertiesPanelProps, "bouquet" | "onReveal" | "onBackground" | "onMono" | "onCardPaper">) {
   return (
     <>
+      <section>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-charcoal-soft/80">Bouquet Palette</h3>
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            aria-pressed={!bouquet.mono}
+            onClick={() => onMono(false)}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-left transition",
+              !bouquet.mono ? "border-burgundy bg-burgundy/5" : "border-charcoal/12 hover:border-charcoal/25"
+            )}
+          >
+            <div className="text-sm font-medium">Color</div>
+            <div className="text-xs text-charcoal-soft/60">Fully printed blooms</div>
+          </button>
+          <button
+            type="button"
+            aria-pressed={bouquet.mono}
+            onClick={() => onMono(true)}
+            className={cn(
+              "rounded-lg border px-3 py-2 text-left transition",
+              bouquet.mono ? "border-burgundy bg-burgundy/5" : "border-charcoal/12 hover:border-charcoal/25"
+            )}
+          >
+            <div className="text-sm font-medium">Monochrome</div>
+            <div className="text-xs text-charcoal-soft/60">Ink &amp; paper, quiet and graphic</div>
+          </button>
+        </div>
+      </section>
+
+      <section>
+        <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-charcoal-soft/80">
+          Note Card Paper
+        </h3>
+        <div className="flex flex-wrap gap-2">
+          {CARD_PAPERS.map((p) => (
+            <button
+              key={p.id}
+              type="button"
+              aria-label={p.name}
+              aria-pressed={bouquet.cardPaper === p.id}
+              onClick={() => onCardPaper(p.id)}
+              title={`${p.name} — ${p.note}`}
+              className={cn(
+                "h-9 w-9 rounded-md ring-1 ring-inset ring-black/10 transition",
+                bouquet.cardPaper === p.id && "ring-2 ring-burgundy ring-offset-2"
+              )}
+              style={{ background: p.surface }}
+            />
+          ))}
+        </div>
+      </section>
+
       <section>
         <h3 className="mb-2 text-xs font-semibold uppercase tracking-wide text-charcoal-soft/80">Reveal Style</h3>
         <div className="grid grid-cols-2 gap-2">
@@ -149,6 +207,8 @@ export function PropertiesPanel({
   onMessage,
   onReveal,
   onBackground,
+  onMono,
+  onCardPaper,
   section = "all",
 }: PropertiesPanelProps) {
   return (
@@ -157,7 +217,7 @@ export function PropertiesPanel({
         <DetailsFields bouquet={bouquet} onRecipient={onRecipient} onSender={onSender} onMessage={onMessage} />
       )}
       {(section === "all" || section === "style") && (
-        <StyleFields bouquet={bouquet} onReveal={onReveal} onBackground={onBackground} />
+        <StyleFields bouquet={bouquet} onReveal={onReveal} onBackground={onBackground} onMono={onMono} onCardPaper={onCardPaper} />
       )}
     </div>
   );

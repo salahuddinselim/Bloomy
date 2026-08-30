@@ -1,5 +1,6 @@
 import { getWrapper } from "@/data/wrappers";
 import { getRibbon } from "@/data/ribbons";
+import { toMono } from "@/lib/bouquet/mono";
 import type { RibbonDef } from "@/lib/bouquet/types";
 import type { CSSProperties } from "react";
 
@@ -85,12 +86,14 @@ export function WrapperGraphic({
   width,
   height,
   style,
+  mono = false,
 }: {
   wrapperId: string;
   ribbonId: string;
   width?: number | string;
   height?: number | string;
   style?: CSSProperties;
+  mono?: boolean;
 }) {
   const wrapper = getWrapper(wrapperId);
   const ribbon = getRibbon(ribbonId);
@@ -99,6 +102,10 @@ export function WrapperGraphic({
   // `wrap-shade` id was duplicated once per canvas on the page (invalid HTML
   // and fragile once more than one bouquet renders at a time).
   const gradientId = `wrap-shade-${wrapperId}`;
+  const paper = mono ? toMono(wrapper.colors.base) : wrapper.colors.base;
+  const shadow = mono ? toMono(wrapper.colors.shadow) : wrapper.colors.shadow;
+  const highlight = mono ? toMono(wrapper.colors.highlight) : wrapper.colors.highlight;
+  const drawRibbon: RibbonDef = mono ? { ...ribbon, color: toMono(ribbon.color) } : ribbon;
 
   return (
     <svg
@@ -112,9 +119,9 @@ export function WrapperGraphic({
     >
       <defs>
         <linearGradient id={gradientId} x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor={wrapper.colors.highlight} />
-          <stop offset="55%" stopColor={wrapper.colors.base} />
-          <stop offset="100%" stopColor={wrapper.colors.shadow} />
+          <stop offset="0%" stopColor={highlight} />
+          <stop offset="55%" stopColor={paper} />
+          <stop offset="100%" stopColor={shadow} />
         </linearGradient>
       </defs>
       <path
@@ -123,10 +130,10 @@ export function WrapperGraphic({
         opacity={sheer ? 0.55 : 1}
       />
       {/* fold lines */}
-      <path d="M150,300 L120,150" stroke={wrapper.colors.shadow} strokeWidth={1.5} opacity={0.5} fill="none" />
-      <path d="M200,300 L200,110" stroke={wrapper.colors.shadow} strokeWidth={1.5} opacity={0.4} fill="none" />
-      <path d="M250,300 L280,150" stroke={wrapper.colors.shadow} strokeWidth={1.5} opacity={0.5} fill="none" />
-      {RibbonBand({ ribbon })}
+      <path d="M150,300 L120,150" stroke={shadow} strokeWidth={1.5} opacity={0.5} fill="none" />
+      <path d="M200,300 L200,110" stroke={shadow} strokeWidth={1.5} opacity={0.4} fill="none" />
+      <path d="M250,300 L280,150" stroke={shadow} strokeWidth={1.5} opacity={0.5} fill="none" />
+      {RibbonBand({ ribbon: drawRibbon })}
     </svg>
   );
 }

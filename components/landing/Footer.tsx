@@ -8,6 +8,7 @@ export function Footer() {
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
           <Link href="/" className="hover:text-burgundy">Home</Link>
           <Link href="/create" className="hover:text-burgundy">Create</Link>
+          <Link href="/quotes" className="hover:text-burgundy">Card Messages</Link>
           <Link href="/#how-it-works" className="hover:text-burgundy">How It Works</Link>
           <Link href="/privacy" className="hover:text-burgundy">Privacy</Link>
           <Link href="/terms" className="hover:text-burgundy">Terms</Link>

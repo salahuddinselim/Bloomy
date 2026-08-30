@@ -1,4 +1,4 @@
-import type { Bouquet, BouquetElement, RevealStyle } from "./types";
+import type { Bouquet, BouquetElement, CardPaper, RevealStyle } from "./types";
 import { LIMITS } from "./types";
 import { clamp } from "@/lib/utils";
 import { getAssetDef } from "@/components/bouquet/BouquetAsset";
@@ -20,6 +20,8 @@ export type BouquetAction =
   | { type: "SET_RECIPIENT"; recipient: string }
   | { type: "SET_SENDER"; sender: string }
   | { type: "SET_REVEAL_STYLE"; revealStyle: RevealStyle }
+  | { type: "SET_MONO"; mono: boolean }
+  | { type: "SET_CARD_PAPER"; cardPaper: CardPaper }
   | { type: "ARRANGE_FOR_ME" }
   | { type: "APPLY_PRESET"; elements: BouquetElement[]; wrapper: string; ribbon: string }
   | { type: "RESET_BOUQUET"; bouquet: Bouquet }
@@ -115,6 +117,10 @@ export function bouquetReducer(state: Bouquet, action: BouquetAction): Bouquet {
       return { ...state, sender: action.sender.slice(0, LIMITS.MAX_SENDER) };
     case "SET_REVEAL_STYLE":
       return { ...state, revealStyle: action.revealStyle };
+    case "SET_MONO":
+      return { ...state, mono: action.mono };
+    case "SET_CARD_PAPER":
+      return { ...state, cardPaper: action.cardPaper };
     case "ARRANGE_FOR_ME": {
       const items = state.elements
         .map((e) => ({ def: getAssetDef(e.type) }))

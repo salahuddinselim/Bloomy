@@ -15,12 +15,15 @@ Inspired by the warm, editorial feel of [digibouquet.org](https://digibouquet.or
 ## How it works
 
 1. **Create** — pick a wrapper, ribbon and background, then compose a bouquet
-   from 20+ illustrated flowers, foliage and decorations. Drag each stem into
-   place, rotate and scale it over a live canvas, and finish with a recipient,
-   sender and message.
+   from a dozen painterly, photo-real blooms plus greenery and decorations.
+   Drag each stem into place, rotate and scale it over a live canvas, and
+   finish with a recipient, sender and message. Style it further with a
+   **color or monochrome** palette and choose the **note card paper** (paper,
+   parchment, ivory, blush).
 2. **Share** — the whole layout is serialized (lz-string, URL-safe) into a
-   compact token and handed over as a plain link, a QR code, or a one-tap
-   native share. No accounts, no sync, no server round-trips to edit.
+   compact token and handed over as a plain link, a QR code, a **keepsake PNG,
+   or an animated looping GIF**, plus one-tap native share. No accounts, no
+   sync, no server round-trips to edit.
 3. **Reveal** — `/b/<token>` plays an animated entrance of the bouquet and the
    note. The per-bouquet social preview is generated server-side with
    `next/og` from the shared SVG components, so the thumbnail is never a
@@ -67,15 +70,19 @@ only place saturated color is allowed to live freely.
 
 ### The bouquet art
 
-Every flower is procedural SVG — roses, tulips, lilies, sunflowers, peonies,
-daisies, carnations, hydrangeas, orchids, baby's breath, lavender, daffodils
-and cherry blossoms — drawn with layered petal rings, deterministic seeds and
-soft drop shadows. Arranged over five background canvases, eight wrappers
-(cream, kraft, white, blush, burgundy, matte black, transparent, vintage) and
-eight ribbons (silk burgundy, satin red, satin pink, velvet cream, silk white,
-thin black, double gold, silk lavender).
+Every flower is a **painterly, photo-real raster cutout** — twelve digibouquet-style
+blooms (rose, peony, dahlia, anemone, ranunculus, orchid, carnation, zinnia, daisy,
+sunflower, tulip, lily) plus three greenery bases (eucalyptus, fern, baby's breath) as
+transparent webp art. Each bloom carries its language-of-flowers meaning. In the DOM they
+render as `<img>` with a CSS grayscale filter for monochrome mode; in the social card the
+same cutouts are downscaled to PNG data URIs with `sharp` (grayscaled server-side for mono
+bouquets) so satori embeds the *real* art.
 
-The same `<svg>` components render in three places:
+Arranged over five background canvases, eight wrappers (cream, kraft, white, blush,
+burgundy, matte black, transparent, vintage) and eight ribbons (silk burgundy, satin red,
+satin pink, velvet cream, silk white, thin black, double gold, silk lavender).
+
+The same components render in three places:
 
 1. **The editor canvas** — living preview while arranging (`className` sizing).
 2. **The reveal page** — animated entrance for the recipient.
@@ -83,9 +90,9 @@ The same `<svg>` components render in three places:
    the shared components receive `style={{ width: "100%", height: "100%" }}`
    and are re-laid-out with an adaptive fit (fitLayout) that keeps the bouquet
    between the eyebrow and the message plate at any scale.
-   *Note: satori silently drops SVG elements returned from function components
-   nested inside the `<svg>` subtree — the shape layer calls plain render
-   functions that emit raw `<path>`/`<circle>`/`<g>` host elements.*
+   *Note: vector decorations are layered as function components under the
+   `<svg>` subtree (plain render functions emitting raw host elements) so
+   satori doesn't drop them; raster assets use `imageMap` data URIs.*
 
 ### The social card
 
@@ -99,9 +106,10 @@ and *sender · bloomly*.
 
 | Route | Purpose |
 | --- | --- |
-| `/` | Landing + occasion picker |
-| `/create` | Bouquet editor (drag / rotate / scale canvas) |
-| `/s/<token>` | Post-create share page — copy link, QR, PNG, native share, socials |
+| `/` | Landing + occasion picker + card-message teaser |
+| `/create` | Bouquet editor (drag / rotate / scale canvas, palette + card paper) |
+| `/quotes` | Card message library — 6 categories, each drops into `/create` via `?quote=` |
+| `/s/<token>` | Post-create share page — copy link, QR, PNG, **GIF**, native share, socials |
 | `/b/<token>` | Recipient's reveal page |
 | `/b/<token>/opengraph-image` | Per-bouquet social card |
 | `/opengraph-image` | Site-level social card |
@@ -115,7 +123,9 @@ and *sender · bloomly*.
   `%2B`-corruption recovery)
 - **`next/og` / satori** — real-time social previews from shared SVG art
 - **`html-to-image`** — PNG export of the bouquet card
+- **`gifenc`** — animated GIF export (shared palette, geometric-only loop)
 - **`qrcode`** — share QRs
+- **`sharp`** — raster flower artwork → PNG data URIs for the satori social card
 
 ## Developing
 

@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { Check, Copy, Download, QrCode, Share2 } from "lucide-react";
+import { Check, Copy, Download, Film, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
-import { toPng } from "html-to-image";
+import { toPng, toCanvas } from "html-to-image";
+import { GIFEncoder, quantize, applyPalette } from "gifenc";
 
 export function CopyLinkButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -190,4 +191,84 @@ export function DownloadImageButton({
 
 export function useShareCardRef() {
   return useRef<HTMLDivElement>(null);
+}
+
+/*
+ * Animated GIF export. Captures the share card once, then re-draws a slow,
+ * seamless "breathing bouquet" loop (gentle bloom, soft sway) into frames and
+ * encodes it with gifenc. Geometry-only transforms, so a single shared palette
+ * keeps the file small and the loop stable.
+ */
+export function GifExportButton({
+  targetRef,
+  fileName = "bloomly-bouquet.gif",
+}: {
+  targetRef: React.RefObject<HTMLElement | null>;
+  fileName?: string;
+}) {
+  const [busy, setBusy] = useState(false);
+
+  async function handleExport() {
+    if (!targetRef.current) return;
+    setBusy(true);
+    try {
+      const source = await toCanvas(targetRef.current, { pixelRatio: 1.5 });
+      const w = source.width;
+      const h = source.height;
+      if (w <= 0 || h <= 0) return;
+
+      const ctx = source.getContext("2d");
+      const srcData = ctx?.getImageData(0, 0, w, h).data;
+      if (!srcData) return;
+
+      const palette = quantize(srcData, 256);
+      const frameCanvas = document.createElement("canvas");
+      frameCanvas.width = w;
+      frameCanvas.height = h;
+      const fctx = frameCanvas.getContext("2d");
+      if (!fctx) return;
+
+      const gif = GIFEncoder();
+      const FRAMES = 30; // ~1.8s loop at 60ms
+      for (let i = 0; i < FRAMES; i++) {
+        const p = (i / FRAMES) * Math.PI * 2;
+        const breathe = 1 + 0.035 * Math.sin(p);
+        const sway = 0.009 * Math.sin(p + Math.PI / 3);
+        const driftX = w * 0.006 * Math.sin(p - Math.PI / 2);
+        const driftY = h * 0.004 * Math.cos(p - Math.PI / 3);
+        fctx.clearRect(0, 0, w, h);
+        fctx.save();
+        fctx.translate(w / 2 + driftX, h / 2 + driftY);
+        fctx.rotate(sway);
+        fctx.scale(breathe, breathe);
+        fctx.drawImage(source, -w / 2, -h / 2);
+        fctx.restore();
+        const frameData = fctx.getImageData(0, 0, w, h).data;
+        const index = applyPalette(frameData, palette);
+        gif.writeFrame(index, w, h, { palette, delay: 60 });
+      }
+      gif.finish();
+
+      const blob = new Blob([gif.bytes()], { type: "image/gif" });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement("a");
+      link.download = fileName;
+      link.href = url;
+      link.click();
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      disabled={busy}
+      onClick={handleExport}
+      className="flex items-center gap-2 rounded-full border border-charcoal/15 px-4 py-2.5 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy disabled:opacity-60"
+    >
+      <Film size={16} /> {busy ? "Brewing…" : "Export GIF"}
+    </button>
+  );
 }

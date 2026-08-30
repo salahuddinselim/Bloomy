@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { ArrowRight, Download, Heart, Link2, QrCode, Sparkles } from "lucide-react";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
-import { FlowerBloom } from "@/components/bouquet/shapes";
+import { BouquetAsset } from "@/components/bouquet/BouquetAsset";
 import { PRESETS } from "@/data/presets";
 import { OCCASIONS } from "@/data/occasions";
 import { elementsFromIds } from "@/lib/bouquet/build";
@@ -12,13 +12,13 @@ import { Footer } from "@/components/landing/Footer";
 
 const heroBouquet = {
   ...createEmptyBouquet(),
-  elements: elementsFromIds(["eucalyptus", "eucalyptus", "rose_burgundy", "rose_red", "rose_red", "peony", "babys_breath", "babys_breath"]),
+  elements: elementsFromIds(["eucalyptus", "eucalyptus", "rose", "rose", "rose", "peony", "babys_breath", "babys_breath"]),
   wrapper: "cream_paper",
   ribbon: "silk_burgundy",
 };
 
 const libraryFlowers = FLOWERS.filter((f) =>
-  ["rose_red", "rose_pink", "tulip_pink", "tulip_yellow", "lily_white", "lily_stargazer", "sunflower", "peony", "daisy", "hydrangea", "lavender", "cherry_blossom"].includes(f.id)
+  ["rose", "peony", "tulip", "daisy", "sunflower", "orchid", "lily", "carnation", "ranunculus", "anemone", "dahlia", "zinnia"].includes(f.id)
 );
 
 const steps = [
@@ -55,8 +55,8 @@ const shareOptions = [
   },
   {
     icon: Download,
-    title: "A keepsake PNG",
-    body: "Download the arranged bouquet as a high-res image and keep it long after the link fades.",
+    title: "A keepsake PNG, or a GIF",
+    body: "Download the arranged bouquet as a high-res image — or as an animated GIF that travels as motion.",
   },
 ];
 
@@ -70,6 +70,7 @@ export default function LandingPage() {
         </a>
         <nav className="hidden items-center gap-7 text-sm text-charcoal-soft sm:flex">
           <a href="#library" className="transition hover:text-burgundy">Flowers</a>
+          <Link href="/quotes" className="transition hover:text-burgundy">Card Messages</Link>
           <a href="#how-it-works" className="transition hover:text-burgundy">How it works</a>
           <a href="#share" className="transition hover:text-burgundy">Sharing</a>
           <Link href="/create" className="rounded-full bg-burgundy px-5 py-2.5 text-sm font-medium text-ivory transition hover:bg-burgundy-dark">
@@ -135,7 +136,7 @@ export default function LandingPage() {
       {/* Flower strip */}
       <section className="overflow-hidden border-b border-charcoal/8 bg-ivory-deep/50 py-5">
         <p className="whitespace-nowrap text-center font-script text-xl italic text-charcoal-soft/70">
-          roses &nbsp;·&nbsp; tulips &nbsp;·&nbsp; peonies &nbsp;·&nbsp; lilies &nbsp;·&nbsp; sunflowers &nbsp;·&nbsp; hydrangea &nbsp;·&nbsp; orchids &nbsp;·&nbsp; daisies &nbsp;·&nbsp; lavender &nbsp;·&nbsp; daffodils &nbsp;·&nbsp; cherry blossom
+          roses &nbsp;·&nbsp; tulips &nbsp;·&nbsp; peonies &nbsp;·&nbsp; lilies &nbsp;·&nbsp; sunflowers &nbsp;·&nbsp; dahlias &nbsp;·&nbsp; orchids &nbsp;·&nbsp; daisies &nbsp;·&nbsp; carnations &nbsp;·&nbsp; ranunculus &nbsp;·&nbsp; anemones &nbsp;·&nbsp; zinnias
         </p>
       </section>
 
@@ -157,7 +158,7 @@ export default function LandingPage() {
               className="group rounded-2xl border border-charcoal/8 bg-ivory-deep/30 p-5 transition hover:-translate-y-1 hover:border-burgundy/25 hover:shadow-md"
             >
               <div className="mx-auto flex h-24 w-24 items-center justify-center rounded-full bg-paper shadow-inner">
-                <FlowerBloom shape={f.shape} colors={f.colors} seed={f.id} className="h-16 w-16" />
+                <BouquetAsset type={f.id} category={f.category} className="h-20 w-20" />
               </div>
               <p className="mt-4 text-center font-display text-base text-charcoal">{f.name}</p>
               <p className="mt-1.5 text-center font-script text-sm italic leading-snug text-charcoal-soft/80">
@@ -245,6 +246,26 @@ export default function LandingPage() {
               {o.label}
             </Link>
           ))}
+        </div>
+      </section>
+
+      {/* Card messages */}
+      <section className="border-y border-charcoal/8 bg-ivory-deep/40">
+        <div className="mx-auto flex w-full max-w-6xl flex-col items-start justify-between gap-6 px-6 py-16 sm:flex-row sm:items-center md:py-20">
+          <div>
+            <p className="font-script text-base italic text-dusty-rose">the words before the flowers</p>
+            <h2 className="mt-1 font-display text-3xl text-charcoal sm:text-4xl">Find the note first</h2>
+            <p className="mt-3 max-w-md text-sm leading-relaxed text-charcoal-soft">
+              A card-message library for love, birthdays, thanks, missing someone, encouragement and
+              friendship — each quote drops straight into the editor, already written for a note card.
+            </p>
+          </div>
+          <Link
+            href="/quotes"
+            className="inline-flex shrink-0 items-center gap-2 rounded-full bg-burgundy px-6 py-3 text-sm font-medium text-ivory transition hover:bg-burgundy-dark"
+          >
+            Browse the card library <ArrowRight size={15} />
+          </Link>
         </div>
       </section>
 

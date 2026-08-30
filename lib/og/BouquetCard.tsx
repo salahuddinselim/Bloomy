@@ -1,5 +1,6 @@
 import type { Bouquet, BouquetElement } from "@/lib/bouquet/types";
 import { getBackground } from "@/data/backgrounds";
+import { getCardPaper } from "@/data/cardPaper";
 import { WrapperGraphic } from "@/components/bouquet/Wrapper";
 import { BouquetAsset } from "@/components/bouquet/BouquetAsset";
 
@@ -77,8 +78,16 @@ function fitLayout(elements: BouquetElement[]): Map<string, Line> {
   return out;
 }
 
-export function BouquetCard({ bouquet }: { bouquet: Bouquet }) {
+export function BouquetCard({
+  bouquet,
+  imageMap,
+}: {
+  bouquet: Bouquet;
+  /** Pre-computed raster data URIs (sharp) keyed by def.image path. */
+  imageMap?: Record<string, string>;
+}) {
   const bg = getBackground(bouquet.background);
+  const paper = getCardPaper(bouquet.cardPaper);
   const sorted = [...bouquet.elements].sort((x, y) => x.z - y.z);
   const layout = fitLayout(sorted);
   const heading = bouquet.recipient ? `For ${bouquet.recipient}` : "A bouquet for you";
@@ -126,6 +135,8 @@ export function BouquetCard({ bouquet }: { bouquet: Bouquet }) {
               type={el.type}
               category={el.category}
               style={{ width: "100%", height: "100%" }}
+              mono={bouquet.mono}
+              imageMap={imageMap}
             />
           </div>
         );
@@ -141,7 +152,7 @@ export function BouquetCard({ bouquet }: { bouquet: Bouquet }) {
           height: 480,
         }}
       >
-        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} style={{ width: "100%", height: "100%" }} />
+        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} style={{ width: "100%", height: "100%" }} mono={bouquet.mono} />
       </div>
 
       <div
@@ -155,12 +166,12 @@ export function BouquetCard({ bouquet }: { bouquet: Bouquet }) {
           alignItems: "center",
           borderRadius: 28,
           padding: "22px 48px 26px",
-          background: "rgba(250,246,239,0.94)",
+          background: paper.surface,
           boxShadow: "0 18px 48px rgba(40,25,20,0.18)",
         }}
       >
         <div
-          style={{ display: "flex", fontSize: 26, fontFamily: "PlayfairDisplay", fontWeight: 700, color: "#332e2a" }}
+          style={{ display: "flex", fontSize: 26, fontFamily: "PlayfairDisplay", fontWeight: 700, color: paper.ink }}
         >
           {heading}
         </div>
@@ -174,7 +185,7 @@ export function BouquetCard({ bouquet }: { bouquet: Bouquet }) {
             fontFamily: "CormorantGaramond",
             fontStyle: "italic",
             fontWeight: 500,
-            color: "rgba(60,50,40,0.85)",
+            color: paper.inkSoft,
             textAlign: "center",
           }}
         >
@@ -185,7 +196,7 @@ export function BouquetCard({ bouquet }: { bouquet: Bouquet }) {
             display: "flex",
             fontSize: 16,
             letterSpacing: 3,
-            color: "rgba(60,50,40,0.5)",
+            color: paper.inkSoft,
             fontFamily: "PlayfairDisplay",
           }}
         >

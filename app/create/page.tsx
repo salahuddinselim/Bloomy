@@ -31,7 +31,7 @@ const MOBILE_NAV_TABS: { id: MobileTab; label: string }[] = [
   { id: "style", label: "Style" },
 ];
 
-function buildInitialBouquet(presetId?: string | null, occasionId?: string | null) {
+function buildInitialBouquet(presetId?: string | null, occasionId?: string | null, quote?: string | null) {
   const base = createEmptyBouquet();
   const occasion = occasionId ? OCCASIONS.find((o) => o.id === occasionId) : null;
   const preset = getPreset(presetId ?? occasion?.presetId ?? "");
@@ -42,12 +42,13 @@ function buildInitialBouquet(presetId?: string | null, occasionId?: string | nul
       elements: elementsFromPreset(preset),
       wrapper: preset.wrapper,
       ribbon: preset.ribbon,
-      message: occasion?.suggestedMessage ?? "",
+      message: occasion?.suggestedMessage ?? quote ?? "",
     };
   }
   return {
     ...base,
     elements: elementsFromIds(DEFAULT_BOUQUET_FLOWER_IDS),
+    message: quote ?? "",
   };
 }
 
@@ -59,7 +60,7 @@ function CreatePageInner() {
   const [bouquet, dispatch] = useReducer(
     bouquetReducer,
     null,
-    () => buildInitialBouquet(params.get("preset"), params.get("occasion"))
+    () => buildInitialBouquet(params.get("preset"), params.get("occasion"), params.get("quote"))
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [mobileTab, setMobileTab] = useState<MobileTab | null>(null);
@@ -173,6 +174,8 @@ function CreatePageInner() {
     onMessage: (v: string) => dispatch({ type: "SET_MESSAGE", message: v }),
     onReveal: (v: Bouquet["revealStyle"]) => dispatch({ type: "SET_REVEAL_STYLE", revealStyle: v }),
     onBackground: (v: string) => dispatch({ type: "SET_BACKGROUND", background: v }),
+    onMono: (v: boolean) => dispatch({ type: "SET_MONO", mono: v }),
+    onCardPaper: (v: Bouquet["cardPaper"]) => dispatch({ type: "SET_CARD_PAPER", cardPaper: v }),
   };
 
   return (
@@ -339,16 +342,18 @@ function CreatePageInner() {
             {mobileTab === "details" ? (
               <div className="flex flex-col gap-6">
                 <PropertiesPanel
-                  bouquet={bouquet}
-                  section="details"
-                  onRecipient={propertiesHandlers.onRecipient}
-                  onSender={propertiesHandlers.onSender}
-                  onMessage={propertiesHandlers.onMessage}
-                  onReveal={propertiesHandlers.onReveal}
-                  onBackground={propertiesHandlers.onBackground}
-                />
-              </div>
-            ) : mobileTab === "style" ? (
+                bouquet={bouquet}
+                section="details"
+                onRecipient={propertiesHandlers.onRecipient}
+                onSender={propertiesHandlers.onSender}
+                onMessage={propertiesHandlers.onMessage}
+                onReveal={propertiesHandlers.onReveal}
+                onBackground={propertiesHandlers.onBackground}
+                onMono={propertiesHandlers.onMono}
+                onCardPaper={propertiesHandlers.onCardPaper}
+              />
+            </div>
+          ) : mobileTab === "style" ? (
               <PropertiesPanel
                 bouquet={bouquet}
                 section="style"
@@ -357,6 +362,8 @@ function CreatePageInner() {
                 onMessage={propertiesHandlers.onMessage}
                 onReveal={propertiesHandlers.onReveal}
                 onBackground={propertiesHandlers.onBackground}
+                onMono={propertiesHandlers.onMono}
+                onCardPaper={propertiesHandlers.onCardPaper}
               />
             ) : (
               <EditorPanelContent tab={mobileTab as EditorTab} {...panelProps} />

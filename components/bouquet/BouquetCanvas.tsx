@@ -128,7 +128,7 @@ export function BouquetCanvas({
       aria-label="Bouquet composition"
     >
       <div className="absolute inset-0" style={{ filter: "drop-shadow(0 20px 30px rgba(30,20,10,0.18))" }}>
-        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} />
+        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} mono={bouquet.mono} />
       </div>
 
       {elements.map((el) => {
@@ -138,7 +138,9 @@ export function BouquetCanvas({
         const def = getAssetDef(el.type);
         const isSelected = selectedId === el.id;
         const sizePx = 34 * el.scale * (def?.category === "foliage" ? 3.1 : 2.5);
-        const hasStem = el.category !== "decoration";
+        // Raster cutouts already carry their own stems and leaves, so a
+        // synthetic stem is only drawn for the procedural vector shapes.
+        const hasStem = el.category !== "decoration" && !def?.image;
 
         return (
           <div
@@ -208,7 +210,7 @@ export function BouquetCanvas({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 >
-                  <BouquetAsset type={el.type} category={el.category} className="h-full w-full" />
+                  <BouquetAsset type={el.type} category={el.category} className="h-full w-full" mono={bouquet.mono} />
                 </motion.div>
               </button>
             ) : (
@@ -230,7 +232,7 @@ export function BouquetCanvas({
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ type: "spring", stiffness: 260, damping: 20 }}
                 >
-                  <BouquetAsset type={el.type} category={el.category} className="h-full w-full" />
+                  <BouquetAsset type={el.type} category={el.category} className="h-full w-full" mono={bouquet.mono} />
                 </motion.div>
               </div>
             )}

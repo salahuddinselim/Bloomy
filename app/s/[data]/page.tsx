@@ -11,8 +11,10 @@ import {
   SocialShareRow,
   QrCodeButton,
   DownloadImageButton,
+  GifExportButton,
   useShareCardRef,
 } from "@/components/sharing/ShareActions";
+import { getCardPaper } from "@/data/cardPaper";
 import { AdSlot } from "@/components/ads/AdSlot";
 
 export default function SharePage({ params }: { params: Promise<{ data: string }> }) {
@@ -49,12 +51,15 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
   }
 
   const { bouquet } = result;
-  const downloadName = `bloomly-${(
+  const slug = (
     (bouquet.recipient || "someone")
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "") || "someone"
-  )}-${new Date().toISOString().slice(0, 10)}.png`;
+  );
+  const downloadName = `bloomly-${slug}-${new Date().toISOString().slice(0, 10)}.png`;
+  const gifName = `bloomly-${slug}-${new Date().toISOString().slice(0, 10)}.gif`;
+  const paper = getCardPaper(bouquet.cardPaper);
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 px-6 py-14">
@@ -66,10 +71,22 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       <div ref={cardRef} className="w-full max-w-sm rounded-2xl bg-paper p-4 shadow-lg">
         <BouquetCanvas bouquet={bouquet} />
         {(bouquet.recipient || bouquet.message) && (
-          <div className="mt-4 text-center">
-            {bouquet.recipient && <p className="font-script text-lg italic text-charcoal-soft">For {bouquet.recipient}</p>}
-            {bouquet.message && <p className="mt-2 text-sm text-charcoal-soft">&ldquo;{bouquet.message}&rdquo;</p>}
-            {bouquet.sender && <p className="mt-2 text-xs text-charcoal-soft/60">— {bouquet.sender}</p>}
+          <div className="mt-4 text-center" style={{ background: paper.surface }}>
+            {bouquet.recipient && (
+              <p className="font-script text-lg italic" style={{ color: paper.ink }}>
+                For {bouquet.recipient}
+              </p>
+            )}
+            {bouquet.message && (
+              <p className="mt-2 text-sm" style={{ color: paper.inkSoft }}>
+                &ldquo;{bouquet.message}&rdquo;
+              </p>
+            )}
+            {bouquet.sender && (
+              <p className="mt-2 text-xs" style={{ color: paper.inkSoft }}>
+                — {bouquet.sender}
+              </p>
+            )}
           </div>
         )}
       </div>
@@ -99,6 +116,7 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
         <WebShareButton url={url} title="A bouquet for you" />
         <QrCodeButton url={url} />
         <DownloadImageButton targetRef={cardRef} fileName={downloadName} />
+        <GifExportButton targetRef={cardRef} fileName={gifName} />
       </div>
 
       <SocialShareRow url={url} message={bouquet.message} />

@@ -41,7 +41,7 @@ export function EditorPanelContent({
   onSetRibbon,
   onApplyPreset,
 }: EditorPanelContentProps) {
-  const [flowerCategory, setFlowerCategory] = useState("roses");
+  const [flowerCategory, setFlowerCategory] = useState("all");
 
   if (tab === "presets") {
     return (
@@ -62,7 +62,8 @@ export function EditorPanelContent({
   }
 
   if (tab === "flowers") {
-    const items = FLOWERS.filter((f) => FLOWER_CATEGORIES.find((c) => c.id === flowerCategory)?.match(f.id));
+    const active = FLOWER_CATEGORIES.find((c) => c.id === flowerCategory);
+    const items = active ? FLOWERS.filter((f) => f.tags.includes(active.id) || active.id === "all") : FLOWERS;
     return (
       <div>
         <div className="mb-3 flex flex-wrap gap-1.5">
