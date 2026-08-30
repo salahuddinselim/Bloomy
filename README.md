@@ -1,36 +1,144 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Bloomly
 
-## Getting Started
+**Create a beautiful digital bouquet, write a personal message, and send it to
+someone special.** Free, no account, no database — the link **is** the bouquet.
+Every flower, wrapper, ribbon and word lives in the URL itself, so nothing is
+ever stored.
 
-First, run the development server:
+Opens as a soft, animated reveal in the recipient's browser, and every share
+gets a real 1200×630 social card drawn from the **exact same SVG art** the
+sender arranged — so WhatsApp, Telegram and iMessage show the bouquet before
+anyone even clicks.
+
+Inspired by the warm, editorial feel of [digibouquet.org](https://digibouquet.org/).
+
+## How it works
+
+1. **Create** — pick a wrapper, ribbon and background, then compose a bouquet
+   from 20+ illustrated flowers, foliage and decorations. Drag each stem into
+   place, rotate and scale it over a live canvas, and finish with a recipient,
+   sender and message.
+2. **Share** — the whole layout is serialized (lz-string, URL-safe) into a
+   compact token and handed over as a plain link, a QR code, or a one-tap
+   native share. No accounts, no sync, no server round-trips to edit.
+3. **Reveal** — `/b/<token>` plays an animated entrance of the bouquet and the
+   note. The per-bouquet social preview is generated server-side with
+   `next/og` from the shared SVG components, so the thumbnail is never a
+   generic screenshot.
+
+## Visual presentation
+
+The design language is **"The Pressed Flower Keepsake"** — Bloomly feels like
+something kept between the pages of a book, not a SaaS dashboard with flower
+emoji.
+
+> Warm paper tones, a single deep accent color spent sparingly, hairline
+> borders instead of drop-shadowed cards. The illustrated bouquet carries all
+> the color and detail; the chrome around it steps back so the gift stays the
+> visual hero of every screen.
+
+### Palette
+
+A warm, paper-toned neutral field with one restrained accent:
+
+| Role | Color | Hex | Where it lives |
+| --- | --- | --- | --- |
+| Accent | **Oxblood** | `#6b1f2a` | Primary CTAs, active states, the ribbon motif. The only saturated UI color. |
+| Accent hover | **Oxblood Deep** | `#4a1420` | Press/hover of primary actions. |
+| Neutral | **Warm Ivory** | `#faf6ef` | Page background. |
+| Neutral | **Warm Ivory Deep** | `#f2ead9` | Alternating sections, subtle fills. |
+| Neutral | **Paper** | `#fffdf9` | Card and panel surfaces. |
+| Text | **Charcoal / Soft** | `#2a2521` / `#524a43` | Headlines / secondary copy. |
+| Botanical only | **Sage Leaf** | `#8a9a7e` | Foliage accents, never UI chrome. |
+
+**The One Accent Rule** — oxblood appears only on primary actions and active
+states. **The Hairline-Not-Card Rule** — containers are edged with `charcoal`
+at 8–25% opacity, not heavy borders or fills. The bouquet illustration is the
+only place saturated color is allowed to live freely.
+
+### Typography
+
+- **Playfair Display** (with Georgia fallback) — display type, headlines,
+  names, "A DIGITAL BOUQUET".
+- **Cormorant Garamond**, italic — the personal, handwritten-feel accent at
+  the heart of the message.
+- **Inter** — labels, UI chrome, body copy. Serif carries emotion; sans-serif
+  carries function.
+
+### The bouquet art
+
+Every flower is procedural SVG — roses, tulips, lilies, sunflowers, peonies,
+daisies, carnations, hydrangeas, orchids, baby's breath, lavender, daffodils
+and cherry blossoms — drawn with layered petal rings, deterministic seeds and
+soft drop shadows. Arranged over five background canvases, eight wrappers
+(cream, kraft, white, blush, burgundy, matte black, transparent, vintage) and
+eight ribbons (silk burgundy, satin red, satin pink, velvet cream, silk white,
+thin black, double gold, silk lavender).
+
+The same `<svg>` components render in three places:
+
+1. **The editor canvas** — living preview while arranging (`className` sizing).
+2. **The reveal page** — animated entrance for the recipient.
+3. **The 1200×630 social card** — `next/og`/satori accepts `style` sizing, so
+   the shared components receive `style={{ width: "100%", height: "100%" }}`
+   and are re-laid-out with an adaptive fit (fitLayout) that keeps the bouquet
+   between the eyebrow and the message plate at any scale.
+   *Note: satori silently drops SVG elements returned from function components
+   nested inside the `<svg>` subtree — the shape layer calls plain render
+   functions that emit raw `<path>`/`<circle>`/`<g>` host elements.*
+
+### The social card
+
+1200×630. A soft 165° gradient background, a letter-spaced
+`A DIGITAL BOUQUET` eyebrow, the bouquet **contained in its paper cone with
+its ribbon** (matching the sender's wrapper/ribbon choice), and a cream caption
+plate floating at the bottom holding *"For {recipient}"*, the italic message,
+and *sender · bloomly*.
+
+## Featured routes
+
+| Route | Purpose |
+| --- | --- |
+| `/` | Landing + occasion picker |
+| `/create` | Bouquet editor (drag / rotate / scale canvas) |
+| `/s/<token>` | Post-create share page — copy link, QR, PNG, native share, socials |
+| `/b/<token>` | Recipient's reveal page |
+| `/b/<token>/opengraph-image` | Per-bouquet social card |
+| `/opengraph-image` | Site-level social card |
+| `/privacy`, `/terms` | Legal pages |
+
+## Tech
+
+- **Next.js 16** (App Router, Turbopack)
+- **TypeScript**, Tailwind CSS
+- **`lz-string`** — token compression (pure-JS, decode server-side with
+  `%2B`-corruption recovery)
+- **`next/og` / satori** — real-time social previews from shared SVG art
+- **`html-to-image`** — PNG export of the bouquet card
+- **`qrcode`** — share QRs
+
+## Developing
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open http://localhost:3000.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+> Windows note: run the dev server as `npm.cmd run dev` if plain `npm` fails
+> to resolve.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Checking
 
-## Learn More
+```bash
+npm run lint
+npx tsc --noEmit
+npm run build
+```
 
-To learn more about Next.js, take a look at the following resources:
+## Deploy
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Any Node host works — the app is fully static-capable. Set
+`NEXT_PUBLIC_SITE_URL` to your production origin so open graph URLs resolve
+correctly; Vercel sets this automatically via `VERCEL_URL`.

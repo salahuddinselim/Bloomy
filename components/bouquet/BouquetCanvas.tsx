@@ -1,0 +1,249 @@
+"use client";
+
+import { useCallback, useRef } from "react";
+import { clamp } from "@/lib/utils";
+import { motion } from "framer-motion";
+import type { Bouquet, BouquetElement } from "@/lib/bouquet/types";
+import { BouquetAsset, getAssetDef } from "./BouquetAsset";
+import { WrapperGraphic } from "./Wrapper";
+import { getBackground } from "@/data/backgrounds";
+import { cn } from "@/lib/utils";
+
+const STEM_BASE_X = 50;
+const STEM_BASE_Y = 80;
+
+interface BouquetCanvasProps {
+  bouquet: Bouquet;
+  interactive?: boolean;
+  selectedId?: string | null;
+  onSelect?: (id: string | null) => void;
+  onMove?: (id: string, x: number, y: number) => void;
+  className?: string;
+}
+
+export function BouquetCanvas({
+  bouquet,
+  interactive = false,
+  selectedId,
+  onSelect,
+  onMove,
+  className,
+}: BouquetCanvasProps) {
+  const stageRef = useRef<HTMLDivElement>(null);
+  const bg = getBackground(bouquet.background);
+
+  const elements = [...bouquet.elements].sort((a, b) => a.z - b.z);
+
+  // Guards pointer gestures: tracks real movement so a drag doesn't produce a
+  // stray `click`, and cleans up capture + window listeners on ANY end of the
+  // gesture (including pointercancel, which browsers fire on scrolled-away
+  // touches). Without this an interrupted touch leaked global listeners that
+  // moved the wrong flower on the next tap.
+  const dragState = useRef({ started: false, suppressClick: false });
+
+  const handlePointerDown = useCallback(
+    (e: React.PointerEvent, el: BouquetElement) => {
+      if (!interactive || !onMove) {
+        onSelect?.(el.id);
+        return;
+      }
+      onSelect?.(el.id);
+      const stage = stageRef.current;
+      if (!stage) return;
+      const target = e.currentTarget as HTMLElement;
+      const state = dragState.current;
+      state.started = false;
+      state.suppressClick = false;
+      const startX = e.clientX;
+      const startY = e.clientY;
+      try {
+        target.setPointerCapture(e.pointerId);
+      } catch {
+        // pointer already released / unsupported — still fall back to window listeners
+      }
+
+      const move = (ev: PointerEvent) => {
+        if (!state.started) {
+          if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) < 5) return;
+          state.started = true;
+        }
+        const rect = stage.getBoundingClientRect();
+        const x = ((ev.clientX - rect.left) / rect.width) * 100;
+        const y = ((ev.clientY - rect.top) / rect.height) * 100;
+        onMove(el.id, x, y);
+      };
+      const end = () => {
+        if (target.hasPointerCapture(e.pointerId)) {
+          try {
+            target.releasePointerCapture(e.pointerId);
+          } catch {
+            // already released
+          }
+        }
+        window.removeEventListener("pointermove", move);
+        window.removeEventListener("pointerup", end);
+        window.removeEventListener("pointercancel", end);
+        if (state.started) state.suppressClick = true;
+      };
+      window.addEventListener("pointermove", move);
+      window.addEventListener("pointerup", end);
+      window.addEventListener("pointercancel", end);
+    },
+    [interactive, onMove, onSelect]
+  );
+
+  const handleKeyDown = useCallback(
+    (e: React.KeyboardEvent, el: BouquetElement) => {
+      if (!interactive || !onMove) return;
+      const step = e.shiftKey ? 5 : 1.5;
+      let dx = 0;
+      let dy = 0;
+      if (e.key === "ArrowLeft") dx = -step;
+      else if (e.key === "ArrowRight") dx = step;
+      else if (e.key === "ArrowUp") dy = -step;
+      else if (e.key === "ArrowDown") dy = step;
+      else return;
+      e.preventDefault();
+      onMove(el.id, clamp(el.x + dx, 0, 100), clamp(el.y + dy, 0, 100));
+    },
+    [interactive, onMove]
+  );
+
+  return (
+    <div
+      ref={stageRef}
+      className={cn(
+        "relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-grain shadow-[inset_0_0_60px_rgba(0,0,0,0.06)]",
+        className
+      )}
+      style={{ background: `linear-gradient(160deg, ${bg.from}, ${bg.to})` }}
+      onClick={() => {
+        if (dragState.current.suppressClick) {
+          dragState.current.suppressClick = false;
+          return;
+        }
+        onSelect?.(null);
+      }}
+      role="group"
+      aria-label="Bouquet composition"
+    >
+      <div className="absolute inset-0" style={{ filter: "drop-shadow(0 20px 30px rgba(30,20,10,0.18))" }}>
+        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} />
+      </div>
+
+      {elements.map((el) => {
+        // One bouquet element = one group: its stem and its bloom are derived
+        // from this single `el` in this single pass, and share this one
+        // z-index, so they can never be positioned or stacked independently.
+        const def = getAssetDef(el.type);
+        const isSelected = selectedId === el.id;
+        const sizePx = 34 * el.scale * (def?.category === "foliage" ? 3.1 : 2.5);
+        const hasStem = el.category !== "decoration";
+
+        return (
+          <div
+            key={el.id}
+            className="pointer-events-none absolute inset-0"
+            style={{ zIndex: el.z }}
+          >
+            {hasStem && (
+              <svg className="absolute inset-0 h-full w-full" aria-hidden="true">
+                <line
+                  x1={`${STEM_BASE_X}%`}
+                  y1={`${STEM_BASE_Y}%`}
+                  x2={`${el.x}%`}
+                  y2={`${el.y}%`}
+                  stroke="#5f6f52"
+                  strokeWidth={1.5}
+                  strokeOpacity={0.55}
+                  strokeLinecap="round"
+                />
+              </svg>
+            )}
+            {/*
+              Plain (non-motion) button: it owns centering + rotation via a
+              literal CSS transform string. Framer Motion silently takes over
+              the `transform` property on any element whose animate/initial
+              props touch a transform value (like `scale` below) — mixing
+              that with a manual translate(-50%, -50%) here would drop the
+              centering and offset every element from its own stem. The
+              entrance animation instead lives on the inner motion.div,
+              which owns nothing but its own scale/opacity.
+
+              Interactive -> focusable button (arrow keys move the element).
+              Read-only (/s, /b) -> a plain decorative div so a bouquet full
+              of flowers never becomes a field of invisible tab stops.
+            */}
+            {interactive ? (
+              <button
+                type="button"
+                aria-label={def ? def.name : "Bouquet element"}
+                aria-pressed={isSelected}
+                className={cn(
+                  "pointer-events-auto absolute flex cursor-grab items-center justify-center rounded-full active:cursor-grabbing",
+                  isSelected && "outline outline-2 outline-offset-4 outline-burgundy/70"
+                )}
+                style={{
+                  left: `${el.x}%`,
+                  top: `${el.y}%`,
+                  width: sizePx,
+                  height: sizePx,
+                  transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
+                  touchAction: "none",
+                }}
+                onPointerDown={(e) => handlePointerDown(e, el)}
+                onKeyDown={(e) => handleKeyDown(e, el)}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (dragState.current.suppressClick) {
+                    dragState.current.suppressClick = false;
+                    return;
+                  }
+                  onSelect?.(el.id);
+                }}
+              >
+                <motion.div
+                  className="h-full w-full"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <BouquetAsset type={el.type} category={el.category} className="h-full w-full" />
+                </motion.div>
+              </button>
+            ) : (
+              <div
+                role="img"
+                aria-label={def ? def.name : "Bouquet element"}
+                className="pointer-events-auto absolute flex items-center justify-center rounded-full"
+                style={{
+                  left: `${el.x}%`,
+                  top: `${el.y}%`,
+                  width: sizePx,
+                  height: sizePx,
+                  transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
+                }}
+              >
+                <motion.div
+                  className="h-full w-full"
+                  initial={{ opacity: 0, scale: 0.6 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ type: "spring", stiffness: 260, damping: 20 }}
+                >
+                  <BouquetAsset type={el.type} category={el.category} className="h-full w-full" />
+                </motion.div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {elements.length === 0 && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center">
+          <p className="font-display text-lg text-charcoal-soft/70">Start building your bouquet</p>
+          <p className="text-sm text-charcoal-soft/50">Add your first flower from the left</p>
+        </div>
+      )}
+    </div>
+  );
+}
