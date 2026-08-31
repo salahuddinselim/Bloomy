@@ -34,6 +34,7 @@ export const metadata: Metadata = {
   description:
     "Create a beautiful digital bouquet, write a personal message, and send it to someone special. Free, no account required.",
   alternates: { canonical: "/" },
+  verification: { google: "N5lOrXPtVkJjcyTSU0lmQRn50xBfHTSnTCqz99Nv5CA" },
   keywords: [
     "digital bouquet",
     "send flowers online",
