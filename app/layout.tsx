@@ -22,9 +22,20 @@ const body = Inter({
   weight: ["400", "500", "600"],
 });
 
+/*
+ * VERCEL_URL is the current deployment's unique hash URL, which changes on
+ * every deploy — using it as metadataBase would mean OG image/title URLs
+ * baked into a production build point at a stale preview URL as soon as the
+ * next deploy ships. VERCEL_PROJECT_PRODUCTION_URL is the stable production
+ * domain and is what we want once VERCEL_ENV says this build is production.
+ */
 const siteUrl =
   process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
+  (process.env.VERCEL_ENV === "production" && process.env.VERCEL_PROJECT_PRODUCTION_URL
+    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+    : process.env.VERCEL_URL
+    ? `https://${process.env.VERCEL_URL}`
+    : "http://localhost:3000");
 
 export const metadata: Metadata = {
   // Resolved from the deploy environment so the social card URLs always point

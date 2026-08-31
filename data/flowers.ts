@@ -21,6 +21,12 @@ export const FLOWERS: AssetDef[] = [
   BL_("sunflower", "Sunflower", "/flora/bloom-sunflower.webp", "#eec33e", "#d9a92f", 1.15, ["sunny", "happy"], 2),
   BL_("tulip", "Tulip", "/flora/bloom-tulip.webp", "#e96d63", "#d14f4a", 0.95, ["spring", "romantic"], 3),
   BL_("lily", "Lily", "/flora/bloom-lily.webp", "#d9d3b0", "#c4bd94", 1.05, ["elegant", "classic"], 2),
+  // These four don't have a raster cutout yet, so they fall back to the
+  // app's procedural SVG shapes (components/bouquet/shapes.tsx).
+  V_("hydrangea", "Hydrangea", "hydrangea", "#8fa8d1", "#b98fc9", 1.1, ["lush", "garden"], 2),
+  V_("lavender", "Lavender", "lavender", "#8a7cc4", "#6a5aa8", 0.9, ["calm", "fragrant"], 3),
+  V_("daffodil", "Daffodil", "daffodil", "#f6cd4b", "#e2a52e", 0.95, ["spring", "cheerful"], 3),
+  V_("blossom", "Cherry Blossom", "blossom", "#f7c9d3", "#f2a9b9", 0.85, ["spring", "delicate"], 4),
 ];
 
 function BL_(
@@ -34,6 +40,20 @@ function BL_(
   layerHint: AssetDef["layerHint"]
 ): AssetDef {
   return { id, name, category: "flower", shape: id as AssetDef["shape"], image, colors: { primary, secondary }, defaultScale, defaultRotation: 0, tags, layerHint };
+}
+
+/** Same as BL_ but without a raster image, so it renders as an SVG shape. */
+function V_(
+  id: string,
+  name: string,
+  shape: AssetDef["shape"],
+  primary: string,
+  secondary: string,
+  defaultScale: number,
+  tags: string[],
+  layerHint: AssetDef["layerHint"]
+): AssetDef {
+  return { id, name, category: "flower", shape, colors: { primary, secondary }, defaultScale, defaultRotation: 0, tags, layerHint };
 }
 
 export const FLOWER_CATEGORIES = [{ id: "all", label: "All Flowers" }];
@@ -60,10 +80,6 @@ export const LEGACY_FLOWERS: AssetDef[] = [
   ...twin("lily_white", "lily"),
   ...twin("lily_pink", "lily"),
   ...twin("lily_stargazer", "lily"),
-  ...twin("hydrangea", "peony"),
-  ...twin("lavender", "orchid"),
-  ...twin("daffodil", "sunflower"),
-  ...twin("blossom", "peony"),
 ];
 
 function roseVariant(id: string): AssetDef[] {
@@ -116,5 +132,6 @@ export const FLOWER_MEANINGS: Record<string, string> = {
   hydrangea: "sincere gratitude and grace",
   lavender: "calm, serenity, devotion",
   daffodil: "rebirth and fresh starts",
+  blossom: "gentle, fleeting beauty",
   cherry_blossom: "gentle, fleeting beauty",
 };

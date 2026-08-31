@@ -21,7 +21,7 @@ export type FlowerShape =
 
 export type FoliageShape = "eucalyptus" | "fern" | "olive" | "ruscus" | "ivy" | "leaf" | "babys_breath";
 
-export type DecorationShape = "pearl_pin" | "wax_seal" | "twine" | "berry_sprig";
+export type DecorationShape = "pearl_pin" | "wax_seal" | "twine" | "berry_sprig" | "bow" | "gold_charm" | "butterfly" | "dried_lavender";
 
 export interface AssetDef {
   id: string;
@@ -69,7 +69,7 @@ export interface BouquetElement {
 export type RevealStyle = "gift_box" | "envelope" | "curtain" | "minimal";
 
 /** The paper stock the note card is printed on. */
-export type CardPaper = "paper" | "parchment" | "ivory" | "blush";
+export type CardPaper = "paper" | "parchment" | "ivory" | "blush" | "kraft" | "sage" | "champagne" | "slate";
 
 export interface Bouquet {
   version: 1;

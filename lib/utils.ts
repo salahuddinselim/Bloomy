@@ -31,6 +31,14 @@ export function round(n: number, decimals = 3) {
   return Math.round(n * factor) / factor;
 }
 
+/** Clips at a word boundary near `max` chars so previews don't cut mid-word. */
+export function clipText(text: string, max: number) {
+  if (text.length <= max) return text;
+  const cut = text.slice(0, max);
+  const lastSpace = cut.lastIndexOf(" ");
+  return `${cut.slice(0, lastSpace > 0 ? lastSpace : max)}…`;
+}
+
 export function hashString(str: string) {
   let hash = 0;
   for (let i = 0; i < str.length; i++) {

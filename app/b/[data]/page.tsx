@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { decodeBouquet } from "@/lib/bouquet/encoder";
 import { RevealExperience } from "@/components/reveal/RevealExperience";
 import { InvalidBouquet } from "@/components/reveal/InvalidBouquet";
+import { clipText } from "@/lib/utils";
 
 /** Route params can arrive with '+' re-encoded as '%2B'; normalize once. */
 function decodeToken(data: string) {
@@ -17,9 +18,9 @@ export async function generateMetadata({ params }: { params: Promise<{ data: str
   const { data } = await params;
   const result = decodeBouquet(decodeToken(data));
   const bouquet = result.ok ? result.bouquet : undefined;
-  const title = bouquet?.recipient ? `A bouquet for ${bouquet.recipient}` : "A bouquet for you";
+  const title = bouquet?.recipient ? `A bouquet for ${clipText(bouquet.recipient, 60)}` : "A bouquet for you";
   const description = bouquet?.message
-    ? bouquet.message
+    ? clipText(bouquet.message, 160)
     : "Someone made you something soft and beautiful.";
 
   return {

@@ -50,7 +50,9 @@ export function RevealExperience({ bouquet }: { bouquet: Bouquet }) {
   return (
     <div className="min-h-screen bg-ivory">
       <AnimatePresence mode="wait">
-        {stage === "invitation" && <RevealStage style={bouquet.revealStyle} onOpen={handleOpen} />}
+        {stage === "invitation" && (
+          <RevealStage style={bouquet.revealStyle} recipient={bouquet.recipient} onOpen={handleOpen} />
+        )}
 
         {stage === "opening" && (
           <motion.div

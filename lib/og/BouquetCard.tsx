@@ -3,6 +3,7 @@ import { getBackground } from "@/data/backgrounds";
 import { getCardPaper } from "@/data/cardPaper";
 import { WrapperGraphic } from "@/components/bouquet/Wrapper";
 import { BouquetAsset } from "@/components/bouquet/BouquetAsset";
+import { clipText } from "@/lib/utils";
 
 /*
  * Social preview card for ImageResponse (satori). The flower/wrapper SVGs are
@@ -92,9 +93,7 @@ export function BouquetCard({
   const layout = fitLayout(sorted);
   const heading = bouquet.recipient ? `For ${bouquet.recipient}` : "A bouquet for you";
   const message = bouquet.message
-    ? bouquet.message.length > 110
-      ? `${bouquet.message.slice(0, 110)}…`
-      : bouquet.message
+    ? clipText(bouquet.message, 110)
     : "I wanted to send you something soft and beautiful.";
   const footer = "bloomly — digital bouquets never made of pollen";
 

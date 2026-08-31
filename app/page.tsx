@@ -73,6 +73,7 @@ export default function LandingPage() {
           <Link href="/quotes" className="transition hover:text-burgundy">Card Messages</Link>
           <a href="#how-it-works" className="transition hover:text-burgundy">How it works</a>
           <a href="#share" className="transition hover:text-burgundy">Sharing</a>
+          <Link href="/about" className="transition hover:text-burgundy">About</Link>
           <Link href="/create" className="rounded-full bg-burgundy px-5 py-2.5 text-sm font-medium text-ivory transition hover:bg-burgundy-dark">
             Create a Bouquet
           </Link>

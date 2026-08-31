@@ -517,11 +517,93 @@ function BerrySprig({ colors }: ShapeProps) {
   );
 }
 
+function Bow({ colors }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  return (
+    <g>
+      <path d="M50,52 C50,40 34,28 20,34 C10,38 10,54 22,58 C34,62 46,58 50,52 Z" fill={c1} />
+      <path d="M50,52 C50,40 66,28 80,34 C90,38 90,54 78,58 C66,62 54,58 50,52 Z" fill={c1} />
+      <path d="M50,52 C46,44 44,34 36,26 L44,26 C48,34 50,42 50,52 Z" fill={c2} opacity={0.85} />
+      <path d="M50,52 C54,44 56,34 64,26 L56,26 C52,34 50,42 50,52 Z" fill={c2} opacity={0.85} />
+      <ellipse cx={50} cy={53} rx={6} ry={5} fill={c2} />
+      <path d="M46,58 L40,74 L48,70 Z" fill={c1} />
+      <path d="M54,58 L60,74 L52,70 Z" fill={c1} />
+    </g>
+  );
+}
+
+function GoldCharm({ colors }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const points = Array.from({ length: 5 }, (_, i) => {
+    const outerAngle = (Math.PI * 2 * i) / 5 - Math.PI / 2;
+    const innerAngle = outerAngle + Math.PI / 5;
+    return `${50 + Math.cos(outerAngle) * 16},${50 + Math.sin(outerAngle) * 16} ${
+      50 + Math.cos(innerAngle) * 6.5
+    },${50 + Math.sin(innerAngle) * 6.5}`;
+  }).join(" ");
+  return (
+    <g>
+      <circle cx={50} cy={30} r={2} fill="none" stroke={c2} strokeWidth={1.2} />
+      <line x1={50} y1={32} x2={50} y2={38} stroke={c2} strokeWidth={1} />
+      <polygon points={points} fill={c1} />
+      <circle cx={47} cy={46} r={1.6} fill="#fff" opacity={0.6} />
+    </g>
+  );
+}
+
+function Butterfly({ colors }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  return (
+    <g>
+      <path d="M50,50 C48,34 30,26 22,34 C16,40 24,54 50,50 Z" fill={c1} />
+      <path d="M50,50 C52,34 70,26 78,34 C84,40 76,54 50,50 Z" fill={c1} />
+      <path d="M50,50 C48,60 34,64 28,60 C24,56 30,48 50,50 Z" fill={c2} opacity={0.85} />
+      <path d="M50,50 C52,60 66,64 72,60 C76,56 70,48 50,50 Z" fill={c2} opacity={0.85} />
+      <ellipse cx={50} cy={50} rx={2} ry={9} fill="#332e2a" />
+    </g>
+  );
+}
+
+function DriedLavender({ colors, seed = "dried-lavender" }: ShapeProps) {
+  const rand = mulberry32(hashString(seed));
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const buds = Array.from({ length: 9 }, (_, i) => {
+    const y = 30 + i * 5.5;
+    const side = i % 2 === 0 ? -1 : 1;
+    const wobble = (rand() - 0.5) * 2;
+    return (
+      <ellipse
+        key={i}
+        cx={50 + side * 2.6 + wobble}
+        cy={y}
+        rx={2.4}
+        ry={3.2}
+        fill={i % 3 === 0 ? c2 : c1}
+        opacity={0.9}
+      />
+    );
+  });
+  return (
+    <g>
+      <line x1={50} y1={30} x2={50} y2={82} stroke={c2} strokeWidth={0.8} opacity={0.6} />
+      {buds}
+    </g>
+  );
+}
+
 const DECORATION_SHAPES: Record<string, (p: ShapeProps) => React.JSX.Element> = {
   pearl_pin: PearlPin,
   wax_seal: WaxSeal,
   twine: Twine,
   berry_sprig: BerrySprig,
+  bow: Bow,
+  gold_charm: GoldCharm,
+  butterfly: Butterfly,
+  dried_lavender: DriedLavender,
 };
 
 export function DecorationGraphic({

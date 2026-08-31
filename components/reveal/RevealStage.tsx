@@ -6,10 +6,11 @@ import type { RevealStyle } from "@/lib/bouquet/types";
 
 interface RevealStageProps {
   style: RevealStyle;
+  recipient?: string;
   onOpen: () => void;
 }
 
-export function RevealStage({ style, onOpen }: RevealStageProps) {
+export function RevealStage({ style, recipient, onOpen }: RevealStageProps) {
   const icon =
     style === "envelope" ? (
       <Mail size={38} />
@@ -44,7 +45,7 @@ export function RevealStage({ style, onOpen }: RevealStageProps) {
         transition={{ delay: 0.2 }}
         className="font-script text-2xl italic text-charcoal-soft"
       >
-        Someone made you something...
+        {recipient ? `${recipient}, someone made you something...` : "Someone made you something..."}
       </motion.p>
 
       <motion.button

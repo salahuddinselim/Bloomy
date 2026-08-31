@@ -9,6 +9,10 @@ export const RIBBONS: RibbonDef[] = [
   { id: "thin_black", name: "Thin Black", color: "#221f1c", finish: "thin" },
   { id: "double_gold", name: "Double Gold", color: "#b08d57", finish: "double" },
   { id: "silk_lavender", name: "Silk Lavender", color: "#a08cc0", finish: "silk" },
+  { id: "satin_ivory", name: "Satin Ivory", color: "#f2ead8", finish: "satin" },
+  { id: "thin_sage", name: "Thin Sage", color: "#7c8f6a", finish: "thin" },
+  { id: "velvet_navy", name: "Velvet Navy", color: "#22304a", finish: "velvet" },
+  { id: "silk_gold", name: "Silk Gold", color: "#c9a04a", finish: "silk" },
 ];
 
 export function getRibbon(id: string) {

@@ -7,6 +7,7 @@ export function Footer() {
         <p className="font-display text-base text-charcoal">Bloomly</p>
         <nav className="flex flex-wrap justify-center gap-x-6 gap-y-2">
           <Link href="/" className="hover:text-burgundy">Home</Link>
+          <Link href="/about" className="hover:text-burgundy">About</Link>
           <Link href="/create" className="hover:text-burgundy">Create</Link>
           <Link href="/quotes" className="hover:text-burgundy">Card Messages</Link>
           <Link href="/#how-it-works" className="hover:text-burgundy">How It Works</Link>
