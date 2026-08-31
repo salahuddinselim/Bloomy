@@ -95,7 +95,7 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       </div>
 
       <div className="w-full max-w-sm rounded-xl border border-charcoal/10 bg-white/60 px-4 py-3 text-center">
-        <label htmlFor="share-url" className="mb-1 block text-[10px] uppercase tracking-widest text-charcoal-soft/60">
+        <label htmlFor="share-url" className="mb-1 block text-xs uppercase tracking-widest text-charcoal-soft/60">
           Your bouquet link
         </label>
         <input

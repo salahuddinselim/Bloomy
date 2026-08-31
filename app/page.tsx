@@ -143,7 +143,7 @@ export default function LandingPage() {
                   <p className="font-display text-sm text-charcoal">“For no reason at all.”</p>
                   <p className="mt-1 text-xs text-charcoal-soft/60">burgundy roses · peony · baby’s breath</p>
                 </div>
-                <span className="rounded-full border border-charcoal/12 px-3 py-1 text-[10px] uppercase tracking-widest text-charcoal-soft/70">
+                <span className="rounded-full border border-charcoal/12 px-3 py-1 text-xs uppercase tracking-widest text-charcoal-soft/70">
                   warm ivory
                 </span>
               </div>

@@ -36,7 +36,7 @@ export function AssetGrid({
               {item.name}
             </span>
             {item.category === "flower" && FLOWER_MEANINGS[item.id] && (
-              <span className="line-clamp-1 text-center font-script text-[11px] italic leading-none text-dusty-rose">
+              <span className="line-clamp-1 text-center font-script text-xs italic leading-none text-dusty-rose-deep">
                 {FLOWER_MEANINGS[item.id]}
               </span>
             )}

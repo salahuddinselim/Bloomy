@@ -50,7 +50,7 @@ export default function QuotesPage() {
                 className="group flex items-center justify-between gap-4 rounded-xl border border-charcoal/10 bg-paper px-5 py-3.5 transition hover:-translate-y-0.5 hover:border-burgundy/30 hover:shadow-md"
               >
                 <p className="font-script text-base italic leading-snug text-charcoal">“{f.text}”</p>
-                <span className="shrink-0 text-[10px] uppercase tracking-widest text-dusty-rose">
+                <span className="shrink-0 text-xs uppercase tracking-widest text-dusty-rose-deep">
                   {cat?.label}
                 </span>
               </Link>
