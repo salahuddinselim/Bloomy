@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
 import { clamp } from "@/lib/utils";
 import { motion } from "framer-motion";
 import type { Bouquet, BouquetElement } from "@/lib/bouquet/types";
@@ -31,6 +31,10 @@ export function BouquetCanvas({
 }: BouquetCanvasProps) {
   const stageRef = useRef<HTMLDivElement>(null);
   const bg = getBackground(bouquet.background);
+  // Announces keyboard moves for screen-reader users, since same-species
+  // elements (e.g. three roses) share an accessible name and a visual-only
+  // position change would otherwise be silent to them.
+  const [announcement, setAnnouncement] = useState("");
 
   const elements = [...bouquet.elements].sort((a, b) => a.z - b.z);
 
@@ -104,7 +108,11 @@ export function BouquetCanvas({
       else if (e.key === "ArrowDown") dy = step;
       else return;
       e.preventDefault();
-      onMove(el.id, clamp(el.x + dx, 0, 100), clamp(el.y + dy, 0, 100));
+      const nextX = clamp(el.x + dx, 0, 100);
+      const nextY = clamp(el.y + dy, 0, 100);
+      onMove(el.id, nextX, nextY);
+      const def = getAssetDef(el.type);
+      setAnnouncement(`${def ? def.name : "Element"} moved to ${Math.round(nextX)} percent from left, ${Math.round(nextY)} percent from top`);
     },
     [interactive, onMove]
   );
@@ -131,12 +139,16 @@ export function BouquetCanvas({
         <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} mono={bouquet.mono} />
       </div>
 
-      {elements.map((el) => {
+      {elements.map((el, i) => {
         // One bouquet element = one group: its stem and its bloom are derived
         // from this single `el` in this single pass, and share this one
         // z-index, so they can never be positioned or stacked independently.
         const def = getAssetDef(el.type);
         const isSelected = selectedId === el.id;
+        // Same-species elements (three roses, say) would otherwise share one
+        // identical accessible name, leaving screen-reader users unable to
+        // tell them apart or know which one is focused.
+        const elementLabel = `${def ? def.name : "Bouquet element"}, ${i + 1} of ${elements.length}`;
         const sizePx = 34 * el.scale * (def?.category === "foliage" ? 3.1 : 2.5);
         // Raster cutouts already carry their own stems and leaves, so a
         // synthetic stem is only drawn for the procedural vector shapes.
@@ -179,7 +191,7 @@ export function BouquetCanvas({
             {interactive ? (
               <button
                 type="button"
-                aria-label={def ? def.name : "Bouquet element"}
+                aria-label={elementLabel}
                 aria-pressed={isSelected}
                 className={cn(
                   "pointer-events-auto absolute flex cursor-grab items-center justify-center rounded-full active:cursor-grabbing",
@@ -216,7 +228,7 @@ export function BouquetCanvas({
             ) : (
               <div
                 role="img"
-                aria-label={def ? def.name : "Bouquet element"}
+                aria-label={elementLabel}
                 className="pointer-events-auto absolute flex items-center justify-center rounded-full"
                 style={{
                   left: `${el.x}%`,
@@ -244,6 +256,12 @@ export function BouquetCanvas({
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center">
           <p className="font-display text-lg text-charcoal-soft/70">Start building your bouquet</p>
           <p className="text-sm text-charcoal-soft/50">Add your first flower from the left</p>
+        </div>
+      )}
+
+      {interactive && (
+        <div role="status" aria-live="polite" className="sr-only">
+          {announcement}
         </div>
       )}
     </div>
