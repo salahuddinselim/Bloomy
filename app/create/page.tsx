@@ -307,14 +307,20 @@ function CreatePageInner() {
         </aside>
       </div>
 
-      {/* Mobile bottom nav */}
-      <nav className="fixed inset-x-0 bottom-0 z-20 flex justify-around overflow-x-auto border-t border-charcoal/10 bg-paper/95 py-2 backdrop-blur md:hidden">
+      {/* Mobile bottom nav: more tabs than fit on a narrow phone, so this
+          scrolls horizontally. justify-around fights overflow-x-auto (it
+          only distributes items that already fit), so this uses a plain
+          flex row with snap points and an edge fade so "more tabs" reads as
+          scrollable instead of just cut off. */}
+      <nav
+        className="no-scrollbar fixed inset-x-0 bottom-0 z-20 flex gap-1 overflow-x-auto border-t border-charcoal/10 bg-paper/95 px-2 py-2 backdrop-blur [mask-image:linear-gradient(to_right,black,black_calc(100%-20px),transparent)] snap-x snap-mandatory md:hidden"
+      >
         {MOBILE_NAV_TABS.map((t) => (
           <button
             key={t.id}
             type="button"
             onClick={() => setMobileTab(t.id)}
-            className="shrink-0 px-2 py-1 text-xs font-medium text-charcoal-soft"
+            className="shrink-0 snap-start rounded-full px-3 py-1.5 text-xs font-medium text-charcoal-soft transition hover:bg-charcoal/5"
           >
             {t.label}
           </button>

@@ -81,3 +81,10 @@ body {
   background: var(--color-ivory-deep);
   border-radius: 999px;
 }
+
+.no-scrollbar {
+  scrollbar-width: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
