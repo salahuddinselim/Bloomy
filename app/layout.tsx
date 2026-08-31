@@ -1,7 +1,10 @@
 import type { Metadata } from "next";
+import Script from "next/script";
 import { Playfair_Display, Cormorant_Garamond, Inter } from "next/font/google";
 import { siteUrl } from "@/lib/siteUrl";
 import "./globals.css";
+
+const ADSENSE_CLIENT = "ca-pub-9963403374347904";
 
 const display = Playfair_Display({
   variable: "--font-display",
@@ -65,6 +68,12 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${script.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ivory text-charcoal font-body">
+        <Script
+          async
+          src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+          crossOrigin="anonymous"
+          strategy="afterInteractive"
+        />
         {children}
       </body>
     </html>
