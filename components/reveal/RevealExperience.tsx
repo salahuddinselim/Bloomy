@@ -82,6 +82,7 @@ export function RevealExperience({ bouquet }: { bouquet: Bouquet }) {
               <BouquetCanvas bouquet={bouquet} />
             </div>
 
+            {(bouquet.recipient || bouquet.message || bouquet.sender) && (
             <motion.div
               initial={{ opacity: 0, y: 12 }}
               animate={{ opacity: 1, y: 0 }}
@@ -105,6 +106,7 @@ export function RevealExperience({ bouquet }: { bouquet: Bouquet }) {
                 </p>
               )}
             </motion.div>
+            )}
 
             <motion.div
               initial={{ opacity: 0 }}
