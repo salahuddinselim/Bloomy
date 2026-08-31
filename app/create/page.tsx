@@ -4,7 +4,7 @@ import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowLeft, Loader2, Undo2 } from "lucide-react";
+import { Sparkles, ArrowLeft, Loader2, Undo2, Redo2 } from "lucide-react";
 import { bouquetReducer } from "@/lib/bouquet/reducer";
 import { createEmptyBouquet, type Bouquet } from "@/lib/bouquet/types";
 import { elementsFromIds, elementsFromPreset, DEFAULT_BOUQUET_FLOWER_IDS } from "@/lib/bouquet/build";
@@ -67,18 +67,28 @@ function CreatePageInner() {
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [desktopTab, setDesktopTab] = useState<EditorTab>("flowers");
+  // Desktop showed Details+Style stacked as one 7-decision wall while mobile
+  // already split them into two tabs — this brings desktop in line with the
+  // pattern already proven to work.
+  const [rightPanelSection, setRightPanelSection] = useState<"details" | "style">("details");
 
-  // Undo support: a bounded stack of prior snapshots, pushed only before
-  // actions that can wipe or bulk-replace work (preset apply, auto-arrange,
-  // delete) — not every micro-edit, which would make the stack meaningless.
+  // Undo/redo support: bounded stacks of prior/forward snapshots. History is
+  // pushed only before actions that can wipe or bulk-replace work (preset
+  // apply, auto-arrange, delete) — not every micro-edit, which would make
+  // the stack meaningless. A new undoable action clears the redo stack,
+  // since it invalidates whatever "forward" state redo pointed at.
   const historyRef = useRef<Bouquet[]>([]);
+  const redoRef = useRef<Bouquet[]>([]);
   const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const pushHistory = useCallback((snapshot: Bouquet) => {
     historyRef.current = [...historyRef.current.slice(-(MAX_HISTORY - 1)), snapshot];
+    redoRef.current = [];
     setCanUndo(true);
+    setCanRedo(false);
   }, []);
 
   const showToast = useCallback((message: string) => {
@@ -97,7 +107,20 @@ function CreatePageInner() {
     const prev = historyRef.current.pop();
     setCanUndo(historyRef.current.length > 0);
     if (!prev) return;
+    redoRef.current = [...redoRef.current.slice(-(MAX_HISTORY - 1)), bouquet];
+    setCanRedo(true);
     dispatch({ type: "LOAD_BOUQUET", bouquet: prev });
+    setToast(null);
+    if (toastTimer.current) clearTimeout(toastTimer.current);
+  }
+
+  function redo() {
+    const next = redoRef.current.pop();
+    setCanRedo(redoRef.current.length > 0);
+    if (!next) return;
+    historyRef.current = [...historyRef.current.slice(-(MAX_HISTORY - 1)), bouquet];
+    setCanUndo(true);
+    dispatch({ type: "LOAD_BOUQUET", bouquet: next });
     setToast(null);
     if (toastTimer.current) clearTimeout(toastTimer.current);
   }
@@ -195,6 +218,15 @@ function CreatePageInner() {
               <Undo2 size={14} /> Undo
             </button>
           )}
+          {canRedo && (
+            <button
+              type="button"
+              onClick={redo}
+              className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+            >
+              <Redo2 size={14} /> Redo
+            </button>
+          )}
           <button
             type="button"
             onClick={arrangeForMe}
@@ -228,14 +260,14 @@ function CreatePageInner() {
         {/* Desktop left: asset library */}
         <aside className="hidden w-64 shrink-0 md:block">
           <div className="sticky top-6 rounded-2xl border border-charcoal/8 bg-white/60 p-4">
-            <div className="mb-3 flex flex-wrap gap-1.5">
+            <div className="mb-3 flex flex-wrap gap-2">
               {EDITOR_TABS.map((t) => (
                 <button
                   key={t.id}
                   type="button"
                   onClick={() => setDesktopTab(t.id)}
                   className={cn(
-                    "rounded-full px-3 py-1 text-xs transition",
+                    "rounded-full px-3.5 py-2 text-xs transition",
                     desktopTab === t.id
                       ? "bg-burgundy text-ivory"
                       : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
@@ -299,10 +331,29 @@ function CreatePageInner() {
           <AdSlot position="creator-bottom" className="mt-2" />
         </div>
 
-        {/* Desktop right: properties */}
+        {/* Desktop right: properties, split into the same Details/Style
+            sections mobile uses instead of stacking all seven decisions
+            at once. */}
         <aside className="hidden w-72 shrink-0 md:block">
           <div className="sticky top-6 rounded-2xl border border-charcoal/8 bg-white/60 p-4">
-            <PropertiesPanel bouquet={bouquet} {...propertiesHandlers} />
+            <div className="mb-4 flex gap-2">
+              {(["details", "style"] as const).map((s) => (
+                <button
+                  key={s}
+                  type="button"
+                  onClick={() => setRightPanelSection(s)}
+                  className={cn(
+                    "flex-1 rounded-full px-3.5 py-2 text-xs font-medium capitalize transition",
+                    rightPanelSection === s
+                      ? "bg-burgundy text-ivory"
+                      : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
+                  )}
+                >
+                  {s}
+                </button>
+              ))}
+            </div>
+            <PropertiesPanel bouquet={bouquet} section={rightPanelSection} {...propertiesHandlers} />
           </div>
         </aside>
       </div>
@@ -320,7 +371,7 @@ function CreatePageInner() {
             key={t.id}
             type="button"
             onClick={() => setMobileTab(t.id)}
-            className="shrink-0 snap-start rounded-full px-3 py-1.5 text-xs font-medium text-charcoal-soft transition hover:bg-charcoal/5"
+            className="flex min-h-11 shrink-0 snap-start items-center rounded-full px-3.5 py-2 text-xs font-medium text-charcoal-soft transition hover:bg-charcoal/5"
           >
             {t.label}
           </button>
@@ -386,7 +437,7 @@ function CreatePageInner() {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 20 }}
-            className="fixed inset-x-0 bottom-20 z-40 flex justify-center px-4 md:bottom-6"
+            className="fixed inset-x-0 bottom-36 z-40 flex justify-center px-4 md:bottom-6"
           >
             <div className="flex items-center gap-3 rounded-full bg-charcoal px-4 py-2.5 text-sm text-ivory shadow-lg">
               <span>{toast}</span>
