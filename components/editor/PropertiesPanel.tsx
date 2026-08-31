@@ -144,8 +144,8 @@ function StyleFields({
               onClick={() => onCardPaper(p.id)}
               title={`${p.name} — ${p.note}`}
               className={cn(
-                "h-9 w-9 rounded-md ring-1 ring-inset ring-black/10 transition",
-                bouquet.cardPaper === p.id && "ring-2 ring-burgundy ring-offset-2"
+                "h-11 w-11 rounded-md ring-1 ring-inset ring-black/10 transition",
+                bouquet.cardPaper === p.id && "ring-2 ring-inset ring-burgundy"
               )}
               style={{ background: p.surface }}
             />
@@ -188,8 +188,8 @@ function StyleFields({
               onClick={() => onBackground(b.id)}
               title={b.name}
               className={cn(
-                "h-8 w-8 rounded-full ring-1 ring-inset ring-black/10 transition",
-                bouquet.background === b.id && "ring-2 ring-burgundy ring-offset-2"
+                "h-11 w-11 rounded-full ring-1 ring-inset ring-black/10 transition",
+                bouquet.background === b.id && "ring-2 ring-inset ring-burgundy"
               )}
               style={{ background: `linear-gradient(135deg, ${b.from}, ${b.to})` }}
             />

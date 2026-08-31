@@ -51,6 +51,7 @@ export function FloatingControls({
         <button type="button" className={buttonClass} aria-label="Duplicate" onClick={onDuplicate}>
           <Copy size={16} />
         </button>
+        <span aria-hidden="true" className="mx-0.5 h-6 w-px bg-charcoal/15" />
         <button
           type="button"
           className="flex h-11 w-11 items-center justify-center rounded-full bg-burgundy text-ivory transition hover:bg-burgundy-dark focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ivory"
