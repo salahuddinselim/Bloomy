@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Playfair_Display, Cormorant_Garamond, Inter } from "next/font/google";
+import { siteUrl } from "@/lib/siteUrl";
 import "./globals.css";
 
 const display = Playfair_Display({
@@ -22,21 +23,6 @@ const body = Inter({
   weight: ["400", "500", "600"],
 });
 
-/*
- * VERCEL_URL is the current deployment's unique hash URL, which changes on
- * every deploy — using it as metadataBase would mean OG image/title URLs
- * baked into a production build point at a stale preview URL as soon as the
- * next deploy ships. VERCEL_PROJECT_PRODUCTION_URL is the stable production
- * domain and is what we want once VERCEL_ENV says this build is production.
- */
-const siteUrl =
-  process.env.NEXT_PUBLIC_SITE_URL ??
-  (process.env.VERCEL_ENV === "production" && process.env.VERCEL_PROJECT_PRODUCTION_URL
-    ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
-    : process.env.VERCEL_URL
-    ? `https://${process.env.VERCEL_URL}`
-    : "http://localhost:3000");
-
 export const metadata: Metadata = {
   // Resolved from the deploy environment so the social card URLs always point
   // at the real origin — this was hardcoded to a placeholder domain before.
@@ -47,6 +33,15 @@ export const metadata: Metadata = {
   },
   description:
     "Create a beautiful digital bouquet, write a personal message, and send it to someone special. Free, no account required.",
+  alternates: { canonical: "/" },
+  keywords: [
+    "digital bouquet",
+    "send flowers online",
+    "virtual bouquet",
+    "e-bouquet",
+    "flower card message",
+    "digital flowers link",
+  ],
   openGraph: {
     title: "Bloomly — Send Something Beautiful",
     description:

@@ -17,6 +17,7 @@ export const metadata = {
   title: "Bouquet Card Messages — Bloomly",
   description:
     "Find the words for your note before you build the bouquet. Card-ready messages for love, birthdays, thanks, missing someone, encouragement, and friendship — each drops straight into the Bloomly editor.",
+  alternates: { canonical: "/quotes" },
 };
 
 export default function QuotesPage() {

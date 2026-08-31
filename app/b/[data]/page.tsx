@@ -26,6 +26,10 @@ export async function generateMetadata({ params }: { params: Promise<{ data: str
   return {
     title,
     description,
+    // Per-recipient pages: excluded from search (see app/robots.ts too) —
+    // the message on this page is meant for whoever holds the link, not for
+    // search results.
+    robots: { index: false, follow: false },
     openGraph: {
       title,
       description,

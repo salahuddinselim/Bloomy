@@ -2,7 +2,12 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Footer } from "@/components/landing/Footer";
 
-export const metadata = { title: "About Bloomly" };
+export const metadata = {
+  title: "About Bloomly",
+  description:
+    "Bloomly is a digital bouquet studio: arrange real flowers, write a note, and send it all as a single link — no account, no database, free forever.",
+  alternates: { canonical: "/about" },
+};
 
 const moments = [
   {

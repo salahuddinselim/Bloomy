@@ -9,6 +9,7 @@ import { createEmptyBouquet } from "@/lib/bouquet/types";
 import { FLOWERS, FLOWER_MEANINGS } from "@/data/flowers";
 import { AdSlot } from "@/components/ads/AdSlot";
 import { Footer } from "@/components/landing/Footer";
+import { siteUrl } from "@/lib/siteUrl";
 
 const heroBouquet = {
   ...createEmptyBouquet(),
@@ -60,9 +61,26 @@ const shareOptions = [
   },
 ];
 
+const JSON_LD = {
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  name: "Bloomly",
+  url: siteUrl,
+  applicationCategory: "LifestyleApplication",
+  operatingSystem: "Any",
+  description:
+    "Create a beautiful digital bouquet, write a personal message, and send it to someone special as a single link. Free, no account required.",
+  offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
+};
+
 export default function LandingPage() {
   return (
     <main className="flex flex-col">
+      <script
+        type="application/ld+json"
+        // eslint-disable-next-line react/no-danger
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(JSON_LD) }}
+      />
       {/* Header */}
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
         <a href="#" className="font-script text-2xl italic text-charcoal">
