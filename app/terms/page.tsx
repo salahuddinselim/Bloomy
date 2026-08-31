@@ -1,10 +1,12 @@
 import { Footer } from "@/components/landing/Footer";
+import { SiteHeader } from "@/components/landing/SiteHeader";
 
 export const metadata = { title: "Terms of Use", alternates: { canonical: "/terms" } };
 
 export default function TermsPage() {
   return (
     <main className="flex flex-col">
+      <SiteHeader />
       <div className="mx-auto w-full max-w-2xl px-6 py-16">
         <h1 className="font-display text-3xl text-charcoal">Terms of Use</h1>
         <div className="mt-6 space-y-4 text-sm leading-relaxed text-charcoal-soft">

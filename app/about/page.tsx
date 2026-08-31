@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { Footer } from "@/components/landing/Footer";
+import { SiteHeader } from "@/components/landing/SiteHeader";
 
 export const metadata = {
   title: "About Bloomly",
@@ -31,6 +32,7 @@ const moments = [
 export default function AboutPage() {
   return (
     <main className="flex flex-col">
+      <SiteHeader />
       <div className="mx-auto w-full max-w-3xl px-6 py-16 md:py-24">
         <p className="font-script text-lg italic text-dusty-rose">about bloomly</p>
         <h1 className="mt-2 font-display text-4xl text-charcoal sm:text-5xl">

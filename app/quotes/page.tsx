@@ -2,6 +2,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import { QUOTE_CATEGORIES } from "@/data/quotes";
 import { Footer } from "@/components/landing/Footer";
+import { SiteHeader } from "@/components/landing/SiteHeader";
 
 const FEATURED: { text: string; category: string }[] = [
   { text: "You make ordinary days feel softer.", category: "love" },
@@ -23,17 +24,7 @@ export const metadata = {
 export default function QuotesPage() {
   return (
     <main className="flex min-h-screen flex-col bg-ivory">
-      <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
-        <Link href="/" className="font-script text-2xl italic text-charcoal">
-          Bloomly
-        </Link>
-        <Link
-          href="/create"
-          className="rounded-full bg-burgundy px-4 py-2 text-sm font-medium text-ivory transition hover:bg-burgundy-dark"
-        >
-          Create a Bouquet
-        </Link>
-      </header>
+      <SiteHeader />
 
       <section className="mx-auto w-full max-w-3xl px-6 pb-8 pt-12 text-center">
         <p className="font-script text-lg italic text-dusty-rose">the words before the flowers</p>

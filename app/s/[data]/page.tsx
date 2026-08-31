@@ -63,6 +63,9 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 px-6 py-14">
+      <Link href="/" className="font-script text-2xl italic text-charcoal">
+        Bloomly
+      </Link>
       <div className="flex items-center gap-2 text-burgundy">
         <PartyPopper size={20} />
         <p className="font-display text-xl">Your bouquet is ready.</p>
