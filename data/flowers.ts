@@ -36,6 +36,13 @@ export const FLOWERS: AssetDef[] = [
   V_("camellia", "Camellia", "camellia", "#d95f6f", "#f2a4ae", 1.0, ["admiration", "grace"], 2),
   V_("lilac", "Lilac", "lilac", "#b39cc4", "#9378ad", 0.9, ["first love", "calm"], 3),
   V_("gladiolus", "Gladiolus", "gladiolus", "#d9535a", "#bf3f48", 0.95, ["strength", "integrity"], 2),
+  // Seasonal / South Asian favorites, most requested from Bangladesh. Raster
+  // cutouts (like the twelve above) rather than vector shapes, both for
+  // painterly realism and so they carry their own baked-in stem/cluster like
+  // every other photographed bloom — no synthetic stem line needed.
+  BL_("shapla", "Water Lily", "/flora/bloom-shapla.webp", "#f2ede0", "#e8c85a", 1.1, ["national", "serene"], 2),
+  BL_("rojonigondha", "Tuberose", "/flora/bloom-rojonigondha.webp", "#f2ecd6", "#d8c68a", 0.95, ["fragrant", "elegant"], 3),
+  BL_("joba", "Hibiscus", "/flora/bloom-joba.webp", "#e0293d", "#b81f30", 1.05, ["bold", "tropical"], 2),
 ];
 
 function BL_(
@@ -153,4 +160,7 @@ export const FLOWER_MEANINGS: Record<string, string> = {
   camellia: "admiration and perfect grace",
   lilac: "first love and youthful innocence",
   gladiolus: "strength and integrity",
+  shapla: "purity and the soul of home",
+  rojonigondha: "fragrant devotion",
+  joba: "vibrant beauty and new beginnings",
 };

@@ -25,7 +25,10 @@ export type FlowerShape =
   | "gerbera"
   | "camellia"
   | "lilac"
-  | "gladiolus";
+  | "gladiolus"
+  | "shapla"
+  | "rojonigondha"
+  | "joba";
 
 export type FoliageShape = "eucalyptus" | "fern" | "olive" | "ruscus" | "ivy" | "leaf" | "babys_breath";
 
