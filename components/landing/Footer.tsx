@@ -16,7 +16,8 @@ export function Footer() {
         </nav>
       </div>
       <p className="mx-auto mt-6 max-w-6xl text-center text-xs text-charcoal-soft/50 sm:text-left">
-        BloomStory is completely client-side — your bouquet lives inside the link you share, not in a database.
+        No accounts, ever — your bouquet lives inside the long-form link you share, which always works entirely
+        on its own.
       </p>
     </footer>
   );
