@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCw, ZoomIn, ZoomOut, Trash2 } from "lucide-react";
+import { RotateCw, ZoomIn, ZoomOut, Copy, Trash2, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
 import type { BouquetElement } from "@/lib/bouquet/types";
 import { getAssetDef } from "@/components/bouquet/BouquetAsset";
 
@@ -8,7 +8,10 @@ interface FloatingControlsProps {
   element: BouquetElement;
   onRotate: (delta: number) => void;
   onScale: (delta: number) => void;
+  onDuplicate: () => void;
   onDelete: () => void;
+  onBringForward: () => void;
+  onSendBackward: () => void;
 }
 
 const buttonClass =
@@ -18,15 +21,18 @@ export function FloatingControls({
   element,
   onRotate,
   onScale,
+  onDuplicate,
   onDelete,
+  onBringForward,
+  onSendBackward,
 }: FloatingControlsProps) {
   const def = getAssetDef(element.type);
   return (
-    <div className="flex items-center gap-2 rounded-full bg-white/95 px-3 py-2 shadow-lg ring-1 ring-charcoal/10">
+    <div className="flex max-w-[calc(100vw-2rem)] flex-col items-center gap-2 rounded-[28px] bg-white/95 px-3 py-2 shadow-lg ring-1 ring-charcoal/10 sm:flex-row sm:rounded-full">
       <span className="hidden pr-1 text-xs font-medium text-charcoal-soft sm:inline">
         {def?.name ?? "Element"}
       </span>
-      <div className="flex items-center gap-1">
+      <div className="flex flex-wrap items-center justify-center gap-1">
         <button type="button" className={buttonClass} aria-label="Rotate" onClick={() => onRotate(15)}>
           <RotateCw size={16} />
         </button>
@@ -35,6 +41,15 @@ export function FloatingControls({
         </button>
         <button type="button" className={buttonClass} aria-label="Decrease size" onClick={() => onScale(-0.1)}>
           <ZoomOut size={16} />
+        </button>
+        <button type="button" className={buttonClass} aria-label="Bring forward" onClick={onBringForward}>
+          <ArrowUpToLine size={16} />
+        </button>
+        <button type="button" className={buttonClass} aria-label="Send backward" onClick={onSendBackward}>
+          <ArrowDownToLine size={16} />
+        </button>
+        <button type="button" className={buttonClass} aria-label="Duplicate" onClick={onDuplicate}>
+          <Copy size={16} />
         </button>
         <span aria-hidden="true" className="mx-0.5 h-6 w-px bg-charcoal/15" />
         <button

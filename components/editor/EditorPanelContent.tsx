@@ -1,6 +1,6 @@
 "use client";
-import { REALISTIC_FLOWERS } from "@/data/flowers";
-import { REALISTIC_FOLIAGE } from "@/data/foliage";
+import { FLOWERS } from "@/data/flowers";
+import { FOLIAGE } from "@/data/foliage";
 import { PRESETS } from "@/data/presets";
 import { AssetGrid } from "./AssetGrid";
 import { WrapperPicker, RibbonPicker } from "./WrapperRibbonPicker";
@@ -56,7 +56,7 @@ export function EditorPanelContent({
   if (tab === "flowers") {
     return (
       <div>
-        <AssetGrid items={REALISTIC_FLOWERS} onAdd={onAdd} disabled={() => counts.flower >= LIMITS.MAX_FLOWERS} />
+        <AssetGrid items={FLOWERS} onAdd={onAdd} disabled={() => counts.flower >= LIMITS.MAX_FLOWERS} />
         {counts.flower >= LIMITS.MAX_FLOWERS && (
           <p className="mt-2 text-xs text-burgundy/80">Maximum flowers reached.</p>
         )}
@@ -67,7 +67,7 @@ export function EditorPanelContent({
   if (tab === "foliage") {
     return (
       <div>
-        <AssetGrid items={REALISTIC_FOLIAGE} onAdd={onAdd} disabled={() => counts.foliage >= LIMITS.MAX_FOLIAGE} />
+        <AssetGrid items={FOLIAGE} onAdd={onAdd} disabled={() => counts.foliage >= LIMITS.MAX_FOLIAGE} />
       </div>
     );
   }

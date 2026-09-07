@@ -34,6 +34,9 @@ export interface EmotionSignature {
   tagline: string;
   /** Flowers suggested for this emotion (used to build the default bouquet). */
   flowers: string[];
+  /** Greenery paired with those flowers — every real bouquet has some, and a
+   *  flowers-only arrangement is what read as sparse/incomplete by default. */
+  foliage: string[];
   /** Voice per recipient type — the same emotion tuned for who it's for. */
   recipients: Record<string, RecipientVariant>;
   /** Any recipient type with no bespoke entry uses this. */
@@ -75,6 +78,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Velvet Devotion",
     tagline: "Every petal is a word I never said out loud.",
     flowers: ["rose", "peony", "ranunculus", "tulip", "carnation"],
+    foliage: ["eucalyptus"],
     recipients: {
       partner: {
         title: "For My Love",
@@ -146,6 +150,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Moonlit Longing",
     tagline: "Distance only taught me how much space you take up in my days.",
     flowers: ["rose", "orchid", "lily", "anemone"], // prettier-ignore
+    foliage: ["fern"],
     recipients: {
       partner: {
         title: "For the One I Miss",
@@ -217,6 +222,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Golden Gratitude",
     tagline: "Some thanks are too big for a text message.",
     flowers: ["sunflower", "daisy", "tulip", "carnation"],
+    foliage: ["eucalyptus"],
     recipients: {
       partner: {
         title: "For Everything You Do",
@@ -288,6 +294,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Sunrise Pride",
     tagline: "Your light is worth celebrating out loud.",
     flowers: ["sunflower", "dahlia", "zinnia", "rose", "ranunculus"], // prettier-ignore
+    foliage: ["fern"],
     recipients: {
       partner: {
         title: "So Proud of You",
@@ -359,6 +366,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Birthday Radiance",
     tagline: "Another year of you — and the world is brighter for it.",
     flowers: ["rose", "peony", "dahlia", "ranunculus", "carnation", "zinnia"], // prettier-ignore
+    foliage: ["eucalyptus", "babys_breath"],
     recipients: {
       partner: {
         title: "Happy Birthday, My Love",
@@ -430,6 +438,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Tender Apology",
     tagline: "I was wrong, and I'm not too proud to say it.",
     flowers: ["rose", "lily", "peony", "orchid", "daisy"], // prettier-ignore
+    foliage: ["babys_breath"],
     recipients: {
       partner: {
         title: "Forgive Me",
@@ -501,6 +510,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Wonder & Whimsey",
     tagline: "No reason at all — except that you're you.",
     flowers: ["ranunculus", "anemone", "daisy", "carnation", "tulip", "orchid"], // prettier-ignore
+    foliage: ["fern"],
     recipients: {
       partner: {
         title: "Just Because... It's You",
@@ -572,6 +582,7 @@ export const EMOTION_SIGNATURES: EmotionSignature[] = [
     name: "Gentle Healing",
     tagline: "Sending warmth until you're back on your feet.",
     flowers: ["daisy", "sunflower", "tulip", "lily", "ranunculus", "carnation"], // prettier-ignore
+    foliage: ["eucalyptus"],
     recipients: {
       partner: {
         title: "Feel Better, My Love",
@@ -651,6 +662,7 @@ export interface ResolvedSignatureTheme {
   message: string;
   quotes: string[];
   flowers: string[];
+  foliage: string[];
   wrapper: string;
   ribbon: string;
   cardPaper: CardPaper;
@@ -695,6 +707,7 @@ export function resolveSignatureTheme(opts: {
     message: fillName(variant.message, recipientName),
     quotes: variant.quotes.map((q) => fillName(q, recipientName)),
     flowers: signature.flowers,
+    foliage: signature.foliage,
     wrapper: look.wrapper,
     ribbon: look.ribbon,
     cardPaper: look.cardPaper,

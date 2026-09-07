@@ -1,10 +1,10 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowLeft, ArrowRight, Sparkles, Loader2, Undo2, Redo2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, Undo2, Redo2, X } from "lucide-react";
 import { wizardReducer } from "@/data/wizardReducer";
 import { INITIAL_WIZARD_STATE } from "@/data/wizard";
 import { bouquetReducer } from "@/lib/bouquet/reducer";
@@ -13,6 +13,7 @@ import { elementsFromIds, elementsFromPreset, DEFAULT_BOUQUET_FLOWER_IDS } from 
 import { encodeBouquet } from "@/lib/bouquet/encoder";
 import { resolveSignatureTheme } from "@/data/signatureThemes";
 import { getPreset } from "@/data/presets";
+import { getOccasion } from "@/data/occasions";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
 import { FloatingControls } from "@/components/editor/FloatingControls";
 import { EditorPanelContent, EDITOR_TABS, type EditorTab } from "@/components/editor/EditorPanelContent";
@@ -39,15 +40,37 @@ function getRevealForPresentation(presentationId: string | null): Bouquet["revea
 
 function CreatePageInner() {
   const router = useRouter();
-  const [wizard, wizardDispatch] = useReducer(wizardReducer, null, () => INITIAL_WIZARD_STATE);
+  const searchParams = useSearchParams();
+  const presetParam = searchParams.get("preset");
+  const occasionParam = searchParams.get("occasion");
+  // A gallery preset link or a homepage occasion link (which carries its own
+  // preset + a suggested message, see data/occasions.ts) both seed the
+  // bouquet the same way; an explicit ?preset= wins if somehow both are set.
+  const occasion = occasionParam ? getOccasion(occasionParam) : null;
+  const seededPresetId = presetParam ?? occasion?.presetId ?? null;
+
+  const [wizard, wizardDispatch] = useReducer(wizardReducer, null, () =>
+    occasion ? { ...INITIAL_WIZARD_STATE, message: occasion.suggestedMessage } : INITIAL_WIZARD_STATE
+  );
 
   const [bouquet, bouquetDispatch] = useReducer(
     bouquetReducer,
     null,
-    () => ({
-      ...createEmptyBouquet(),
-      elements: elementsFromIds(DEFAULT_BOUQUET_FLOWER_IDS),
-    })
+    () => {
+      const preset = seededPresetId ? getPreset(seededPresetId) : null;
+      if (preset) {
+        return {
+          ...createEmptyBouquet(),
+          elements: elementsFromPreset(preset),
+          wrapper: preset.wrapper,
+          ribbon: preset.ribbon,
+        };
+      }
+      return {
+        ...createEmptyBouquet(),
+        elements: elementsFromIds(DEFAULT_BOUQUET_FLOWER_IDS),
+      };
+    }
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [desktopTab, setDesktopTab] = useState<EditorTab>("presets");
@@ -149,6 +172,7 @@ function CreatePageInner() {
     bouquetDispatch({
       type: "APPLY_THEME",
       flowers: signature.flowers,
+      foliage: signature.foliage,
       wrapper: signature.wrapper,
       ribbon: signature.ribbon,
       background: signature.background,
@@ -185,7 +209,11 @@ function CreatePageInner() {
     if (!canContinue()) return;
     if (step < 6) {
       const next = step + 1;
-      if (next === 4 && appliedThemeIdRef.current !== signature.id) {
+      // A bouquet seeded from a gallery preset (?preset=) or a homepage
+      // occasion link (?occasion=, which implies its own preset) shouldn't
+      // be silently replaced by the emotion/recipient/vibe signature theme
+      // the moment the wizard reaches the bouquet step.
+      if (next === 4 && !seededPresetId && appliedThemeIdRef.current !== signature.id) {
         applySignatureTheme(false);
       }
       wizardDispatch({ type: "SET_STEP", step: next });
@@ -304,8 +332,16 @@ function CreatePageInner() {
 
       {error && (
         <div role="alert" className="relative z-10 mx-auto w-full max-w-2xl px-4">
-          <div className="rounded-lg bg-burgundy/10 px-4 py-2 text-sm text-burgundy">
-            {error}
+          <div className="flex items-center justify-between gap-3 rounded-lg bg-burgundy/10 px-4 py-2 text-sm text-burgundy">
+            <span>{error}</span>
+            <button
+              type="button"
+              onClick={() => setError(null)}
+              aria-label="Dismiss error"
+              className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full transition hover:bg-burgundy/15"
+            >
+              <X size={14} />
+            </button>
           </div>
         </div>
       )}
@@ -400,6 +436,7 @@ function CreatePageInner() {
                       selectedId={selectedId}
                       onSelect={setSelectedId}
                       onMove={(id, x, y) => bouquetDispatch({ type: "MOVE_ELEMENT", id, x, y })}
+                      onMoveStart={() => pushHistory(bouquet)}
                       cardRecipient={wizard.recipientName}
                       cardMessage={wizard.message}
                       cardSender={wizard.senderName}
@@ -416,8 +453,26 @@ function CreatePageInner() {
                       >
                         <FloatingControls
                           element={selected}
-                          onRotate={(d) => bouquetDispatch({ type: "ROTATE_ELEMENT", id: selected.id, rotation: selected.rotation + d })}
-                          onScale={(d) => bouquetDispatch({ type: "SCALE_ELEMENT", id: selected.id, scale: selected.scale + d })}
+                          onRotate={(d) => {
+                            pushHistory(bouquet);
+                            bouquetDispatch({ type: "ROTATE_ELEMENT", id: selected.id, rotation: selected.rotation + d });
+                          }}
+                          onScale={(d) => {
+                            pushHistory(bouquet);
+                            bouquetDispatch({ type: "SCALE_ELEMENT", id: selected.id, scale: selected.scale + d });
+                          }}
+                          onDuplicate={() => {
+                            pushHistory(bouquet);
+                            bouquetDispatch({ type: "DUPLICATE_ELEMENT", id: selected.id });
+                          }}
+                          onBringForward={() => {
+                            pushHistory(bouquet);
+                            bouquetDispatch({ type: "BRING_FORWARD", id: selected.id });
+                          }}
+                          onSendBackward={() => {
+                            pushHistory(bouquet);
+                            bouquetDispatch({ type: "SEND_BACKWARD", id: selected.id });
+                          }}
                           onDelete={deleteSelected}
                         />
                       </motion.div>

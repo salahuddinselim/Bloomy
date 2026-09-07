@@ -55,7 +55,7 @@ export function ProgressBar({ currentStep, onStepClick }: ProgressBarProps) {
                 </motion.div>
                 <span
                   className={cn(
-                    "hidden text-[10px] font-medium sm:block",
+                    "hidden text-xs font-medium sm:block",
                     isActive ? "text-burgundy" : "text-charcoal-soft/60"
                   )}
                 >

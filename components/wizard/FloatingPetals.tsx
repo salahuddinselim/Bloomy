@@ -1,20 +1,44 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 
-const PETALS = Array.from({ length: 12 }, (_, i) => ({
-  id: i,
-  left: `${Math.random() * 100}%`,
-  delay: Math.random() * 8,
-  duration: 8 + Math.random() * 6,
-  size: 8 + Math.random() * 12,
-  rotation: Math.random() * 360,
-}));
+interface Petal {
+  id: number;
+  left: string;
+  delay: number;
+  duration: number;
+  size: number;
+  rotation: number;
+}
+
+function generatePetals(): Petal[] {
+  return Array.from({ length: 12 }, (_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    delay: Math.random() * 8,
+    duration: 8 + Math.random() * 6,
+    size: 8 + Math.random() * 12,
+    rotation: Math.random() * 360,
+  }));
+}
 
 export function FloatingPetals() {
+  // Petals are random per mount, so they must never be computed during the
+  // render React uses to hydrate: a server-random and a client-random array
+  // always disagree, which React reports as a hydration mismatch on every
+  // page load. Starting empty (matching on server and first client render)
+  // and filling in from an effect after mount keeps hydration clean; the
+  // petals fade in a beat later, invisible for a decorative background layer.
+  const [petals, setPetals] = useState<Petal[]>([]);
+
+  useEffect(() => {
+    setPetals(generatePetals());
+  }, []);
+
   return (
     <div className="pointer-events-none fixed inset-0 overflow-hidden" style={{ zIndex: 1 }}>
-      {PETALS.map((petal) => (
+      {petals.map((petal) => (
         <motion.div
           key={petal.id}
           className="absolute"

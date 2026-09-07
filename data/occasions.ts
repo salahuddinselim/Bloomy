@@ -18,3 +18,7 @@ export const OCCASIONS: Occasion[] = [
   { id: "apology", label: "Apology", presetId: "elegant_white", suggestedMessage: "I'm sorry, truly. Let's make it right." },
   { id: "get_well", label: "Get Well Soon", presetId: "pastel_dream", suggestedMessage: "Sending gentle thoughts for a speedy recovery." },
 ];
+
+export function getOccasion(id: string): Occasion | undefined {
+  return OCCASIONS.find((o) => o.id === id);
+}

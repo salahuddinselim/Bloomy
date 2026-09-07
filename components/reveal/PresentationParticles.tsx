@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { getPresentation, type PresentationTheme } from "@/data/presentations";
 
@@ -179,11 +179,22 @@ const PARTICLE_COMPONENTS: Record<string, React.ComponentType<{ particle: Partic
 
 export function PresentationParticles({ themeId }: { themeId: string }) {
   const theme = getPresentation(themeId);
-  const [particles] = useState<Particle[]>(() => {
-    if (!theme) return [];
+  // Particle positions are random per mount, so they can never be computed
+  // during the render React uses to hydrate (see FloatingPetals for the same
+  // fix): a server-random and a client-random field always disagree, and
+  // React reports that as a hydration mismatch. This overlay sits on the
+  // recipient's reveal — the single moment the product exists to deliver —
+  // so it starts empty and fills in from an effect after mount instead.
+  const [particles, setParticles] = useState<Particle[]>([]);
+
+  useEffect(() => {
+    if (!theme) {
+      setParticles([]);
+      return;
+    }
     const count = theme.particleType === "rain" ? 40 : theme.particleType === "fireflies" ? 15 : 20;
-    return generateParticles(theme.particleType, count);
-  });
+    setParticles(generateParticles(theme.particleType, count));
+  }, [theme]);
 
   if (!theme) return null;
 

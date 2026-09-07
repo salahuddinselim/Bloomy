@@ -69,7 +69,7 @@ export function RecipientSelector({
             value={recipientName}
             onChange={(e) => onChangeName(e.target.value)}
             maxLength={LIMITS.MAX_RECIPIENT}
-            placeholder="e.g. Sarah"
+            placeholder="e.g. Emma"
             className="w-full rounded-xl border border-charcoal/12 bg-paper px-4 py-3 text-sm outline-none transition focus:border-burgundy focus-visible:border-burgundy"
           />
         </div>
@@ -83,7 +83,7 @@ export function RecipientSelector({
             value={senderName}
             onChange={(e) => onChangeSender(e.target.value)}
             maxLength={LIMITS.MAX_SENDER}
-            placeholder="e.g. Afia"
+            placeholder="e.g. James"
             className="w-full rounded-xl border border-charcoal/12 bg-paper px-4 py-3 text-sm outline-none transition focus:border-burgundy focus-visible:border-burgundy"
           />
         </div>

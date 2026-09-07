@@ -29,6 +29,10 @@ interface BouquetCanvasProps {
   selectedId?: string | null;
   onSelect?: (id: string | null) => void;
   onMove?: (id: string, x: number, y: number) => void;
+  /** Fired once at the start of a drag gesture (not per pixel moved), so a
+   *  caller can snapshot pre-drag state for undo without flooding the
+   *  history stack on every pointermove. */
+  onMoveStart?: () => void;
   className?: string;
   /** Live card content overrides used while composing (before the bouquet is
    *  finalized in the wizard's last step). Falls back to the bouquet's own
@@ -47,6 +51,7 @@ export function BouquetCanvas({
   selectedId,
   onSelect,
   onMove,
+  onMoveStart,
   className,
   cardRecipient,
   cardMessage,
@@ -95,6 +100,7 @@ export function BouquetCanvas({
         if (!state.started) {
           if (Math.abs(ev.clientX - startX) + Math.abs(ev.clientY - startY) < 5) return;
           state.started = true;
+          onMoveStart?.();
         }
         const rect = stage.getBoundingClientRect();
         const x = ((ev.clientX - rect.left) / rect.width) * 100;
@@ -118,7 +124,7 @@ export function BouquetCanvas({
       window.addEventListener("pointerup", end);
       window.addEventListener("pointercancel", end);
     },
-    [interactive, onMove, onSelect]
+    [interactive, onMove, onMoveStart, onSelect]
   );
 
   const handleKeyDown = useCallback(
@@ -146,7 +152,14 @@ export function BouquetCanvas({
     <div
       ref={stageRef}
       className={cn(
-        "relative aspect-[4/5] w-full overflow-hidden rounded-2xl bg-grain shadow-[inset_0_0_60px_rgba(0,0,0,0.06)]",
+        // `isolate` gives this canvas its own stacking context so the large,
+        // per-element z-indexes below (el.z + 10, and 50 on the front wrap
+        // layer) only ever order elements against each other. Without it
+        // those values compete in the PAGE's stacking context too, and a
+        // bouquet with enough elements can end up painting on top of page
+        // chrome like modals — that's how a flower ended up rendered over
+        // the share page's QR-code dialog.
+        "relative isolate aspect-[4/5] w-full overflow-hidden rounded-2xl bg-grain shadow-[inset_0_0_60px_rgba(0,0,0,0.06)]",
         className
       )}
       style={{ background: `linear-gradient(160deg, ${bg.from}, ${bg.to})` }}
