@@ -126,7 +126,13 @@ export default function GalleryPage() {
                       </div>
                       <Link
                         href={`/create?preset=${preset.id}`}
-                        className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-burgundy opacity-0 transition group-hover:opacity-100"
+                        // Was opacity-0 revealed only on hover, which meant
+                        // this card's one call-to-action was invisible (and
+                        // effectively undiscoverable) on every touch device —
+                        // no real :hover state to reveal it. Always visible
+                        // now; the hover nudge (color shift) is decoration,
+                        // not the only way in.
+                        className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-burgundy transition group-hover:text-burgundy-dark"
                       >
                         Create Something Like This <ArrowRight size={14} />
                       </Link>
