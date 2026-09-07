@@ -97,6 +97,25 @@ export function QrCodeButton({ url }: { url: string }) {
   const [open, setOpen] = useState(false);
   const [src, setSrc] = useState<string | null>(null);
 
+  // The backdrop is `fixed`, which only covers the current viewport, not the
+  // full (taller, scrollable) share page — without locking scroll, scrolling
+  // while the modal is open reveals un-dimmed page content below the fold.
+  useEffect(() => {
+    if (!open) return;
+    // Lock both: this app's root <html> carries `h-full`, which can make it
+    // (not <body>) the actual scrolling box depending on content height, so
+    // locking only one or the other is unreliable across pages.
+    const html = document.documentElement;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = html.style.overflow;
+    document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      html.style.overflow = prevHtml;
+    };
+  }, [open]);
+
   async function openModal() {
     const dataUrl = await QRCode.toDataURL(url, {
       margin: 1,
