@@ -8,7 +8,7 @@ import { ArrowLeft, ArrowRight, Sparkles, Loader2, Undo2, Redo2, X } from "lucid
 import { wizardReducer } from "@/data/wizardReducer";
 import { INITIAL_WIZARD_STATE } from "@/data/wizard";
 import { bouquetReducer } from "@/lib/bouquet/reducer";
-import { createEmptyBouquet, type Bouquet } from "@/lib/bouquet/types";
+import { createEmptyBouquet, LIMITS, type Bouquet } from "@/lib/bouquet/types";
 import { elementsFromIds, elementsFromPreset, DEFAULT_BOUQUET_FLOWER_IDS } from "@/lib/bouquet/build";
 import { encodeBouquet } from "@/lib/bouquet/encoder";
 import { resolveSignatureTheme } from "@/data/signatureThemes";
@@ -43,14 +43,20 @@ function CreatePageInner() {
   const searchParams = useSearchParams();
   const presetParam = searchParams.get("preset");
   const occasionParam = searchParams.get("occasion");
+  const quoteParam = searchParams.get("quote");
   // A gallery preset link or a homepage occasion link (which carries its own
   // preset + a suggested message, see data/occasions.ts) both seed the
   // bouquet the same way; an explicit ?preset= wins if somehow both are set.
   const occasion = occasionParam ? getOccasion(occasionParam) : null;
   const seededPresetId = presetParam ?? occasion?.presetId ?? null;
+  // A /quotes card's chosen line is a more deliberate, explicit pick than an
+  // occasion's generic suggested message, so it wins if both are somehow set.
+  // Untrusted (URL-controlled) input, so it's clamped the same way the
+  // message field itself is everywhere else.
+  const seededMessage = quoteParam ? quoteParam.slice(0, LIMITS.MAX_MESSAGE) : (occasion?.suggestedMessage ?? null);
 
   const [wizard, wizardDispatch] = useReducer(wizardReducer, null, () =>
-    occasion ? { ...INITIAL_WIZARD_STATE, message: occasion.suggestedMessage } : INITIAL_WIZARD_STATE
+    seededMessage ? { ...INITIAL_WIZARD_STATE, message: seededMessage } : INITIAL_WIZARD_STATE
   );
 
   const [bouquet, bouquetDispatch] = useReducer(
@@ -449,7 +455,16 @@ function CreatePageInner() {
                         initial={{ opacity: 0, y: 12 }}
                         animate={{ opacity: 1, y: 0 }}
                         exit={{ opacity: 0, y: 12 }}
-                        className="fixed bottom-24 left-1/2 z-20 -translate-x-1/2 md:static md:translate-x-0"
+                        // Used to be `fixed bottom-24` on mobile so the panel
+                        // stayed thumb-reachable regardless of scroll — but
+                        // that was sized for the old single-row, 5-button
+                        // pill. Restoring bring-forward/send-backward/
+                        // duplicate made it wrap to two rows, and the extra
+                        // height now overlaps the preset list right below
+                        // the canvas. Flowing in place (like desktop always
+                        // did) keeps it directly under the canvas instead,
+                        // where a just-selected flower is already in view.
+                        className="static flex w-full justify-center"
                       >
                         <FloatingControls
                           element={selected}
