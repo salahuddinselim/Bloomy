@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { AnimatePresence, motion, type TargetAndTransition } from "framer-motion";
+import { AnimatePresence, motion, MotionConfig, type TargetAndTransition } from "framer-motion";
 import Link from "next/link";
 import type { Bouquet } from "@/lib/bouquet/types";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
@@ -73,6 +73,7 @@ export function RevealExperience({ bouquet }: RevealExperienceProps) {
   }
 
   return (
+    <MotionConfig reducedMotion="user">
     <div
       className="min-h-screen transition-colors duration-1000"
       style={{
@@ -129,6 +130,15 @@ export function RevealExperience({ bouquet }: RevealExperienceProps) {
             transition={{ duration: 0.8 }}
             className="flex min-h-screen flex-col items-center gap-8 px-6 py-16"
           >
+            {/* No visible text on this stage doubles as a page title (the
+                intro line lives on the invitation stage, which is gone by
+                now) — a screen-reader user landing here otherwise gets no
+                heading at all. Visually hidden, so this changes nothing
+                about how the reveal looks. */}
+            <h1 className="sr-only">
+              {bouquet.recipient ? `A bouquet for ${bouquet.recipient}` : "Your bouquet has arrived"}
+            </h1>
+
             <Link
               href="/"
               className={cn(
@@ -225,5 +235,6 @@ export function RevealExperience({ bouquet }: RevealExperienceProps) {
         )}
       </AnimatePresence>
     </div>
+    </MotionConfig>
   );
 }

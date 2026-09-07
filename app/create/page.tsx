@@ -3,7 +3,7 @@
 import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { motion, AnimatePresence } from "framer-motion";
+import { motion, AnimatePresence, MotionConfig } from "framer-motion";
 import { ArrowLeft, ArrowRight, Sparkles, Loader2, Undo2, Redo2, X } from "lucide-react";
 import { wizardReducer } from "@/data/wizardReducer";
 import { INITIAL_WIZARD_STATE } from "@/data/wizard";
@@ -293,6 +293,7 @@ function CreatePageInner() {
   };
 
   return (
+    <MotionConfig reducedMotion="user">
     <div className="flex min-h-screen flex-col bg-ivory">
       <FloatingPetals />
 
@@ -699,6 +700,7 @@ function CreatePageInner() {
 
       <div className="h-16 md:hidden" />
     </div>
+    </MotionConfig>
   );
 }
 

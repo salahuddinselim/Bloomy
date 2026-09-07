@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { motion } from "framer-motion";
+import { motion, MotionConfig } from "framer-motion";
 import { ArrowRight, Heart, Sparkles } from "lucide-react";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
 import { PRESETS } from "@/data/presets";
@@ -29,6 +29,7 @@ const PRESET_CATEGORIES: Record<string, string[]> = {
 
 export default function GalleryPage() {
   return (
+    <MotionConfig reducedMotion="user">
     <main className="flex flex-col">
       {/* Header */}
       <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
@@ -162,5 +163,6 @@ export default function GalleryPage() {
 
       <Footer />
     </main>
+    </MotionConfig>
   );
 }

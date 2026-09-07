@@ -2,6 +2,7 @@
 
 import { use, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import { MotionConfig } from "framer-motion";
 import { PartyPopper } from "lucide-react";
 import { decodeBouquet } from "@/lib/bouquet/encoder";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
@@ -93,6 +94,7 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
   const paper = getCardPaper(bouquet.cardPaper);
 
   return (
+    <MotionConfig reducedMotion="user">
     <main className="flex min-h-screen flex-col items-center gap-8 px-6 py-14">
       <Link href="/" className="font-script text-2xl italic text-charcoal">
         BloomStory
@@ -180,5 +182,6 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
         </Link>
       </div>
     </main>
+    </MotionConfig>
   );
 }

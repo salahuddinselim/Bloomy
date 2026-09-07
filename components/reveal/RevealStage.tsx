@@ -39,14 +39,18 @@ export function RevealStage({ style, recipient, onOpen }: RevealStageProps) {
       exit={{ opacity: 0 }}
       className="flex min-h-screen flex-col items-center justify-center gap-8 px-6 text-center"
     >
-      <motion.p
+      {/* This is the only text on the page a recipient sees before opening —
+          promoted to h1 (visually unchanged) rather than left as a <p> so a
+          screen-reader user gets a real page title instead of landing on a
+          heading-less document. */}
+      <motion.h1
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.2 }}
-        className="font-script text-2xl italic text-charcoal-soft"
+        className="font-script text-2xl italic font-normal text-charcoal-soft"
       >
         {recipient ? `${recipient}, someone made you something...` : "Someone made you something..."}
-      </motion.p>
+      </motion.h1>
 
       <motion.button
         type="button"
