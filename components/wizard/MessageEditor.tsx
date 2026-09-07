@@ -41,7 +41,7 @@ export function MessageEditor({
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.12 }}
-          className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-charcoal-soft/60"
+          className="mx-auto mt-3 max-w-md text-sm leading-relaxed text-charcoal-muted"
         >
           Keep it simple. The bouquet already carries the emotion.
         </motion.p>
@@ -59,7 +59,7 @@ export function MessageEditor({
               <label htmlFor="msg-body" className="text-xs font-semibold uppercase tracking-wide text-charcoal-soft/80">
                 Message
               </label>
-              <span className="text-xs text-charcoal-soft/50">
+              <span className="text-xs text-charcoal-muted">
                 {message.length}/{LIMITS.MAX_MESSAGE}
               </span>
             </div>
@@ -91,7 +91,7 @@ export function MessageEditor({
               </p>
             )}
             {!recipientName && !message && (
-              <p className="text-center text-sm text-charcoal-soft/40 italic">
+              <p className="text-center text-sm text-charcoal-muted italic">
                 Your message will appear here.
               </p>
             )}
@@ -101,7 +101,7 @@ export function MessageEditor({
               </p>
             )}
             {senderName && (
-              <p className="mt-4 text-center text-sm text-charcoal-soft/70">
+              <p className="mt-4 text-center text-sm text-charcoal-muted">
                 - {senderName}
               </p>
             )}

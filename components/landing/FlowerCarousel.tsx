@@ -34,14 +34,14 @@ function FlipCard({ flower }: { flower: CarouselFlower }) {
             <BouquetAsset type={flower.id} category={flower.category} className="h-28 w-28" />
           </div>
           <p className="font-display text-lg text-charcoal">{flower.name}</p>
-          <p className="text-center text-xs uppercase tracking-widest text-charcoal-soft/50">tap to flip</p>
+          <p className="text-center text-xs uppercase tracking-widest text-charcoal-muted">tap to flip</p>
         </div>
 
         {/* Back — the hidden meaning */}
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl border border-[#5c2a12]/10 bg-[linear-gradient(150deg,#fff4e2,#f7e2c4)] p-6 text-center [backface-visibility:hidden] [transform:rotateY(180deg)]">
           <p className="font-script text-2xl italic leading-snug text-burgundy">&ldquo;{meaning}&rdquo;</p>
           <p className="font-display text-base text-charcoal">{flower.name}</p>
-          <p className="text-xs uppercase tracking-widest text-charcoal-soft/50">in the language of flowers</p>
+          <p className="text-xs uppercase tracking-widest text-charcoal-muted">in the language of flowers</p>
         </div>
       </button>
     </div>
@@ -85,7 +85,7 @@ export function FlowerCarousel({ flowers }: FlowerCarouselProps) {
         >
           <ChevronLeft size={18} />
         </button>
-        <p className="px-2 text-xs text-charcoal-soft/60">Hover or tap a card to read its meaning</p>
+        <p className="px-2 text-xs text-charcoal-muted">Hover or tap a card to read its meaning</p>
         <button
           type="button"
           onClick={() => scroll(1)}

@@ -309,8 +309,8 @@ export function BouquetCanvas({
 
       {elements.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center">
-          <p className="font-display text-lg text-charcoal-soft/70">Start building your bouquet</p>
-          <p className="text-sm text-charcoal-soft/50">Add your first flower from the left</p>
+          <p className="font-display text-lg text-charcoal-muted">Start building your bouquet</p>
+          <p className="text-sm text-charcoal-muted">Add your first flower from the left</p>
         </div>
       )}
 

@@ -89,7 +89,7 @@ function PresentationCard({
         <p className={cn("text-sm font-medium", isSelected ? "text-burgundy" : "text-charcoal")}>
           {theme.label}
         </p>
-        <p className="mt-1 text-xs text-charcoal-soft/60">{theme.description}</p>
+        <p className="mt-1 text-xs text-charcoal-muted">{theme.description}</p>
       </div>
 
       {isSelected && (

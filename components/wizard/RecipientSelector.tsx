@@ -76,7 +76,7 @@ export function RecipientSelector({
 
         <div>
           <label htmlFor="sender-name" className="mb-2 block text-xs font-semibold uppercase tracking-wide text-charcoal-soft/80">
-            Your Name <span className="text-charcoal-soft/40">(optional)</span>
+            Your Name <span className="text-charcoal-muted">(optional)</span>
           </label>
           <input
             id="sender-name"
@@ -124,7 +124,7 @@ function RecipientCard({
         <p className={cn("text-sm font-medium", isSelected ? "text-burgundy" : "text-charcoal")}>
           {recipient.label}
         </p>
-        <p className="mt-1 text-xs text-charcoal-soft/60">{recipient.description}</p>
+        <p className="mt-1 text-xs text-charcoal-muted">{recipient.description}</p>
       </div>
       {isSelected && (
         <motion.div

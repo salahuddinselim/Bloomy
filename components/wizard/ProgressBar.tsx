@@ -56,7 +56,7 @@ export function ProgressBar({ currentStep, onStepClick }: ProgressBarProps) {
                 <span
                   className={cn(
                     "hidden text-xs font-medium sm:block",
-                    isActive ? "text-burgundy" : "text-charcoal-soft/60"
+                    isActive ? "text-burgundy" : "text-charcoal-muted"
                   )}
                 >
                   {step.shortLabel}

@@ -76,9 +76,9 @@ export function SolarSystem({ bouquet }: { bouquet: Bouquet }) {
         <div className="mt-5 flex items-center justify-between px-1">
           <div>
             <p className="font-display text-sm text-charcoal">&ldquo;For no reason at all.&rdquo;</p>
-            <p className="mt-1 text-xs text-charcoal-soft/60">burgundy roses · peony · ranunculus</p>
+            <p className="mt-1 text-xs text-charcoal-muted">burgundy roses · peony · ranunculus</p>
           </div>
-          <span className="rounded-full border border-charcoal/12 px-3 py-1 text-xs uppercase tracking-widest text-charcoal-soft/70">
+          <span className="rounded-full border border-charcoal/12 px-3 py-1 text-xs uppercase tracking-widest text-charcoal-muted">
             warm ivory
           </span>
         </div>

@@ -429,7 +429,7 @@ function CreatePageInner() {
                 >
                   Choose the flowers and wrap
                 </motion.h2>
-                <p className="mt-2 text-sm text-charcoal-soft/60">
+                <p className="mt-2 text-sm text-charcoal-muted">
                   {signature.name}: {signature.tagline}
                 </p>
               </div>
@@ -503,7 +503,7 @@ function CreatePageInner() {
                     <Sparkles size={14} /> Arrange for me
                   </button>
 
-                  <p className="text-center text-xs text-charcoal-soft/60">
+                  <p className="text-center text-xs text-charcoal-muted">
                     Your bouquet: {counts.flower} flowers, {counts.foliage} foliage
                   </p>
 
@@ -603,7 +603,7 @@ function CreatePageInner() {
                 </div>
 
                 <div className="w-full max-w-md rounded-2xl border border-charcoal/8 bg-paper p-6 text-center shadow-[0_18px_48px_rgba(40,25,20,0.08)]">
-                  <p className="mb-2 text-xs uppercase tracking-widest text-charcoal-soft/50">
+                  <p className="mb-2 text-xs uppercase tracking-widest text-charcoal-muted">
                     {signature.emoji} {signature.name}
                   </p>
                   {wizard.recipientName && (
@@ -617,7 +617,7 @@ function CreatePageInner() {
                     </p>
                   )}
                   {wizard.senderName && (
-                    <p className="mt-3 text-sm text-charcoal-soft/70">&mdash; {wizard.senderName}</p>
+                    <p className="mt-3 text-sm text-charcoal-muted">&mdash; {wizard.senderName}</p>
                   )}
                 </div>
 
@@ -653,7 +653,7 @@ function CreatePageInner() {
               <ArrowLeft size={16} /> Back
             </button>
 
-            <p className="text-xs text-charcoal-soft/50">
+            <p className="text-xs text-charcoal-muted">
               Step {step} of 6
             </p>
 
@@ -665,7 +665,7 @@ function CreatePageInner() {
                 "flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition",
                 canContinue()
                   ? "bg-burgundy text-ivory hover:bg-burgundy-dark"
-                  : "cursor-not-allowed bg-charcoal/10 text-charcoal-soft/40"
+                  : "cursor-not-allowed bg-charcoal/10 text-charcoal-muted"
               )}
             >
               Continue <ArrowRight size={16} />

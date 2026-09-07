@@ -128,7 +128,7 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       </div>
 
       <div className="w-full max-w-sm rounded-xl border border-charcoal/10 bg-white/60 px-4 py-3 text-center">
-        <label htmlFor="share-url" className="mb-1 block text-xs uppercase tracking-widest text-charcoal-soft/60">
+        <label htmlFor="share-url" className="mb-1 block text-xs uppercase tracking-widest text-charcoal-muted">
           Your bouquet link
         </label>
         <input
@@ -163,13 +163,13 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       <AdSlot position="share-bottom" className="mt-4" />
 
       <div className="flex flex-col items-center gap-2 pt-6 text-center">
-        <p className="text-sm text-charcoal-soft/70">
+        <p className="text-sm text-charcoal-muted">
           {shortCode
             ? "Your bouquet lives in the link itself — the short link just points to it."
             : "Your bouquet lives inside this link — nothing is stored on a server."}
         </p>
         {shortCode && expiresAt && (
-          <p className="text-xs text-charcoal-soft/50">
+          <p className="text-xs text-charcoal-muted">
             Short link valid until {new Date(expiresAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}.{" "}
             <Link href={`/b/${token}`} className="underline underline-offset-2 hover:text-burgundy">
               The full link

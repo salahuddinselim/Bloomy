@@ -69,7 +69,7 @@ function DetailsFields({
           <label htmlFor="message-input" className="text-xs font-semibold uppercase tracking-wide text-charcoal-soft/80">
             Message
           </label>
-          <span className="text-xs text-charcoal-soft/50">
+          <span className="text-xs text-charcoal-muted">
             {bouquet.message.length}/{LIMITS.MAX_MESSAGE}
           </span>
         </div>
@@ -113,7 +113,7 @@ function StyleFields({
             )}
           >
             <div className="text-sm font-medium">Color</div>
-            <div className="text-xs text-charcoal-soft/60">Fully printed blooms</div>
+            <div className="text-xs text-charcoal-muted">Fully printed blooms</div>
           </button>
           <button
             type="button"
@@ -125,7 +125,7 @@ function StyleFields({
             )}
           >
             <div className="text-sm font-medium">Monochrome</div>
-            <div className="text-xs text-charcoal-soft/60">Ink &amp; paper, quiet and graphic</div>
+            <div className="text-xs text-charcoal-muted">Ink &amp; paper, quiet and graphic</div>
           </button>
         </div>
       </section>
@@ -170,7 +170,7 @@ function StyleFields({
               )}
             >
               <div className="text-sm font-medium">{r.label}</div>
-              <div className="text-xs text-charcoal-soft/60">{r.description}</div>
+              <div className="text-xs text-charcoal-muted">{r.description}</div>
             </button>
           ))}
         </div>

@@ -119,7 +119,7 @@ export default function LandingPage() {
                 See How It Works
               </a>
             </div>
-            <p className="mt-9 text-xs uppercase tracking-[0.18em] text-charcoal-soft/60">
+            <p className="mt-9 text-xs uppercase tracking-[0.18em] text-charcoal-muted">
               Free · No account · Lives in the link
             </p>
           </div>
@@ -130,7 +130,7 @@ export default function LandingPage() {
 
       {/* Flower strip */}
       <section className="overflow-hidden border-b border-charcoal/8 bg-ivory-deep/50 py-5">
-        <p className="whitespace-nowrap text-center font-script text-xl italic text-charcoal-soft/70">
+        <p className="whitespace-nowrap text-center font-script text-xl italic text-charcoal-muted">
           roses &nbsp;·&nbsp; tulips &nbsp;·&nbsp; peonies &nbsp;·&nbsp; lilies &nbsp;·&nbsp; sunflowers &nbsp;·&nbsp; dahlias &nbsp;·&nbsp; orchids &nbsp;·&nbsp; daisies &nbsp;·&nbsp; carnations &nbsp;·&nbsp; ranunculus &nbsp;·&nbsp; anemones &nbsp;·&nbsp; zinnias
         </p>
       </section>

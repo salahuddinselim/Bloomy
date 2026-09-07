@@ -47,7 +47,7 @@ export function BouquetCard({
             </p>
           )}
           {sender.trim() && (
-            <p className="mt-0.5 text-[clamp(7px,0.7vw,10px)] text-charcoal-soft/70">&mdash; {sender}</p>
+            <p className="mt-0.5 text-[clamp(7px,0.7vw,10px)] text-charcoal-muted">&mdash; {sender}</p>
           )}
         </div>
       </div>

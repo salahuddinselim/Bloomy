@@ -177,7 +177,7 @@ export function RevealExperience({ bouquet }: RevealExperienceProps) {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 transition={{ delay: 1, duration: 0.8 }}
-                className={cn("text-center text-sm italic", isDarkTheme ? "text-ivory/70" : "text-charcoal-soft/60")}
+                className={cn("text-center text-sm italic", isDarkTheme ? "text-ivory/70" : "text-charcoal-muted")}
               >
                 A letter is hidden in the bouquet &mdash; tap the envelope.
               </motion.p>
@@ -220,7 +220,7 @@ export function RevealExperience({ bouquet }: RevealExperienceProps) {
             >
               <AdSlot position="reveal-bottom" />
               <div className="text-center">
-                <p className={cn("mb-3 text-sm", isDarkTheme ? "text-ivory/50" : "text-charcoal-soft/70")}>
+                <p className={cn("mb-3 text-sm", isDarkTheme ? "text-ivory/50" : "text-charcoal-muted")}>
                   Want to send one back?
                 </p>
                 <Link

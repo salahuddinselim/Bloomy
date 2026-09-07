@@ -46,7 +46,7 @@ export function EditorPanelContent({
             className="rounded-xl border border-charcoal/10 bg-paper p-3 text-left transition hover:-translate-y-0.5 hover:border-burgundy/30 hover:shadow-md"
           >
             <div className="font-display text-sm text-charcoal">{p.name}</div>
-            <div className="mt-1 text-xs leading-snug text-charcoal-soft/60">{p.description}</div>
+            <div className="mt-1 text-xs leading-snug text-charcoal-muted">{p.description}</div>
           </button>
         ))}
       </div>
@@ -75,11 +75,11 @@ export function EditorPanelContent({
   return (
     <div className="space-y-5">
       <section>
-        <h3 className="mb-2 text-xs font-semibold uppercase text-charcoal-soft/70">Paper</h3>
+        <h3 className="mb-2 text-xs font-semibold uppercase text-charcoal-muted">Paper</h3>
         <WrapperPicker value={bouquet.wrapper} onChange={onSetWrapper} />
       </section>
       <section>
-        <h3 className="mb-2 text-xs font-semibold uppercase text-charcoal-soft/70">Ribbon</h3>
+        <h3 className="mb-2 text-xs font-semibold uppercase text-charcoal-muted">Ribbon</h3>
         <RibbonPicker value={bouquet.ribbon} onChange={onSetRibbon} />
       </section>
     </div>

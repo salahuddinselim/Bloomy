@@ -43,7 +43,7 @@ export default function QuotesPage() {
 
       <section className="mx-auto w-full max-w-3xl px-6 pb-14">
         <div className="space-y-3">
-          <p className="text-xs font-semibold uppercase tracking-widest text-charcoal-soft/70">
+          <p className="text-xs font-semibold uppercase tracking-widest text-charcoal-muted">
             Start with love
           </p>
           {FEATURED.map((f) => {
@@ -65,7 +65,7 @@ export default function QuotesPage() {
       </section>
 
       <section className="mx-auto w-full max-w-3xl px-6 pb-8">
-        <p className="text-xs font-semibold uppercase tracking-widest text-charcoal-soft/70">
+        <p className="text-xs font-semibold uppercase tracking-widest text-charcoal-muted">
           Choose the feeling before you write the card
         </p>
         <div className="mt-4 space-y-6">
@@ -74,9 +74,9 @@ export default function QuotesPage() {
               <summary className="flex cursor-pointer items-center justify-between gap-4 px-5 py-4 text-left">
                 <div>
                   <h2 className="font-display text-lg text-charcoal">{cat.heading}</h2>
-                  <p className="mt-0.5 text-sm text-charcoal-soft/70">{cat.intro}</p>
+                  <p className="mt-0.5 text-sm text-charcoal-muted">{cat.intro}</p>
                 </div>
-                <span className="shrink-0 text-xs text-charcoal-soft/60">{cat.quotes.length} card quotes</span>
+                <span className="shrink-0 text-xs text-charcoal-muted">{cat.quotes.length} card quotes</span>
               </summary>
               <ul className="border-t border-charcoal/8 px-5 py-3">
                 {cat.quotes.map((q) => (
@@ -90,7 +90,7 @@ export default function QuotesPage() {
                       </span>
                       <ArrowRight
                         size={14}
-                        className="shrink-0 text-charcoal-soft/40 transition group-hover/quote:translate-x-1 group-hover/quote:text-burgundy"
+                        className="shrink-0 text-charcoal-muted transition group-hover/quote:translate-x-1 group-hover/quote:text-burgundy"
                       />
                     </Link>
                   </li>
@@ -102,7 +102,7 @@ export default function QuotesPage() {
       </section>
 
       <section className="mx-auto w-full max-w-3xl px-6 pb-20 text-center">
-        <p className="text-sm text-charcoal-soft/70">
+        <p className="text-sm text-charcoal-muted">
           Prefer to write your own? The message field is entirely yours.
         </p>
         <Link

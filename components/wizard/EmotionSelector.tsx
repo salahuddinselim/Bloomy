@@ -77,7 +77,7 @@ function EmotionCard({
         <p className={cn("text-sm font-medium", isSelected ? "text-burgundy" : "text-charcoal")}>
           {emotion.label}
         </p>
-        <p className="mt-1 text-xs text-charcoal-soft/60">{emotion.description}</p>
+        <p className="mt-1 text-xs text-charcoal-muted">{emotion.description}</p>
       </div>
       {isSelected && (
         <motion.div

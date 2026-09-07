@@ -77,7 +77,7 @@ function VibeCard({
         <p className={cn("text-sm font-medium", isSelected ? "text-burgundy" : "text-charcoal")}>
           {vibe.label}
         </p>
-        <p className="mt-1 text-xs text-charcoal-soft/60">{vibe.description}</p>
+        <p className="mt-1 text-xs text-charcoal-muted">{vibe.description}</p>
       </div>
 
       <div className="flex gap-1">
