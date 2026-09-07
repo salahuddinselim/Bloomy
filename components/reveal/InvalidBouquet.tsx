@@ -7,7 +7,7 @@ export function InvalidBouquet() {
         Oops — this bouquet link doesn&apos;t look right.
       </p>
       <p className="max-w-sm text-sm text-charcoal-soft">
-        It may have been altered, or the link is incomplete. Bloomly bouquets live entirely
+        It may have been altered, or the link is incomplete. BloomStory bouquets live entirely
         inside their link, so it needs to be copied exactly.
       </p>
       <div className="mt-2 flex flex-wrap justify-center gap-3">

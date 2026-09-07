@@ -14,11 +14,16 @@ const FEATURED: { text: string; category: string }[] = [
   { text: "Life feels brighter with you in it.", category: "friendship" },
 ];
 
+const title = "Bouquet Card Messages — BloomStory";
+const description =
+  "Find the words for your note before you build the bouquet. Card-ready messages for love, birthdays, thanks, missing someone, encouragement, and friendship — each drops straight into the BloomStory editor.";
+
 export const metadata = {
-  title: "Bouquet Card Messages — Bloomly",
-  description:
-    "Find the words for your note before you build the bouquet. Card-ready messages for love, birthdays, thanks, missing someone, encouragement, and friendship — each drops straight into the Bloomly editor.",
+  title,
+  description,
   alternates: { canonical: "/quotes" },
+  openGraph: { title, description },
+  twitter: { card: "summary_large_image", title, description },
 };
 
 export default function QuotesPage() {

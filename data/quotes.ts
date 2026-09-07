@@ -7,7 +7,7 @@ export interface QuoteCategory {
 }
 
 /*
- * Card message library for the /quotes page. Written in Bloomly's voice —
+ * Card message library for the /quotes page. Written in BloomStory's voice —
  * short lines that fit a 4-inch note card and read as warmth, not platitude.
  */
 export const QUOTE_CATEGORIES: QuoteCategory[] = [

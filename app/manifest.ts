@@ -2,8 +2,8 @@ import type { MetadataRoute } from "next";
 
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Bloomly — Send Something Beautiful",
-    short_name: "Bloomly",
+    name: "BloomStory — Send Something Beautiful",
+    short_name: "BloomStory",
     description:
       "Create a beautiful digital bouquet, write a personal message, and send it to someone special. Free, no account required.",
     start_url: "/",

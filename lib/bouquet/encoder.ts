@@ -2,6 +2,7 @@ import { compressToEncodedURIComponent, decompressFromEncodedURIComponent } from
 import type { Bouquet } from "./types";
 import { validateBouquet } from "./validator";
 import { LIMITS } from "./types";
+import { round } from "@/lib/utils";
 
 export interface EncodeResult {
   ok: boolean;
@@ -9,9 +10,34 @@ export interface EncodeResult {
   error?: string;
 }
 
+/**
+ * Trims each element down to the fields the decoder actually reads.
+ * `id` and `category` are both redundant on the wire: `validateBouquet`
+ * regenerates a fresh id when one isn't supplied and always re-derives
+ * `category` from the canonical asset definition for `type` rather than
+ * trusting the stored value (see validator.ts) — so encoding them is pure
+ * URL-length cost with no decode-side benefit. Numeric fields are rounded to
+ * the precision that's actually visible. This is a pure encode-side
+ * tightening: the decoder already tolerates the dropped/rounded fields, so
+ * older and newer links both decode correctly under whatever code is live.
+ */
+function toWireBouquet(bouquet: Bouquet) {
+  return {
+    ...bouquet,
+    elements: bouquet.elements.map((el) => ({
+      type: el.type,
+      x: round(el.x, 2),
+      y: round(el.y, 2),
+      scale: round(el.scale, 2),
+      rotation: Math.round(el.rotation),
+      z: el.z,
+    })),
+  };
+}
+
 /** Serializes a bouquet into a compact, URL-safe token. The URL is the storage. */
 export function encodeBouquet(bouquet: Bouquet): EncodeResult {
-  const json = JSON.stringify(bouquet);
+  const json = JSON.stringify(toWireBouquet(bouquet));
   const data = compressToEncodedURIComponent(json);
   if (data.length > LIMITS.MAX_URL_LENGTH) {
     return { ok: false, error: "too_large" };
