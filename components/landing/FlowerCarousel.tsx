@@ -81,7 +81,7 @@ export function FlowerCarousel({ flowers }: FlowerCarouselProps) {
           type="button"
           onClick={() => scroll(-1)}
           aria-label="Previous flowers"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-charcoal/12 bg-paper text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-charcoal/12 bg-paper text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
         >
           <ChevronLeft size={18} />
         </button>
@@ -90,7 +90,7 @@ export function FlowerCarousel({ flowers }: FlowerCarouselProps) {
           type="button"
           onClick={() => scroll(1)}
           aria-label="Next flowers"
-          className="flex h-10 w-10 items-center justify-center rounded-full border border-charcoal/12 bg-paper text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+          className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full border border-charcoal/12 bg-paper text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
         >
           <ChevronRight size={18} />
         </button>

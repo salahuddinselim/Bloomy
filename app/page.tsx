@@ -162,7 +162,7 @@ export default function LandingPage() {
               <Link
                 key={e.id}
                 href="/create"
-                className="rounded-full border border-charcoal/12 bg-paper px-4 py-2 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+                className="rounded-full border border-charcoal/12 bg-paper px-4 py-3 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
               >
                 {e.emoji} {e.label}
               </Link>
@@ -223,7 +223,7 @@ export default function LandingPage() {
             <Link
               key={o.id}
               href={`/create?occasion=${o.id}`}
-              className="rounded-full border border-charcoal/12 bg-paper px-4 py-2 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+              className="rounded-full border border-charcoal/12 bg-paper px-4 py-3 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
             >
               {o.label}
             </Link>

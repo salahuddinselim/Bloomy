@@ -307,7 +307,7 @@ function CreatePageInner() {
             <button
               type="button"
               onClick={undo}
-              className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+              className="relative flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3 py-1.5 text-xs font-medium text-charcoal-soft transition before:absolute before:-inset-2 before:content-[''] hover:border-burgundy/40 hover:text-burgundy"
             >
               <Undo2 size={14} /> Undo
             </button>
@@ -316,7 +316,7 @@ function CreatePageInner() {
             <button
               type="button"
               onClick={redo}
-              className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+              className="relative flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition before:absolute before:-inset-2 before:content-[''] hover:border-burgundy/40 hover:text-burgundy"
             >
               <Redo2 size={14} /> Redo
             </button>
@@ -325,7 +325,7 @@ function CreatePageInner() {
             <button
               type="button"
               onClick={arrangeForMe}
-              className="hidden items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy sm:flex"
+              className="relative hidden items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition before:absolute before:-inset-2 before:content-[''] hover:border-burgundy/40 hover:text-burgundy sm:flex"
             >
               <Sparkles size={14} /> Arrange for me
             </button>
@@ -498,7 +498,7 @@ function CreatePageInner() {
                   <button
                     type="button"
                     onClick={arrangeForMe}
-                    className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy sm:hidden"
+                    className="relative flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition before:absolute before:-inset-2 before:content-[''] hover:border-burgundy/40 hover:text-burgundy sm:hidden"
                   >
                     <Sparkles size={14} /> Arrange for me
                   </button>
@@ -515,7 +515,7 @@ function CreatePageInner() {
                           type="button"
                           onClick={() => setDesktopTab(t.id)}
                           className={cn(
-                            "rounded-lg px-2 py-2 text-xs transition",
+                            "rounded-lg px-2 py-3.5 text-xs transition",
                             desktopTab === t.id
                               ? "bg-burgundy text-ivory"
                               : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
@@ -538,7 +538,7 @@ function CreatePageInner() {
                           type="button"
                           onClick={() => setDesktopTab(t.id)}
                           className={cn(
-                            "rounded-lg px-3 py-2 text-xs transition",
+                            "rounded-lg px-3 py-3.5 text-xs transition",
                             desktopTab === t.id
                               ? "bg-burgundy text-ivory"
                               : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
@@ -644,7 +644,7 @@ function CreatePageInner() {
               onClick={goBack}
               disabled={step === 1}
               className={cn(
-                "flex items-center gap-2 rounded-full border border-charcoal/15 px-5 py-2.5 text-sm font-medium text-charcoal-soft transition",
+                "flex items-center gap-2 rounded-full border border-charcoal/15 px-5 py-3 text-sm font-medium text-charcoal-soft transition",
                 step === 1
                   ? "cursor-not-allowed opacity-30"
                   : "hover:border-burgundy/40 hover:text-burgundy"
@@ -662,7 +662,7 @@ function CreatePageInner() {
               onClick={goNext}
               disabled={!canContinue()}
               className={cn(
-                "flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition",
+                "flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition",
                 canContinue()
                   ? "bg-burgundy text-ivory hover:bg-burgundy-dark"
                   : "cursor-not-allowed bg-charcoal/10 text-charcoal-muted"
