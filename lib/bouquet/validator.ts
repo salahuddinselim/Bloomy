@@ -1,10 +1,11 @@
-import { LIMITS, type Bouquet, type BouquetElement, type CardPaper, type RevealStyle } from "./types";
+import { LIMITS, type Bouquet, type BouquetElement, type CardPaper, type FlowerStoryEntry, type RevealStyle } from "./types";
 import { getWrapper } from "@/data/wrappers";
 import { getRibbon } from "@/data/ribbons";
+import { getPresentation } from "@/data/presentations";
 import { getAssetDef } from "@/components/bouquet/BouquetAsset";
 
 const REVEAL_STYLES: RevealStyle[] = ["gift_box", "envelope", "curtain", "minimal"];
-const CARD_PAPERS: CardPaper[] = ["paper", "parchment", "ivory", "blush"];
+const CARD_PAPERS: CardPaper[] = ["paper", "parchment", "ivory", "blush", "kraft", "sage", "champagne", "slate"];
 const CONTROL_CHARS = new RegExp("[\\u0000-\\u001F\\u007F]", "g");
 
 function isFiniteNumber(v: unknown): v is number {
@@ -95,6 +96,27 @@ export function validateBouquet(raw: unknown): ValidationResult {
     ? (r.cardPaper as CardPaper)
     : "paper";
 
+  const presentation = typeof r.presentation === "string" && getPresentation(r.presentation)
+    ? r.presentation
+    : undefined;
+
+  const story = Array.isArray(r.story)
+    ? r.story
+        .slice(0, LIMITS.MAX_STORY_ENTRIES)
+        .map((raw): FlowerStoryEntry | null => {
+          if (!raw || typeof raw !== "object") return null;
+          const s = raw as Record<string, unknown>;
+          const flowerId = typeof s.flowerId === "string" ? s.flowerId : "";
+          if (!getAssetDef(flowerId) || getAssetDef(flowerId)?.category !== "flower") return null;
+          const count = typeof s.count === "number" && Number.isFinite(s.count)
+            ? Math.min(LIMITS.MAX_STORY_COUNT, Math.max(1, Math.round(s.count)))
+            : 1;
+          const personalNote = sanitizeText(s.personalNote, LIMITS.MAX_STORY_NOTE);
+          return { flowerId, count, personalNote };
+        })
+        .filter((e): e is FlowerStoryEntry => e !== null)
+    : undefined;
+
   const bouquet: Bouquet = {
     version: 1,
     recipient: sanitizeText(r.recipient, LIMITS.MAX_RECIPIENT),
@@ -107,6 +129,14 @@ export function validateBouquet(raw: unknown): ValidationResult {
     revealStyle,
     mono: r.mono === true,
     cardPaper,
+    ...(presentation ? { presentation } : {}),
+    ...(story && story.length > 0 ? { story } : {}),
+    ...(typeof r.title === "string"
+      ? { title: sanitizeText(r.title, LIMITS.MAX_TITLE) }
+      : {}),
+    ...(typeof r.signatureTheme === "string"
+      ? { signatureTheme: sanitizeText(r.signatureTheme, 64) }
+      : {}),
   };
 
   return { valid: true, bouquet };

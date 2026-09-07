@@ -43,53 +43,71 @@ function ring(
   ));
 }
 
-function Rose({ colors }: ShapeProps) {
+function Rose({ colors, seed = "rose" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
   return (
     <g>
-      {ring(7, 30, 22, c1, 8, 0.9)}
-      {ring(6, 21, 18, c2, 38, 1)}
+      <defs>
+        {volumeGradient(g1, c1)}
+      </defs>
+      {ring(8, 30, 22, shade(c1, -0.1), 4, 0.9, 0.9)}
+      {ring(7, 21, 18, c2, 38, 1)}
       {ring(5, 13, 13, c1, 15, 1.1)}
-      {ring(4, 6, 8, c2, 40, 1.2)}
-      <circle cx={50} cy={50} r={2.6} fill={c2} />
+      {ring(4, 6, 8, shade(c2, 0.12), 40, 1.2)}
+      <circle cx={50} cy={50} r={3} fill={`url(#${g1})`} />
+      <circle cx={47.5} cy={47} r={1.4} fill="#fff" opacity={0.55} />
     </g>
   );
 }
 
-function Tulip({ colors }: ShapeProps) {
+function Tulip({ colors, seed = "tulip" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
   return (
     <g>
+      <defs>
+        {volumeGradient(g1, c2)}
+        <linearGradient id={g2} x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor={shade(c1, 0.25)} />
+          <stop offset="100%" stopColor={c1} />
+        </linearGradient>
+      </defs>
       <path
-        d="M50,50 C30,46 26,20 38,4 C42,14 46,20 50,22 C54,20 58,14 62,4 C74,20 70,46 50,50 Z"
-        fill={c1}
+        d="M50,56 C28,50 22,20 38,2 C42,13 46,20 50,23 C54,20 58,13 62,2 C78,20 72,50 50,56 Z"
+        fill={`url(#${g1})`}
       />
       <path
-        d="M50,50 C38,44 36,24 44,8 C46,20 48,28 50,32 C52,28 54,20 56,8 C64,24 62,44 50,50 Z"
-        fill={c2}
-        opacity={0.85}
+        d="M50,56 C38,42 34,26 44,9 C46,20 48,28 50,32 C52,28 54,20 56,9 C66,26 62,42 50,56 Z"
+        fill={`url(#${g2})`}
+        opacity={0.95}
       />
+      <path d="M46,20 C47,26 48,30 50,33 L50,20 Z" fill="#fff" opacity={0.4} />
     </g>
   );
 }
 
-function Lily({ colors }: ShapeProps) {
+function Lily({ colors, seed = "lily" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const center = colors.center ?? c2;
+  const g1 = gin(seed, "a");
   return (
     <g>
-      {ring(6, 34, 12, c1, 0, 0.7)}
-      {ring(6, 26, 9, c2, 30, 0.6, 0.9)}
+      <defs>{volumeGradient(g1, c1)}</defs>
+      {ring(6, 34, 12, `url(#${g1})`, 0, 0.7)}
+      {ring(6, 26, 9, shade(c2, 0.1), 30, 0.6, 0.9)}
       {Array.from({ length: 6 }, (_, i) => (
         <g key={i} transform={`rotate(${i * 60} 50 50)`}>
-          <line x1={50} y1={50} x2={50} y2={26} stroke={center} strokeWidth={0.6} />
+          <line x1={50} y1={50} x2={50} y2={26} stroke={shade(center, 0.1)} strokeWidth={0.6} />
           <ellipse cx={50} cy={25} rx={1.4} ry={2.2} fill={center} />
         </g>
       ))}
-      <circle cx={50} cy={50} r={2.2} fill={center} />
+      <circle cx={50} cy={50} r={2.4} fill={center} />
+      <circle cx={48.5} cy={48.5} r={0.9} fill="#fff" opacity={0.6} />
     </g>
   );
 }
@@ -98,6 +116,8 @@ function Daisy({ colors, seed = "daisy" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const center = colors.center ?? "#e8b93a";
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
   // Deterministic speckle (replaces a shared SVG <pattern>, which clashed on
   // repeated ids across the document), confined to the center disc.
   const rand = mulberry32(hashString(`daisy-dots-${seed}`));
@@ -108,9 +128,20 @@ function Daisy({ colors, seed = "daisy" }: ShapeProps) {
   });
   return (
     <g>
-      {ring(14, 26, 7, c1, 0, 0.55)}
-      {ring(14, 22, 5.5, c2, 12.8, 0.5, 0.7)}
-      <circle cx={50} cy={50} r={7} fill={center} />
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.35" r="0.7">
+          <stop offset="0%" stopColor={shade(c1, 0.25)} />
+          <stop offset="100%" stopColor={shade(c1, -0.12)} />
+        </radialGradient>
+        <radialGradient id={g2} cx="0.5" cy="0.45" r="0.7">
+          <stop offset="0%" stopColor={shade(center, 0.3)} />
+          <stop offset="100%" stopColor={shade(center, -0.2)} />
+        </radialGradient>
+      </defs>
+      {ring(14, 26, 7, `url(#${g1})`, 0, 0.55)}
+      {ring(14, 22, 5.5, shade(c2, 0.05), 12.8, 0.5, 0.7)}
+      <circle cx={50} cy={50} r={7} fill={`url(#${g2})`} />
+      <circle cx={47} cy={46} r={2} fill="#fff" opacity={0.5} />
       {dots.map((p, i) => (
         <circle key={i} cx={p.x} cy={p.y} r={0.6} fill="#000" opacity={0.28} />
       ))}
@@ -118,15 +149,28 @@ function Daisy({ colors, seed = "daisy" }: ShapeProps) {
   );
 }
 
-function Sunflower({ colors }: ShapeProps) {
+function Sunflower({ colors, seed = "sunflower" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const center = colors.center ?? "#5c3b1e";
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
   return (
     <g>
-      {ring(18, 32, 8, c1, 0, 0.5)}
-      {ring(18, 26, 6.5, c2, 10, 0.5, 0.8)}
-      <circle cx={50} cy={50} r={11} fill={center} />
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.35" r="0.72">
+          <stop offset="0%" stopColor={shade(c1, 0.3)} />
+          <stop offset="100%" stopColor={shade(c1, -0.1)} />
+        </radialGradient>
+        <radialGradient id={g2} cx="0.5" cy="0.4" r="0.7">
+          <stop offset="0%" stopColor={shade(center, 0.25)} />
+          <stop offset="100%" stopColor={shade(center, -0.25)} />
+        </radialGradient>
+      </defs>
+      {ring(18, 32, 8, `url(#${g1})`, 0, 0.5)}
+      {ring(18, 26, 6.5, shade(c2, 0.1), 10, 0.5, 0.8)}
+      <circle cx={50} cy={50} r={11} fill={`url(#${g2})`} />
+      <circle cx={46} cy={45} r={3} fill={shade(center, 0.35)} opacity={0.7} />
       {Array.from({ length: 10 }, (_, i) => (
         <circle
           key={i}
@@ -141,29 +185,38 @@ function Sunflower({ colors }: ShapeProps) {
   );
 }
 
-function Peony({ colors }: ShapeProps) {
+function Peony({ colors, seed = "peony" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
   return (
     <g>
-      {ring(8, 33, 20, c1, 5, 0.85)}
-      {ring(8, 26, 17, c2, 27, 0.9, 0.9)}
-      {ring(7, 19, 14, c1, 12, 1)}
-      {ring(6, 12, 10, c2, 35, 1.1)}
-      {ring(5, 6, 6, c1, 20, 1.2)}
+      <defs>
+        {volumeGradient(g1, c1)}
+        {volumeGradient(g2, c2)}
+      </defs>
+      {ring(8, 33, 20, `url(#${g1})`, 5, 0.85)}
+      {ring(8, 26, 17, `url(#${g2})`, 27, 0.9, 0.92)}
+      {ring(7, 19, 14, c1, 12, 1, 0.95)}
+      {ring(6, 12, 10, shade(c2, 0.1), 35, 1.1)}
+      {ring(5, 6, 6, shade(c1, 0.15), 20, 1.2)}
+      <circle cx={48.5} cy={46} r={1.5} fill="#fff" opacity={0.5} />
     </g>
   );
 }
 
-function Carnation({ colors }: ShapeProps) {
+function Carnation({ colors, seed = "carnation" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
   return (
     <g>
-      {ring(20, 27, 8, c1, 0, 0.4, 0.9)}
-      {ring(20, 22, 7, c2, 9, 0.4, 0.85)}
+      <defs>{volumeGradient(g1, c1)}</defs>
+      {ring(20, 27, 8, `url(#${g1})`, 0, 0.4, 0.95)}
+      {ring(20, 22, 7, shade(c2, 0.08), 9, 0.4, 0.88)}
       {ring(16, 16, 6, c1, 4, 0.4)}
-      {ring(12, 9, 5, c2, 15, 0.4)}
+      {ring(12, 9, 5, shade(c2, 0.15), 15, 0.4)}
     </g>
   );
 }
@@ -172,43 +225,59 @@ function Hydrangea({ colors, seed = "hydrangea" }: ShapeProps) {
   const rand = mulberry32(hashString(seed));
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
-  const florets = Array.from({ length: 16 }, (_, i) => {
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
+  const florets = Array.from({ length: 20 }, (_, i) => {
     const angle = rand() * Math.PI * 2;
-    const r = 8 + rand() * 26;
+    const r = 8 + rand() * 25;
     const cx = round(50 + Math.cos(angle) * r);
     const cy = round(50 + Math.sin(angle) * r);
     const rot = rand() * 90;
-    const fill = i % 2 === 0 ? c1 : c2;
+    const useA = i % 2 === 0;
+    const fillGrad = useA ? g1 : g2;
     return (
-      <g key={i} transform={`translate(${cx} ${cy}) rotate(${rot}) scale(0.22)`}>
-        {ring(4, 30, 26, fill, 0, 1)}
-        <circle r={4} fill="#fff7e6" opacity={0.7} />
+      <g key={i} transform={`translate(${cx} ${cy}) rotate(${rot}) scale(0.24)`}>
+        {ring(4, 30, 26, `url(#${fillGrad})`, 0, 1)}
+        <circle r={4} fill={useA ? shade(c1, 0.3) : shade(c2, 0.3)} />
+        <circle r={2} fill="#fff" opacity={0.7} />
       </g>
     );
   });
-  return <g>{florets}</g>;
+  return (
+    <g>
+      <defs>
+        {volumeGradient(g1, c1)}
+        {volumeGradient(g2, c2)}
+      </defs>
+      <circle cx={50} cy={50} r={28} fill={alpha(c1, 0.25)} />
+      {florets}
+    </g>
+  );
 }
 
-function Orchid({ colors }: ShapeProps) {
+function Orchid({ colors, seed = "orchid" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const center = colors.center ?? c2;
+  const g1 = gin(seed, "a");
   const petal = (length: number, width: number, fill: string, angle: number) => (
     <path d={petalPath(length, width)} fill={fill} transform={`rotate(${angle} 50 50)`} />
   );
   return (
     <g>
-      {petal(30, 16, c1, 0)}
-      {petal(26, 15, c1, 130)}
-      {petal(26, 15, c1, 230)}
-      {petal(20, 13, c2, 60)}
-      {petal(20, 13, c2, 300)}
+      <defs>{volumeGradient(g1, c1)}</defs>
+      {petal(30, 16, `url(#${g1})`, 0)}
+      {petal(26, 15, shade(c1, -0.05), 130)}
+      {petal(26, 15, shade(c1, -0.05), 230)}
+      {petal(20, 13, shade(c2, 0.1), 60)}
+      {petal(20, 13, shade(c2, 0.1), 300)}
       <path
         d="M50,50 C42,58 42,70 50,76 C58,70 58,58 50,50 Z"
-        fill={center}
+        fill={shade(center, -0.05)}
       />
+      <path d="M50,50 C46,56 48,66 50,70 L54,58 Z" fill={shade(center, 0.3)} opacity={0.7} />
       {Array.from({ length: 5 }, (_, i) => (
-        <circle key={i} cx={46 + (i % 3) * 4} cy={62 + Math.floor(i / 3) * 6} r={0.8} fill={c1} opacity={0.6} />
+        <circle key={i} cx={46 + (i % 3) * 4} cy={62 + Math.floor(i / 3) * 6} r={0.8} fill={shade(c1, 0.2)} opacity={0.7} />
       ))}
     </g>
   );
@@ -218,65 +287,105 @@ function BabysBreath({ colors, seed = "bb" }: ShapeProps) {
   const rand = mulberry32(hashString(seed));
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
-  const sprigs = Array.from({ length: 7 }, (_, i) => {
-    const angle = (i / 7) * Math.PI * 2 + rand();
-    const r = 14 + rand() * 20;
+  const g1 = gin(seed, "a");
+  const sprigs = Array.from({ length: 8 }, (_, i) => {
+    const angle = (i / 8) * Math.PI * 2 + rand();
+    const r = 14 + rand() * 18;
     const cx = round(50 + Math.cos(angle) * r);
     const cy = round(50 + Math.sin(angle) * r);
     return (
       <g key={i}>
         <line x1={50} y1={50} x2={cx} y2={cy} stroke={c2} strokeWidth={0.4} opacity={0.5} />
-        <g transform={`translate(${cx} ${cy}) scale(0.12)`}>{ring(5, 30, 26, c1, 0, 1)}</g>
+        <g transform={`translate(${cx} ${cy}) scale(0.12)`}>
+          <defs><radialGradient id={g1} cx="0.5" cy="0.4" r="0.7"><stop offset="0%" stopColor={shade(c1, 0.4)} /><stop offset="100%" stopColor={c1} /></radialGradient></defs>
+          {ring(5, 30, 26, `url(#${g1})`, 0, 1)}
+          <circle r={0.8} fill="#fff" opacity={0.8} />
+        </g>
       </g>
     );
   });
   return <g>{sprigs}</g>;
 }
 
-function Lavender({ colors }: ShapeProps) {
+function Lavender({ colors, seed = "lavender" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
   const buds = Array.from({ length: 12 }, (_, i) => {
     const y = 12 + i * 6.5;
     const side = i % 2 === 0 ? -1 : 1;
     return (
-      <ellipse
-        key={i}
-        cx={50 + side * 3.4}
-        cy={y}
-        rx={3.4}
-        ry={4.4}
-        fill={i % 3 === 0 ? c2 : c1}
-        transform={`rotate(${side * 18} ${50 + side * 3.4} ${y})`}
-      />
+      <g key={i}>
+        <ellipse
+          cx={50 + side * 3.4}
+          cy={y}
+          rx={3.4}
+          ry={4.6}
+          fill={i % 3 === 0 ? shade(c2, -0.1) : c1}
+          transform={`rotate(${side * 18} ${50 + side * 3.4} ${y})`}
+        />
+        <ellipse
+          cx={50 + side * 2.6}
+          cy={y - 1.5}
+          rx={1.2}
+          ry={2}
+          fill="#fff"
+          opacity={0.45}
+          transform={`rotate(${side * 18} ${50 + side * 3.4} ${y})`}
+        />
+      </g>
     );
   });
-  return <g>{buds}</g>;
-}
-
-function Daffodil({ colors }: ShapeProps) {
-  const c1 = colors.primary;
-  const c2 = colors.secondary ?? colors.primary;
-  const center = colors.center ?? c2;
   return (
     <g>
-      {ring(6, 28, 15, c1, 0, 0.6)}
-      {ring(6, 22, 12, c2, 30, 0.55, 0.85)}
-      <ellipse cx={50} cy={50} rx={11} ry={13} fill={center} />
-      <ellipse cx={50} cy={47} rx={8} ry={9.5} fill={c2} opacity={0.6} />
+      <defs><linearGradient id={g1} x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stopColor={shade(c2, 0.2)} /><stop offset="100%" stopColor={shade(c2, -0.15)} /></linearGradient></defs>
+      <line x1={50} y1={14} x2={50} y2={86} stroke={shade(c2, -0.25)} strokeWidth={0.8} opacity={0.6} />
+      {buds}
     </g>
   );
 }
 
-function Blossom({ colors }: ShapeProps) {
+function Daffodil({ colors, seed = "daffodil" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const center = colors.center ?? c2;
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
   return (
     <g>
-      {ring(5, 20, 17, c1, 0, 0.75)}
-      {ring(5, 15, 13, c2, 36, 0.7, 0.8)}
-      <circle cx={50} cy={50} r={3.5} fill={center} />
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.35" r="0.7">
+          <stop offset="0%" stopColor={shade(c1, 0.25)} />
+          <stop offset="100%" stopColor={shade(c1, -0.08)} />
+        </radialGradient>
+        {volumeGradient(g2, center)}
+      </defs>
+      {ring(6, 28, 15, `url(#${g1})`, 0, 0.6)}
+      {ring(6, 22, 12, shade(c2, 0.05), 30, 0.55, 0.85)}
+      <ellipse cx={50} cy={50} rx={11} ry={13} fill={`url(#${g2})`} />
+      <ellipse cx={50} cy={47} rx={8} ry={9.5} fill={shade(center, 0.2)} opacity={0.5} />
+      <ellipse cx={47.5} cy={45} rx={2.5} ry={3} fill="#fff" opacity={0.4} />
+    </g>
+  );
+}
+
+function Blossom({ colors, seed = "blossom" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const center = colors.center ?? c2;
+  const g1 = gin(seed, "a");
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.35" r="0.7">
+          <stop offset="0%" stopColor={shade(c1, 0.3)} />
+          <stop offset="100%" stopColor={shade(c1, -0.1)} />
+        </radialGradient>
+      </defs>
+      {ring(5, 20, 17, `url(#${g1})`, 0, 0.75)}
+      {ring(5, 15, 13, shade(c2, 0.05), 36, 0.7, 0.85)}
+      <circle cx={50} cy={50} r={3.5} fill={shade(center, 0.05)} />
+      <circle cx={48} cy={47} r={1.2} fill="#fff" opacity={0.8} />
       {Array.from({ length: 5 }, (_, i) => (
         <circle
           key={i}
@@ -288,6 +397,261 @@ function Blossom({ colors }: ShapeProps) {
       ))}
     </g>
   );
+}
+
+/* ---------- New flower shapes (3D-procedural, no raster needed) ---------- */
+
+function Poppy({ colors, seed = "poppy" }: ShapeProps) {
+  const c1 = colors.primary;
+  const center = colors.center ?? "#2c1a12";
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.4" r="0.72">
+          <stop offset="0%" stopColor={shade(c1, 0.3)} />
+          <stop offset="100%" stopColor={shade(c1, -0.2)} />
+        </radialGradient>
+        <radialGradient id={g2} cx="0.5" cy="0.4" r="0.7">
+          <stop offset="0%" stopColor={shade(center, 0.3)} />
+          <stop offset="100%" stopColor={shade(center, -0.2)} />
+        </radialGradient>
+      </defs>
+      {ring(8, 30, 24, `url(#${g1})`, 0, 0.8, 0.9)}
+      {ring(8, 26, 19, shade(c1, -0.05), 22, 0.85, 0.9)}
+      <circle cx={50} cy={50} r={10} fill={`url(#${g2})`} />
+      <circle cx={48} cy={47} r={2} fill="#fff" opacity={0.5} />
+      {Array.from({ length: 6 }, (_, i) => (
+        <circle key={i} cx={round(50 + Math.cos((i / 6) * Math.PI * 2) * 5.5)} cy={round(50 + Math.sin((i / 6) * Math.PI * 2) * 5.5)} r={1.1} fill="#fff" opacity={0.8} />
+      ))}
+    </g>
+  );
+}
+
+function Cosmos({ colors, seed = "cosmos" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const center = colors.center ?? "#f2e37c";
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.35" r="0.7">
+          <stop offset="0%" stopColor={shade(c1, 0.25)} />
+          <stop offset="100%" stopColor={shade(c1, -0.08)} />
+        </radialGradient>
+        <radialGradient id={g2} cx="0.5" cy="0.4" r="0.7">
+          <stop offset="0%" stopColor={shade(center, 0.3)} />
+          <stop offset="100%" stopColor={shade(center, -0.15)} />
+        </radialGradient>
+      </defs>
+      {ring(8, 30, 12, `url(#${g1})`, 0, 0.5)}
+      {ring(8, 24, 9, shade(c2, 0.08), 22.5, 0.5, 0.8)}
+      <circle cx={50} cy={50} r={7.5} fill={`url(#${g2})`} />
+      <circle cx={47.5} cy={47} r={2} fill="#fff" opacity={0.5} />
+    </g>
+  );
+}
+
+function Chrysanthemum({ colors, seed = "chrysanthemum" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
+  return (
+    <g>
+      <defs>{volumeGradient(g1, c1)}</defs>
+      {ring(24, 30, 6, `url(#${g1})`, 0, 0.3, 0.95)}
+      {ring(22, 23, 5, shade(c2, 0.05), 7, 0.3, 0.9)}
+      {ring(16, 14, 4, c1, 12, 0.3)}
+      {ring(10, 7, 3, shade(c2, 0.15), 20, 0.3)}
+      <circle cx={50} cy={50} r={3} fill={shade(c2, 0.25)} />
+    </g>
+  );
+}
+
+function Iris({ colors, seed = "iris" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const center = colors.center ?? "#f6e37c";
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
+  const sepal = (fill: string, angle: number, w = 15, len = 32, curve = 0.6) => (
+    <path d={petalPath(len, w, curve)} fill={fill} transform={`rotate(${angle} 50 50)`} />
+  );
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.4" r="0.7">
+          <stop offset="0%" stopColor={shade(c1, 0.25)} />
+          <stop offset="100%" stopColor={shade(c1, -0.15)} />
+        </radialGradient>
+        {volumeGradient(g2, center)}
+      </defs>
+      {sepal(`url(#${g1})`, 30, 16, 32, 0.7)}
+      {sepal(`url(#${g1})`, 150, 16, 32, 0.7)}
+      {sepal(shade(c2, 0.05), 90, 14, 24, 0.8)}
+      {sepal(shade(c2, 0.05), 75, 13, 20, 0.9)}
+      {sepal(shade(c2, 0.05), 105, 13, 20, 0.9)}
+      <path d="M50,50 C44,58 50,66 50,74 C50,66 56,58 50,50 Z" fill={`url(#${g2})`} />
+      <path d="M47,54 L50,70 L53,54 L50,48 Z" fill={shade(center, 0.3)} opacity={0.75} />
+      <line x1={47} y1={56} x2={53} y2={56} stroke={shade(center, -0.4)} strokeWidth={1} opacity={0.5} />
+    </g>
+  );
+}
+
+function Gerbera({ colors, seed = "gerbera" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const center = colors.center ?? "#7a5c2e";
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
+  const rand = mulberry32(hashString(`gerbera-${seed}`));
+  const dots = Array.from({ length: 12 }, () => {
+    const t = rand() * Math.PI * 2;
+    const r = Math.sqrt(rand()) * 8;
+    return { x: round(50 + Math.cos(t) * r), y: round(50 + Math.sin(t) * r) };
+  });
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.3" r="0.75">
+          <stop offset="0%" stopColor={shade(c1, 0.28)} />
+          <stop offset="100%" stopColor={shade(c1, -0.15)} />
+        </radialGradient>
+        <radialGradient id={g2} cx="0.5" cy="0.4" r="0.7">
+          <stop offset="0%" stopColor={shade(center, 0.3)} />
+          <stop offset="100%" stopColor={shade(center, -0.22)} />
+        </radialGradient>
+      </defs>
+      {ring(22, 30, 9, `url(#${g1})`, 0, 0.5)}
+      {ring(22, 25, 7, shade(c2, 0.08), 8, 0.5, 0.85)}
+      <circle cx={50} cy={50} r={12} fill={`url(#${g2})`} />
+      <circle cx={47} cy={45} r={2.5} fill={shade(center, 0.4)} opacity={0.7} />
+      {dots.map((p, i) => (
+        <circle key={i} cx={p.x} cy={p.y} r={0.9} fill={shade(center, 0.2)} opacity={0.8} />
+      ))}
+    </g>
+  );
+}
+
+function Camellia({ colors, seed = "camellia" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
+  return (
+    <g>
+      <defs>{volumeGradient(g1, c1)}</defs>
+      {ring(7, 32, 20, `url(#${g1})`, 0, 0.9)}
+      {ring(6, 24, 17, shade(c2, 0.05), 26, 0.95, 0.9)}
+      {ring(5, 15, 12, c1, 12, 1, 0.92)}
+      {ring(4, 8, 8, shade(c2, 0.15), 40, 1.1)}
+      <circle cx={50} cy={50} r={3} fill={shade(c2, 0.2)} />
+      <circle cx={48} cy={47.5} r={1.2} fill="#fff" opacity={0.6} />
+    </g>
+  );
+}
+
+function Lilac({ colors, seed = "lilac" }: ShapeProps) {
+  const rand = mulberry32(hashString(seed));
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
+  const tubers = Array.from({ length: 9 }, (_, i) => {
+    const offX = (rand() - 0.5) * 6;
+    const offY = 14 + i * 7.5;
+    const r = 2.8 + rand() * 1.8;
+    const useA = i % 2 === 0;
+    return (
+      <g key={i} transform={`translate(${50 + offX} ${offY})`}>
+        <circle r={r} fill={useA ? `url(#${g1})` : `url(#${g2})`} opacity={0.92} />
+        <circle cx={-r * 0.3} cy={-r * 0.3} r={r * 0.4} fill="#fff" opacity={0.5} />
+      </g>
+    );
+  });
+  return (
+    <g>
+      <defs>
+        <radialGradient id={g1} cx="0.4" cy="0.35" r="0.7"><stop offset="0%" stopColor={shade(c1, 0.35)} /><stop offset="100%" stopColor={c1} /></radialGradient>
+        <radialGradient id={g2} cx="0.4" cy="0.35" r="0.7"><stop offset="0%" stopColor={shade(c2, 0.35)} /><stop offset="100%" stopColor={c2} /></radialGradient>
+      </defs>
+      <line x1={50} y1={12} x2={50} y2={86} stroke={shade(c2, -0.25)} strokeWidth={1} opacity={0.5} />
+      {tubers}
+    </g>
+  );
+}
+
+function Gladiolus({ colors, seed = "gladiolus" }: ShapeProps) {
+  const c1 = colors.primary;
+  const c2 = colors.secondary ?? colors.primary;
+  const g1 = gin(seed, "a");
+  const blooms = Array.from({ length: 7 }, (_, i) => {
+    const y = 16 + i * 10;
+    const side = i % 2 === 0 ? -1 : 1;
+    const inner = i % 3 === 0;
+    return (
+      <g key={i} transform={`translate(${50 + side * 2} ${y}) rotate(${side * 22}) scale(0.32)`}>
+        <path
+          d="M30,80 C22,60 26,40 40,30 C52,42 58,56 60,72 C52,78 42,78 30,80 Z"
+          fill={inner ? shade(c2, 0.05) : `url(#${g1})`}
+        />
+        <path d="M40,34 C44,44 46,52 46,60 C42,64 38,66 34,66 L40,34 Z" fill="#fff" opacity={0.4} />
+      </g>
+    );
+  });
+  return (
+    <g>
+      <defs><radialGradient id={g1} cx="0.5" cy="0.4" r="0.7"><stop offset="0%" stopColor={shade(c1, 0.25)} /><stop offset="100%" stopColor={shade(c1, -0.15)} /></radialGradient></defs>
+      <line x1={50} y1={14} x2={50} y2={86} stroke={shade(c2, -0.25)} strokeWidth={0.9} opacity={0.6} />
+      {blooms}
+    </g>
+  );
+}
+
+/* ---------- 3D shading helpers ---------- */
+
+function shade(hex: string, amount: number) {
+  const n = parseInt(hex.replace("#", ""), 16);
+  let r = (n >> 16) & 255;
+  let g = (n >> 8) & 255;
+  let b = n & 255;
+  const mix = amount > 0 ? 255 : 0;
+  const t = Math.abs(amount);
+  r = Math.round(r + (mix - r) * t);
+  g = Math.round(g + (mix - g) * t);
+  b = Math.round(b + (mix - b) * t);
+  return `#${[r, g, b].map((c) => c.toString(16).padStart(2, "0")).join("")}`;
+}
+
+function hexToRgb(hex: string): [number, number, number] {
+  const n = parseInt(hex.replace("#", ""), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+}
+
+function alpha(hex: string, a: number) {
+  const [r, g, b] = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+/**
+ * A radial gradient that gives a bloom volume: a light centre cup that falls
+ * to the base hue and then into a darker rim, so petals read as curved.
+ */
+function volumeGradient(id: string, base: string) {
+  return (
+    <radialGradient id={id} cx="0.5" cy="0.42" r="0.68">
+      <stop offset="0%" stopColor={shade(base, 0.35)} />
+      <stop offset="55%" stopColor={base} />
+      <stop offset="100%" stopColor={shade(base, -0.28)} />
+    </radialGradient>
+  );
+}
+
+/** Each flower uses this to guarantee unique gradient ids when repeated on a page. */
+function gin(seed = "f", key: string) {
+  return `gr-${seed}-${key}`;
 }
 
 const SHAPES: Record<string, (p: ShapeProps) => React.JSX.Element> = {
@@ -304,6 +668,14 @@ const SHAPES: Record<string, (p: ShapeProps) => React.JSX.Element> = {
   lavender: Lavender,
   daffodil: Daffodil,
   blossom: Blossom,
+  poppy: Poppy,
+  cosmos: Cosmos,
+  chrysanthemum: Chrysanthemum,
+  iris: Iris,
+  gerbera: Gerbera,
+  camellia: Camellia,
+  lilac: Lilac,
+  gladiolus: Gladiolus,
 };
 
 export function FlowerBloom({

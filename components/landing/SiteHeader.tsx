@@ -5,7 +5,7 @@ export function SiteHeader() {
   return (
     <header className="mx-auto flex w-full max-w-6xl items-center justify-between px-6 py-6">
       <Link href="/" className="font-script text-2xl italic text-charcoal">
-        Bloomly
+        BloomStory
       </Link>
       <Link
         href="/create"

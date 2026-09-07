@@ -27,15 +27,13 @@ const body = Inter({
 });
 
 export const metadata: Metadata = {
-  // Resolved from the deploy environment so the social card URLs always point
-  // at the real origin — this was hardcoded to a placeholder domain before.
   metadataBase: new URL(siteUrl),
   title: {
-    default: "Bloomly — Send Something Beautiful",
-    template: "%s · Bloomly",
+    default: "BloomStory — Don't Just Send Flowers. Tell Your Story.",
+    template: "%s · BloomStory",
   },
   description:
-    "Create a beautiful digital bouquet, write a personal message, and send it to someone special. Free, no account required.",
+    "Create a beautiful digital bouquet, give every flower a meaning, and send someone a little piece of your heart. Free, no account required.",
   alternates: { canonical: "/" },
   verification: { google: "N5lOrXPtVkJjcyTSU0lmQRn50xBfHTSnTCqz99Nv5CA" },
   keywords: [
@@ -45,19 +43,21 @@ export const metadata: Metadata = {
     "e-bouquet",
     "flower card message",
     "digital flowers link",
+    "flower gifting",
+    "personal bouquet",
   ],
   openGraph: {
-    title: "Bloomly — Send Something Beautiful",
+    title: "BloomStory — Don't Just Send Flowers. Tell Your Story.",
     description:
-      "Create a beautiful digital bouquet, write a personal message, and send it to someone special. Free, no account required.",
-    siteName: "Bloomly",
+      "Create a beautiful digital bouquet, give every flower a meaning, and send someone a little piece of your heart. Free, no account required.",
+    siteName: "BloomStory",
     type: "website",
   },
   twitter: {
     card: "summary_large_image",
-    title: "Bloomly — Send Something Beautiful",
+    title: "BloomStory — Don't Just Send Flowers. Tell Your Story.",
     description:
-      "Create a beautiful digital bouquet and send it to someone special.",
+      "Create a beautiful digital bouquet, give every flower a meaning, and send someone a little piece of your heart.",
   },
 };
 

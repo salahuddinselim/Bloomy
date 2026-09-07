@@ -1,25 +1,19 @@
 "use client";
-
-import { useState } from "react";
-import { FLOWERS, FLOWER_CATEGORIES } from "@/data/flowers";
-import { FOLIAGE } from "@/data/foliage";
-import { DECORATIONS } from "@/data/decorations";
+import { REALISTIC_FLOWERS } from "@/data/flowers";
+import { REALISTIC_FOLIAGE } from "@/data/foliage";
 import { PRESETS } from "@/data/presets";
 import { AssetGrid } from "./AssetGrid";
 import { WrapperPicker, RibbonPicker } from "./WrapperRibbonPicker";
 import type { Bouquet } from "@/lib/bouquet/types";
 import { LIMITS } from "@/lib/bouquet/types";
-import { cn } from "@/lib/utils";
 
-export type EditorTab = "flowers" | "foliage" | "wrapper" | "ribbon" | "decor" | "presets";
+export type EditorTab = "presets" | "flowers" | "foliage" | "style";
 
 export const EDITOR_TABS: { id: EditorTab; label: string }[] = [
-  { id: "presets", label: "Presets" },
+  { id: "presets", label: "Looks" },
   { id: "flowers", label: "Flowers" },
-  { id: "foliage", label: "Foliage" },
-  { id: "wrapper", label: "Wrapper" },
-  { id: "ribbon", label: "Ribbon" },
-  { id: "decor", label: "Decor" },
+  { id: "foliage", label: "Greenery" },
+  { id: "style", label: "Wrap" },
 ];
 
 interface EditorPanelContentProps {
@@ -41,8 +35,6 @@ export function EditorPanelContent({
   onSetRibbon,
   onApplyPreset,
 }: EditorPanelContentProps) {
-  const [flowerCategory, setFlowerCategory] = useState("all");
-
   if (tab === "presets") {
     return (
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -62,28 +54,9 @@ export function EditorPanelContent({
   }
 
   if (tab === "flowers") {
-    const active = FLOWER_CATEGORIES.find((c) => c.id === flowerCategory);
-    const items = active ? FLOWERS.filter((f) => f.tags.includes(active.id) || active.id === "all") : FLOWERS;
     return (
       <div>
-        <div className="mb-3 flex flex-wrap gap-1.5">
-          {FLOWER_CATEGORIES.map((c) => (
-            <button
-              key={c.id}
-              type="button"
-              onClick={() => setFlowerCategory(c.id)}
-              className={cn(
-                "rounded-full px-3 py-1 text-xs transition",
-                flowerCategory === c.id
-                  ? "bg-charcoal text-ivory"
-                  : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
-              )}
-            >
-              {c.label}
-            </button>
-          ))}
-        </div>
-        <AssetGrid items={items} onAdd={onAdd} disabled={() => counts.flower >= LIMITS.MAX_FLOWERS} />
+        <AssetGrid items={REALISTIC_FLOWERS} onAdd={onAdd} disabled={() => counts.flower >= LIMITS.MAX_FLOWERS} />
         {counts.flower >= LIMITS.MAX_FLOWERS && (
           <p className="mt-2 text-xs text-burgundy/80">Maximum flowers reached.</p>
         )}
@@ -94,22 +67,21 @@ export function EditorPanelContent({
   if (tab === "foliage") {
     return (
       <div>
-        <AssetGrid items={FOLIAGE} onAdd={onAdd} disabled={() => counts.foliage >= LIMITS.MAX_FOLIAGE} />
+        <AssetGrid items={REALISTIC_FOLIAGE} onAdd={onAdd} disabled={() => counts.foliage >= LIMITS.MAX_FOLIAGE} />
       </div>
     );
   }
 
-  if (tab === "decor") {
-    return (
-      <div>
-        <AssetGrid items={DECORATIONS} onAdd={onAdd} disabled={() => counts.decoration >= LIMITS.MAX_DECORATIONS} />
-      </div>
-    );
-  }
-
-  if (tab === "wrapper") {
-    return <WrapperPicker value={bouquet.wrapper} onChange={onSetWrapper} />;
-  }
-
-  return <RibbonPicker value={bouquet.ribbon} onChange={onSetRibbon} />;
+  return (
+    <div className="space-y-5">
+      <section>
+        <h3 className="mb-2 text-xs font-semibold uppercase text-charcoal-soft/70">Paper</h3>
+        <WrapperPicker value={bouquet.wrapper} onChange={onSetWrapper} />
+      </section>
+      <section>
+        <h3 className="mb-2 text-xs font-semibold uppercase text-charcoal-soft/70">Ribbon</h3>
+        <RibbonPicker value={bouquet.ribbon} onChange={onSetRibbon} />
+      </section>
+    </div>
+  );
 }

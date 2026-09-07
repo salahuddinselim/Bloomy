@@ -27,6 +27,15 @@ export const FLOWERS: AssetDef[] = [
   V_("lavender", "Lavender", "lavender", "#8a7cc4", "#6a5aa8", 0.9, ["calm", "fragrant"], 3),
   V_("daffodil", "Daffodil", "daffodil", "#f6cd4b", "#e2a52e", 0.95, ["spring", "cheerful"], 3),
   V_("blossom", "Cherry Blossom", "blossom", "#f7c9d3", "#f2a9b9", 0.85, ["spring", "delicate"], 4),
+  // New 3D-procedural blooms (vector shapes, no raster needed)
+  V_("poppy", "Poppy", "poppy", "#e0453a", "#b22a22", 1.0, ["bold", "passionate"], 2),
+  V_("cosmos", "Cosmos", "cosmos", "#f08fa4", "#d96b85", 0.95, ["gentle", "harmony"], 3),
+  V_("chrysanthemum", "Chrysanthemum", "chrysanthemum", "#e8b04f", "#cf8f2e", 1.0, ["cheerful", "abundant"], 2),
+  V_("iris", "Iris", "iris", "#7a6fc4", "#8fa8d1", 1.0, ["faith", "hope"], 3),
+  V_("gerbera", "Gerbera", "gerbera", "#f0705a", "#e0503f", 1.05, ["cheerful", "happy"], 2),
+  V_("camellia", "Camellia", "camellia", "#d95f6f", "#f2a4ae", 1.0, ["admiration", "grace"], 2),
+  V_("lilac", "Lilac", "lilac", "#b39cc4", "#9378ad", 0.9, ["first love", "calm"], 3),
+  V_("gladiolus", "Gladiolus", "gladiolus", "#d9535a", "#bf3f48", 0.95, ["strength", "integrity"], 2),
 ];
 
 function BL_(
@@ -57,6 +66,8 @@ function V_(
 }
 
 export const FLOWER_CATEGORIES = [{ id: "all", label: "All Flowers" }];
+
+export const REALISTIC_FLOWERS = FLOWERS.filter((flower) => Boolean(flower.image));
 
 export function getFlower(id: string) {
   return FLOWERS.find((f) => f.id === id);
@@ -134,4 +145,12 @@ export const FLOWER_MEANINGS: Record<string, string> = {
   daffodil: "rebirth and fresh starts",
   blossom: "gentle, fleeting beauty",
   cherry_blossom: "gentle, fleeting beauty",
+  poppy: "passion and remembrance",
+  cosmos: "peace and harmony",
+  chrysanthemum: "loyalty and abundance",
+  iris: "hope and cherished faith",
+  gerbera: "cheerfulness and joy",
+  camellia: "admiration and perfect grace",
+  lilac: "first love and youthful innocence",
+  gladiolus: "strength and integrity",
 };

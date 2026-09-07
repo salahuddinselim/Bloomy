@@ -17,7 +17,15 @@ export type FlowerShape =
   | "dahlia"
   | "anemone"
   | "zinnia"
-  | "ranunculus";
+  | "ranunculus"
+  | "poppy"
+  | "cosmos"
+  | "chrysanthemum"
+  | "iris"
+  | "gerbera"
+  | "camellia"
+  | "lilac"
+  | "gladiolus";
 
 export type FoliageShape = "eucalyptus" | "fern" | "olive" | "ruscus" | "ivy" | "leaf" | "babys_breath";
 
@@ -71,6 +79,13 @@ export type RevealStyle = "gift_box" | "envelope" | "curtain" | "minimal";
 /** The paper stock the note card is printed on. */
 export type CardPaper = "paper" | "parchment" | "ivory" | "blush" | "kraft" | "sage" | "champagne" | "slate";
 
+/** A single flower's personal meaning, carried to the recipient. */
+export interface FlowerStoryEntry {
+  flowerId: string;
+  count: number;
+  personalNote: string;
+}
+
 export interface Bouquet {
   version: 1;
   recipient: string;
@@ -83,6 +98,14 @@ export interface Bouquet {
   revealStyle: RevealStyle;
   mono: boolean;
   cardPaper: CardPaper;
+  /** Presentation environment for the reveal scene (presentations.ts id). */
+  presentation?: string;
+  /** Personal meanings written for each flower ("story behind the bouquet"). */
+  story?: FlowerStoryEntry[];
+  /** Headline for the letter, written ahead of the message. */
+  title?: string;
+  /** Signature theme id resolved from emotion × recipient × vibe. */
+  signatureTheme?: string;
 }
 
 export const LIMITS = {
@@ -90,9 +113,13 @@ export const LIMITS = {
   MAX_FOLIAGE: 30,
   MAX_DECORATIONS: 20,
   MAX_MESSAGE: 500,
+  MAX_TITLE: 60,
   MAX_RECIPIENT: 100,
   MAX_SENDER: 100,
   MAX_URL_LENGTH: 6000,
+  MAX_STORY_ENTRIES: 16,
+  MAX_STORY_NOTE: 240,
+  MAX_STORY_COUNT: 40,
 } as const;
 
 export function createEmptyBouquet(): Bouquet {

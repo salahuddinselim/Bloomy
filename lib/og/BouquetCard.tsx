@@ -95,7 +95,7 @@ export function BouquetCard({
   const message = bouquet.message
     ? clipText(bouquet.message, 110)
     : "I wanted to send you something soft and beautiful.";
-  const footer = "bloomly — digital bouquets never made of pollen";
+  const footer = "BloomStory — digital bouquets never made of pollen";
 
   return (
     <div

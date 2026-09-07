@@ -9,13 +9,16 @@
   --color-sage: #8a9a7e;
   --color-sage-deep: #5f6f52;
   --color-dusty-rose: #c98a92;
-  /* Same hue as dusty-rose, deepened for text use: #c98a92 on paper is
-     2.74:1, below WCAG AA's 4.5:1 floor for body-size text. This passes
-     at ~4.8:1 while staying visibly the same rose family. */
   --color-dusty-rose-deep: #a25c68;
   --color-charcoal: #2a2521;
   --color-charcoal-soft: #524a43;
   --color-gold: #b08d57;
+  --color-lavender: #c4a8d4;
+  --color-lavender-deep: #9b8bb8;
+  --color-peach: #f4c8a8;
+  --color-peach-deep: #e8a87c;
+  --color-blush: #f8c8d8;
+  --color-blush-deep: #e8a0b8;
 
   --font-display: "Playfair Display", serif;
   --font-script: "Cormorant Garamond", serif;
@@ -35,6 +38,12 @@
   --color-charcoal: var(--color-charcoal);
   --color-charcoal-soft: var(--color-charcoal-soft);
   --color-gold: var(--color-gold);
+  --color-lavender: var(--color-lavender);
+  --color-lavender-deep: var(--color-lavender-deep);
+  --color-peach: var(--color-peach);
+  --color-peach-deep: var(--color-peach-deep);
+  --color-blush: var(--color-blush);
+  --color-blush-deep: var(--color-blush-deep);
 
   --font-display: var(--font-display);
   --font-script: var(--font-script);
@@ -60,6 +69,123 @@ body {
 }
 .font-script {
   font-family: var(--font-script);
+}
+
+@keyframes float-petal {
+  0%, 100% { transform: translateY(0) rotate(0deg); opacity: 0.6; }
+  25% { transform: translateY(-20px) rotate(10deg); opacity: 0.8; }
+  50% { transform: translateY(-10px) rotate(-5deg); opacity: 0.6; }
+  75% { transform: translateY(-25px) rotate(8deg); opacity: 0.9; }
+}
+
+@keyframes gentle-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 0.4; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes sparkle {
+  0%, 100% { opacity: 0; transform: scale(0); }
+  50% { opacity: 1; transform: scale(1); }
+}
+
+@keyframes rain-drop {
+  0% { transform: translateY(-10px); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(100vh); opacity: 0; }
+}
+
+@keyframes sway {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+.animate-float-petal {
+  animation: float-petal 6s ease-in-out infinite;
+}
+
+.animate-gentle-float {
+  animation: gentle-float 3s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 4s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 2s ease-in-out infinite;
+}
+
+.animate-rain {
+  animation: rain-drop 3s linear infinite;
+}
+
+.animate-sway {
+  animation: sway 4s ease-in-out infinite;
+}
+
+/* ---- Solar-system orbit machinery ---- */
+
+@keyframes orbit-revolve {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* The whole orbital field lives on a single tilted plane (rotateX), which is
+   what makes the circular paths read as elliptical orbits in 3D. */
+.solar-plane {
+  transform: rotateX(58deg);
+  transform-style: preserve-3d;
+}
+
+/* Rotating shell: spins the flower point around the plane's center. */
+.solar-orbit {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  animation: orbit-revolve var(--orbit-dur, 16s) linear infinite;
+}
+
+/* The flower point: zero-size, parked at the orbital radius from the center. */
+.solar-position {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 0;
+  height: 0;
+  transform: translate(-50%, -50%) translateX(var(--orbit-radius, 120px));
+}
+
+/* Counter-rotation: spins the flower against the shell so it stays upright. */
+.solar-revolve {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 0;
+  height: 0;
+  animation: orbit-revolve var(--orbit-dur, 16s) linear infinite reverse;
+}
+
+/* Un-tilts the flower so it faces the viewer instead of lying flat in the
+   orbit plane (the classic billboard trick). */
+.solar-billboard {
+  position: absolute;
+  left: 0;
+  top: 0;
+  transform: translate(-50%, -50%) rotateX(-58deg);
+  will-change: transform;
+}
+
+.glass-card {
+  background: rgba(255, 253, 249, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(42, 37, 33, 0.08);
 }
 
 @media (prefers-reduced-motion: reduce) {

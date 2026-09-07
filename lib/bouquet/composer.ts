@@ -8,7 +8,7 @@ export function genId() {
 }
 
 const CENTER_X = 50;
-const CENTER_Y = 56;
+const CENTER_Y = 48;
 
 /** Base z ordering: foliage below flowers below decorations, large flowers below small. */
 function baseZ(def: AssetDef) {
@@ -32,37 +32,40 @@ export function smartPlacement(
 
   if (def.category === "foliage") {
     // Foliage spreads wide behind the flowers, biased outward.
-    angle = (index / 6) * Math.PI * 2 + rand() * 0.6;
-    radius = 18 + rand() * 10;
+    angle = -Math.PI / 2.6 + (index / 5) * Math.PI * 1.25 + rand() * 0.45;
+    radius = 20 + rand() * 13;
   } else if (def.category === "decoration") {
     angle = rand() * Math.PI * 2;
     radius = 5 + rand() * 10;
   } else {
-    // Flowers: triangular / circular florist composition depending on count.
-    const n = index + 1;
-    if (n === 1) {
-      angle = -Math.PI / 2;
-      radius = 0;
-    } else if (n <= 3) {
-      angle = -Math.PI / 2 + ((index % 3) / 3) * Math.PI * 2;
-      radius = 10;
-    } else if (n <= 6) {
-      angle = ((index % 5) / 5) * Math.PI * 2 - Math.PI / 2;
-      radius = 11 + (index % 2) * 4;
-    } else {
-      angle = ((index % 8) / 8) * Math.PI * 2 + rand() * 0.4;
-      radius = 8 + (index % 3) * 6 + rand() * 3;
-    }
+    const floristSpots = [
+      { angle: -Math.PI / 2, radius: 0 },
+      { angle: -2.72, radius: 11 },
+      { angle: -0.42, radius: 12 },
+      { angle: -1.65, radius: 14 },
+      { angle: -1.03, radius: 15 },
+      { angle: -3.08, radius: 17 },
+      { angle: -0.04, radius: 18 },
+      { angle: -2.18, radius: 18 },
+      { angle: -0.9, radius: 20 },
+      { angle: -2.75, radius: 22 },
+      { angle: -0.34, radius: 22 },
+      { angle: -1.42, radius: 22 },
+    ];
+    const spot = floristSpots[index % floristSpots.length];
+    angle = spot.angle + (rand() - 0.5) * 0.22;
+    radius = spot.radius + rand() * 2.5;
   }
 
-  const jitterX = (rand() - 0.5) * 4;
-  const jitterY = (rand() - 0.5) * 3.5;
+  const jitterX = (rand() - 0.5) * 3.5;
+  const jitterY = (rand() - 0.5) * 3;
 
-  const x = round(clamp(CENTER_X + Math.cos(angle) * radius * 0.9 + jitterX, 18, 82));
-  const y = round(clamp(CENTER_Y + Math.sin(angle) * radius * 0.68 + jitterY, 18, 74));
+  const x = round(clamp(CENTER_X + Math.cos(angle) * radius * 1.02 + jitterX, 13, 87));
+  const y = round(clamp(CENTER_Y + Math.sin(angle) * radius * 0.78 + jitterY, 17, 70));
 
-  const rotation = Math.round((rand() - 0.5) * 34 + def.defaultRotation);
-  const scale = round(def.defaultScale * (0.88 + rand() * 0.26), 2);
+  const rotation = Math.round((rand() - 0.5) * 40 + def.defaultRotation);
+  const scaleBase = def.category === "foliage" ? 1.02 : 0.94;
+  const scale = round(def.defaultScale * (scaleBase + rand() * 0.22), 2);
   const z = baseZ(def) + Math.round(rand() * 4);
 
   return { x, y, rotation, scale, z };

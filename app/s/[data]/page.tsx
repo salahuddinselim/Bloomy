@@ -19,8 +19,6 @@ import { AdSlot } from "@/components/ads/AdSlot";
 
 export default function SharePage({ params }: { params: Promise<{ data: string }> }) {
   const { data } = use(params);
-  // Canonical token: strip Next.js's '+' -> '%2B' re-encoding once so the URL
-  // users copy, share and scan always uses the clean form.
   const token = useMemo(() => {
     try {
       return decodeURIComponent(data);
@@ -57,14 +55,14 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-+|-+$/g, "") || "someone"
   );
-  const downloadName = `bloomly-${slug}-${new Date().toISOString().slice(0, 10)}.png`;
-  const gifName = `bloomly-${slug}-${new Date().toISOString().slice(0, 10)}.gif`;
+  const downloadName = `bloomstory-${slug}-${new Date().toISOString().slice(0, 10)}.png`;
+  const gifName = `bloomstory-${slug}-${new Date().toISOString().slice(0, 10)}.gif`;
   const paper = getCardPaper(bouquet.cardPaper);
 
   return (
     <main className="flex min-h-screen flex-col items-center gap-8 px-6 py-14">
       <Link href="/" className="font-script text-2xl italic text-charcoal">
-        Bloomly
+        BloomStory
       </Link>
       <div className="flex items-center gap-2 text-burgundy">
         <PartyPopper size={20} />
@@ -113,7 +111,7 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
           href={`/b/${token}`}
           className="rounded-full border border-burgundy/30 bg-burgundy/5 px-4 py-2.5 text-sm font-medium text-burgundy transition hover:bg-burgundy/10"
         >
-          Open bouquet
+          Preview bouquet
         </Link>
         <CopyLinkButton url={url} />
         <WebShareButton url={url} title="A bouquet for you" />

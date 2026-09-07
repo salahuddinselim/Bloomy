@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useId, useRef, useState } from "react";
 import { clamp } from "@/lib/utils";
 import { motion } from "framer-motion";
 import type { Bouquet, BouquetElement } from "@/lib/bouquet/types";
@@ -8,9 +8,20 @@ import { BouquetAsset, getAssetDef } from "./BouquetAsset";
 import { WrapperGraphic } from "./Wrapper";
 import { getBackground } from "@/data/backgrounds";
 import { cn } from "@/lib/utils";
+import { BouquetCard } from "./BouquetCard";
+import { BouquetEnvelope } from "./BouquetEnvelope";
 
 const STEM_BASE_X = 50;
 const STEM_BASE_Y = 80;
+
+export interface BouquetEnvelopeContent {
+  recipient: string;
+  title: string;
+  message: string;
+  sender: string;
+  emotion?: string;
+  onOpen?: () => void;
+}
 
 interface BouquetCanvasProps {
   bouquet: Bouquet;
@@ -19,6 +30,15 @@ interface BouquetCanvasProps {
   onSelect?: (id: string | null) => void;
   onMove?: (id: string, x: number, y: number) => void;
   className?: string;
+  /** Live card content overrides used while composing (before the bouquet is
+   *  finalized in the wizard's last step). Falls back to the bouquet's own
+   *  persisted recipient/message/sender when omitted. */
+  cardRecipient?: string;
+  cardMessage?: string;
+  cardSender?: string;
+  /** When set, the story is delivered as an envelope tucked into the bouquet
+   *  (replaces the printed on-bouquet card). */
+  envelope?: BouquetEnvelopeContent;
 }
 
 export function BouquetCanvas({
@@ -28,8 +48,13 @@ export function BouquetCanvas({
   onSelect,
   onMove,
   className,
+  cardRecipient,
+  cardMessage,
+  cardSender,
+  envelope,
 }: BouquetCanvasProps) {
   const stageRef = useRef<HTMLDivElement>(null);
+  const wrapperUid = useId().replaceAll(":", "");
   const bg = getBackground(bouquet.background);
   // Announces keyboard moves for screen-reader users, since same-species
   // elements (e.g. three roses) share an accessible name and a visual-only
@@ -135,9 +160,22 @@ export function BouquetCanvas({
       role="group"
       aria-label="Bouquet composition"
     >
-      <div className="absolute inset-0" style={{ filter: "drop-shadow(0 20px 30px rgba(30,20,10,0.18))" }}>
-        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} mono={bouquet.mono} />
+      <div className="pointer-events-none absolute inset-0 z-0" style={{ filter: "drop-shadow(0 20px 30px rgba(30,20,10,0.18))" }}>
+        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} mono={bouquet.mono} layer="back" idPrefix={`${wrapperUid}-back`} />
       </div>
+
+{/* The story travels inside the envelope tucked into the wrap when one
+          is composed (reveal / final preview); otherwise the printed card. */}
+      {envelope ? (
+        <BouquetEnvelope {...envelope} />
+      ) : (
+        <BouquetCard
+          recipient={cardRecipient ?? bouquet.recipient}
+          message={cardMessage ?? bouquet.message}
+          sender={cardSender ?? bouquet.sender}
+          style={{ top: "74%" }}
+        />
+      )}
 
       {elements.map((el, i) => {
         // One bouquet element = one group: its stem and its bloom are derived
@@ -158,7 +196,7 @@ export function BouquetCanvas({
           <div
             key={el.id}
             className="pointer-events-none absolute inset-0"
-            style={{ zIndex: el.z }}
+            style={{ zIndex: el.z + 10 }}
           >
             {hasStem && (
               <svg className="absolute inset-0 h-full w-full" aria-hidden="true">
@@ -251,6 +289,10 @@ export function BouquetCanvas({
           </div>
         );
       })}
+
+      <div className="pointer-events-none absolute inset-0 z-50" style={{ filter: "drop-shadow(0 16px 22px rgba(30,20,10,0.16))" }}>
+        <WrapperGraphic wrapperId={bouquet.wrapper} ribbonId={bouquet.ribbon} mono={bouquet.mono} layer="front" idPrefix={`${wrapperUid}-front`} />
+      </div>
 
       {elements.length === 0 && (
         <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 px-8 text-center">

@@ -1,88 +1,69 @@
 "use client";
 
 import { Suspense, useCallback, useEffect, useMemo, useReducer, useRef, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
-import { Sparkles, ArrowLeft, Loader2, Undo2, Redo2 } from "lucide-react";
+import { ArrowLeft, ArrowRight, Sparkles, Loader2, Undo2, Redo2 } from "lucide-react";
+import { wizardReducer } from "@/data/wizardReducer";
+import { INITIAL_WIZARD_STATE } from "@/data/wizard";
 import { bouquetReducer } from "@/lib/bouquet/reducer";
 import { createEmptyBouquet, type Bouquet } from "@/lib/bouquet/types";
 import { elementsFromIds, elementsFromPreset, DEFAULT_BOUQUET_FLOWER_IDS } from "@/lib/bouquet/build";
-import { getPreset } from "@/data/presets";
-import { OCCASIONS } from "@/data/occasions";
 import { encodeBouquet } from "@/lib/bouquet/encoder";
+import { resolveSignatureTheme } from "@/data/signatureThemes";
+import { getPreset } from "@/data/presets";
 import { BouquetCanvas } from "@/components/bouquet/BouquetCanvas";
 import { FloatingControls } from "@/components/editor/FloatingControls";
-import { PropertiesPanel } from "@/components/editor/PropertiesPanel";
 import { EditorPanelContent, EDITOR_TABS, type EditorTab } from "@/components/editor/EditorPanelContent";
-import { AdSlot } from "@/components/ads/AdSlot";
+import { ProgressBar } from "@/components/wizard/ProgressBar";
+import { EmotionSelector } from "@/components/wizard/EmotionSelector";
+import { RecipientSelector } from "@/components/wizard/RecipientSelector";
+import { VibeSelector } from "@/components/wizard/VibeSelector";
+import { MessageEditor } from "@/components/wizard/MessageEditor";
+import { PresentationSelector } from "@/components/wizard/PresentationSelector";
+import { FloatingPetals } from "@/components/wizard/FloatingPetals";
 import { cn } from "@/lib/utils";
 
-type MobileTab = EditorTab | "details" | "style";
-
-const MOBILE_NAV_TABS: { id: MobileTab; label: string }[] = [
-  { id: "presets", label: "Presets" },
-  { id: "flowers", label: "Flowers" },
-  { id: "foliage", label: "Foliage" },
-  { id: "wrapper", label: "Wrapper" },
-  { id: "ribbon", label: "Ribbon" },
-  { id: "decor", label: "Decor" },
-  { id: "details", label: "Details" },
-  { id: "style", label: "Style" },
-];
-
-function buildInitialBouquet(presetId?: string | null, occasionId?: string | null, quote?: string | null) {
-  const base = createEmptyBouquet();
-  const occasion = occasionId ? OCCASIONS.find((o) => o.id === occasionId) : null;
-  const preset = getPreset(presetId ?? occasion?.presetId ?? "");
-
-  if (preset) {
-    return {
-      ...base,
-      elements: elementsFromPreset(preset),
-      wrapper: preset.wrapper,
-      ribbon: preset.ribbon,
-      message: occasion?.suggestedMessage ?? quote ?? "",
-    };
-  }
-  return {
-    ...base,
-    elements: elementsFromIds(DEFAULT_BOUQUET_FLOWER_IDS),
-    message: quote ?? "",
+function getRevealForPresentation(presentationId: string | null): Bouquet["revealStyle"] {
+  const map: Record<string, Bouquet["revealStyle"]> = {
+    rainy_evening: "curtain",
+    under_the_moon: "envelope",
+    fairy_lights: "gift_box",
+    spring_garden: "minimal",
+    candlelight: "gift_box",
+    dreamy_clouds: "curtain",
   };
+  return map[presentationId ?? ""] ?? "gift_box";
 }
-
-const MAX_HISTORY = 10;
 
 function CreatePageInner() {
   const router = useRouter();
-  const params = useSearchParams();
-  const [bouquet, dispatch] = useReducer(
+  const [wizard, wizardDispatch] = useReducer(wizardReducer, null, () => INITIAL_WIZARD_STATE);
+
+  const [bouquet, bouquetDispatch] = useReducer(
     bouquetReducer,
     null,
-    () => buildInitialBouquet(params.get("preset"), params.get("occasion"), params.get("quote"))
+    () => ({
+      ...createEmptyBouquet(),
+      elements: elementsFromIds(DEFAULT_BOUQUET_FLOWER_IDS),
+    })
   );
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [mobileTab, setMobileTab] = useState<MobileTab | null>(null);
+  const [desktopTab, setDesktopTab] = useState<EditorTab>("presets");
   const [generating, setGenerating] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [desktopTab, setDesktopTab] = useState<EditorTab>("flowers");
-  // Desktop showed Details+Style stacked as one 7-decision wall while mobile
-  // already split them into two tabs — this brings desktop in line with the
-  // pattern already proven to work.
-  const [rightPanelSection, setRightPanelSection] = useState<"details" | "style">("details");
-
-  // Undo/redo support: bounded stacks of prior/forward snapshots. History is
-  // pushed only before actions that can wipe or bulk-replace work (preset
-  // apply, auto-arrange, delete) — not every micro-edit, which would make
-  // the stack meaningless. A new undoable action clears the redo stack,
-  // since it invalidates whatever "forward" state redo pointed at.
-  const historyRef = useRef<Bouquet[]>([]);
-  const redoRef = useRef<Bouquet[]>([]);
-  const [canUndo, setCanUndo] = useState(false);
-  const [canRedo, setCanRedo] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const historyRef = useRef<Bouquet[]>([]);
+  const redoRef = useRef<Bouquet[]>([]);
+  const appliedThemeIdRef = useRef<string | null>(null);
+  const seededMessageThemeRef = useRef<string | null>(null);
+  const [canUndo, setCanUndo] = useState(false);
+  const [canRedo, setCanRedo] = useState(false);
+
+  const MAX_HISTORY = 10;
 
   const pushHistory = useCallback((snapshot: Bouquet) => {
     historyRef.current = [...historyRef.current.slice(-(MAX_HISTORY - 1)), snapshot];
@@ -94,7 +75,7 @@ function CreatePageInner() {
   const showToast = useCallback((message: string) => {
     setToast(message);
     if (toastTimer.current) clearTimeout(toastTimer.current);
-    toastTimer.current = setTimeout(() => setToast(null), 6000);
+    toastTimer.current = setTimeout(() => setToast(null), 4000);
   }, []);
 
   useEffect(() => {
@@ -109,9 +90,8 @@ function CreatePageInner() {
     if (!prev) return;
     redoRef.current = [...redoRef.current.slice(-(MAX_HISTORY - 1)), bouquet];
     setCanRedo(true);
-    dispatch({ type: "LOAD_BOUQUET", bouquet: prev });
+    bouquetDispatch({ type: "LOAD_BOUQUET", bouquet: prev });
     setToast(null);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
   }
 
   function redo() {
@@ -120,9 +100,8 @@ function CreatePageInner() {
     if (!next) return;
     historyRef.current = [...historyRef.current.slice(-(MAX_HISTORY - 1)), bouquet];
     setCanUndo(true);
-    dispatch({ type: "LOAD_BOUQUET", bouquet: next });
+    bouquetDispatch({ type: "LOAD_BOUQUET", bouquet: next });
     setToast(null);
-    if (toastTimer.current) clearTimeout(toastTimer.current);
   }
 
   const counts = useMemo(
@@ -136,41 +115,114 @@ function CreatePageInner() {
 
   const selected = bouquet.elements.find((e) => e.id === selectedId) ?? null;
 
-  function applyPreset(id: string) {
-    const preset = getPreset(id);
-    if (!preset) return;
+  function deleteSelected() {
+    if (!selected) return;
     pushHistory(bouquet);
-    dispatch({
-      type: "APPLY_PRESET",
-      elements: elementsFromPreset(preset),
-      wrapper: preset.wrapper,
-      ribbon: preset.ribbon,
-    });
+    bouquetDispatch({ type: "REMOVE_ELEMENT", id: selected.id });
     setSelectedId(null);
-    showToast(`Switched to "${preset.name}"`);
+    showToast("Removed from bouquet");
   }
 
   function arrangeForMe() {
     if (bouquet.elements.length === 0) return;
     pushHistory(bouquet);
-    dispatch({ type: "ARRANGE_FOR_ME" });
+    bouquetDispatch({ type: "ARRANGE_FOR_ME" });
     showToast("Rearranged your bouquet");
   }
 
-  function deleteSelected() {
-    if (!selected) return;
+  const step = wizard.step;
+
+  const signature = useMemo(
+    () =>
+      resolveSignatureTheme({
+        emotion: wizard.emotion,
+        recipientType: wizard.recipientType,
+        vibe: wizard.vibe,
+        recipientName: wizard.recipientName,
+      }),
+    [wizard.emotion, wizard.recipientType, wizard.vibe, wizard.recipientName]
+  );
+
+  function applySignatureTheme(notify = false) {
+    if (bouquet.elements.length === 0) return;
     pushHistory(bouquet);
-    dispatch({ type: "REMOVE_ELEMENT", id: selected.id });
-    setSelectedId(null);
-    showToast("Removed from bouquet");
+    bouquetDispatch({
+      type: "APPLY_THEME",
+      flowers: signature.flowers,
+      wrapper: signature.wrapper,
+      ribbon: signature.ribbon,
+      background: signature.background,
+      cardPaper: signature.cardPaper,
+    });
+    appliedThemeIdRef.current = signature.id;
+    if (notify) showToast("Applied your signature theme");
   }
 
-  async function handleGenerate() {
+  useEffect(() => {
+    if (step === 5 && seededMessageThemeRef.current !== signature.id && !wizard.message && !wizard.messageTitle) {
+      seededMessageThemeRef.current = signature.id;
+      wizardDispatch({ type: "SET_MESSAGE", message: signature.message });
+      wizardDispatch({ type: "SET_MESSAGE_TITLE", messageTitle: signature.messageTitle });
+    }
+    if (step === 6 && !wizard.presentationTheme) {
+      wizardDispatch({ type: "SET_PRESENTATION", presentationTheme: signature.presentation });
+    }
+  }, [step, signature, wizard.message, wizard.messageTitle, wizard.presentationTheme]);
+
+  function canContinue(): boolean {
+    switch (step) {
+      case 1: return wizard.emotion !== null;
+      case 2: return wizard.recipientType !== null;
+      case 3: return wizard.vibe !== null;
+      case 4: return bouquet.elements.length > 0;
+      case 5: return true;
+      case 6: return wizard.presentationTheme !== null;
+      default: return false;
+    }
+  }
+
+  function goNext() {
+    if (!canContinue()) return;
+    if (step < 6) {
+      const next = step + 1;
+      if (next === 4 && appliedThemeIdRef.current !== signature.id) {
+        applySignatureTheme(false);
+      }
+      wizardDispatch({ type: "SET_STEP", step: next });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  function goBack() {
+    if (step > 1) {
+      wizardDispatch({ type: "SET_STEP", step: step - 1 });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+  }
+
+  async function handleFinish() {
     setError(null);
     setGenerating(true);
+
+    const finalBouquet: Bouquet = {
+      ...bouquet,
+      recipient: wizard.recipientName,
+      sender: wizard.senderName,
+      message: wizard.message,
+      title: wizard.messageTitle || undefined,
+      wrapper: bouquet.wrapper,
+      ribbon: bouquet.ribbon,
+      background: bouquet.background,
+      cardPaper: bouquet.cardPaper,
+      revealStyle: getRevealForPresentation(wizard.presentationTheme),
+      presentation: wizard.presentationTheme ?? signature.presentation,
+      signatureTheme: signature.id,
+    };
+
     await new Promise((r) => setTimeout(r, 350));
-    const result = encodeBouquet(bouquet);
+    const result = encodeBouquet(finalBouquet);
     setGenerating(false);
+
     if (!result.ok || !result.data) {
       setError(
         result.error === "too_large"
@@ -179,46 +231,53 @@ function CreatePageInner() {
       );
       return;
     }
+
     router.push(`/s/${result.data}`);
   }
 
   const panelProps = {
     bouquet,
     counts,
-    onAdd: (id: string) => dispatch({ type: "ADD_ELEMENT", assetId: id }),
-    onSetWrapper: (id: string) => dispatch({ type: "SET_WRAPPER", wrapper: id }),
-    onSetRibbon: (id: string) => dispatch({ type: "SET_RIBBON", ribbon: id }),
-    onApplyPreset: applyPreset,
-  };
-
-  const propertiesHandlers = {
-    onRecipient: (v: string) => dispatch({ type: "SET_RECIPIENT", recipient: v }),
-    onSender: (v: string) => dispatch({ type: "SET_SENDER", sender: v }),
-    onMessage: (v: string) => dispatch({ type: "SET_MESSAGE", message: v }),
-    onReveal: (v: Bouquet["revealStyle"]) => dispatch({ type: "SET_REVEAL_STYLE", revealStyle: v }),
-    onBackground: (v: string) => dispatch({ type: "SET_BACKGROUND", background: v }),
-    onMono: (v: boolean) => dispatch({ type: "SET_MONO", mono: v }),
-    onCardPaper: (v: Bouquet["cardPaper"]) => dispatch({ type: "SET_CARD_PAPER", cardPaper: v }),
+    onAdd: (id: string) => {
+      pushHistory(bouquet);
+      bouquetDispatch({ type: "ADD_ELEMENT", assetId: id });
+    },
+    onSetWrapper: (id: string) => bouquetDispatch({ type: "SET_WRAPPER", wrapper: id }),
+    onSetRibbon: (id: string) => bouquetDispatch({ type: "SET_RIBBON", ribbon: id }),
+    onApplyPreset: (id: string) => {
+      const preset = getPreset(id);
+      if (!preset) return;
+      pushHistory(bouquet);
+      bouquetDispatch({
+        type: "APPLY_PRESET",
+        elements: elementsFromPreset(preset),
+        wrapper: preset.wrapper,
+        ribbon: preset.ribbon,
+      });
+      showToast(`Applied ${preset.name}`);
+    },
   };
 
   return (
     <div className="flex min-h-screen flex-col bg-ivory">
-      <header className="flex items-center justify-between border-b border-charcoal/8 bg-paper/80 px-4 py-3 backdrop-blur sm:px-6">
+      <FloatingPetals />
+
+      <header className="relative z-10 flex items-center justify-between border-b border-charcoal/8 bg-paper/80 px-4 py-3 backdrop-blur sm:px-6">
         <Link href="/" className="flex items-center gap-2 font-display text-lg text-charcoal">
           <ArrowLeft size={16} className="text-charcoal-soft" />
-          Bloomly
+          BloomStory
         </Link>
         <div className="flex items-center gap-2">
-          {canUndo && (
+          {step === 4 && canUndo && (
             <button
               type="button"
               onClick={undo}
-              className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+              className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
             >
               <Undo2 size={14} /> Undo
             </button>
           )}
-          {canRedo && (
+          {step === 4 && canRedo && (
             <button
               type="button"
               onClick={redo}
@@ -227,207 +286,322 @@ function CreatePageInner() {
               <Redo2 size={14} /> Redo
             </button>
           )}
-          <button
-            type="button"
-            onClick={arrangeForMe}
-            className="hidden items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy sm:flex"
-          >
-            <Sparkles size={14} /> Arrange for me
-          </button>
-          <button
-            type="button"
-            onClick={handleGenerate}
-            disabled={generating}
-            className="flex items-center gap-1.5 rounded-full bg-burgundy px-4 py-2 text-xs font-medium text-ivory shadow-sm transition hover:bg-burgundy-dark disabled:opacity-60"
-          >
-            {generating && <Loader2 size={14} className="animate-spin" />}
-            Generate Share Link
-          </button>
+          {step === 4 && (
+            <button
+              type="button"
+              onClick={arrangeForMe}
+              className="hidden items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy sm:flex"
+            >
+              <Sparkles size={14} /> Arrange for me
+            </button>
+          )}
         </div>
       </header>
 
+      <div className="relative z-10">
+        <ProgressBar currentStep={step} onStepClick={(s) => wizardDispatch({ type: "SET_STEP", step: s })} />
+      </div>
+
       {error && (
-        <div
-          role="alert"
-          aria-live="assertive"
-          className="mx-4 mt-3 rounded-lg bg-burgundy/10 px-4 py-2 text-sm text-burgundy sm:mx-6"
-        >
-          {error}
+        <div role="alert" className="relative z-10 mx-auto w-full max-w-2xl px-4">
+          <div className="rounded-lg bg-burgundy/10 px-4 py-2 text-sm text-burgundy">
+            {error}
+          </div>
         </div>
       )}
 
-      <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col gap-6 px-4 py-6 sm:px-6 md:flex-row">
-        {/* Desktop left: asset library */}
-        <aside className="hidden w-64 shrink-0 md:block">
-          <div className="sticky top-6 rounded-2xl border border-charcoal/8 bg-white/60 p-4">
-            <div className="mb-3 flex flex-wrap gap-2">
-              {EDITOR_TABS.map((t) => (
-                <button
-                  key={t.id}
-                  type="button"
-                  onClick={() => setDesktopTab(t.id)}
-                  className={cn(
-                    "rounded-full px-3.5 py-2 text-xs transition",
-                    desktopTab === t.id
-                      ? "bg-burgundy text-ivory"
-                      : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
-                  )}
+      <div className="relative z-10 flex-1">
+        <AnimatePresence mode="wait">
+          {step === 1 && (
+            <motion.div
+              key="emotion"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+            >
+              <EmotionSelector
+                selected={wizard.emotion}
+                onSelect={(id) => wizardDispatch({ type: "SET_EMOTION", emotion: id })}
+              />
+            </motion.div>
+          )}
+
+          {step === 2 && (
+            <motion.div
+              key="recipient"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+            >
+              <RecipientSelector
+                recipientType={wizard.recipientType}
+                recipientName={wizard.recipientName}
+                senderName={wizard.senderName}
+                onSelectType={(id) => wizardDispatch({ type: "SET_RECIPIENT_TYPE", recipientType: id })}
+                onChangeName={(name) => wizardDispatch({ type: "SET_RECIPIENT_NAME", recipientName: name })}
+                onChangeSender={(name) => wizardDispatch({ type: "SET_SENDER_NAME", senderName: name })}
+              />
+            </motion.div>
+          )}
+
+          {step === 3 && (
+            <motion.div
+              key="vibe"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+            >
+              <VibeSelector
+                selected={wizard.vibe}
+                onSelect={(id) => wizardDispatch({ type: "SET_VIBE", vibe: id })}
+              />
+            </motion.div>
+          )}
+
+          {step === 4 && (
+            <motion.div
+              key="bouquet"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+              className="flex flex-col items-center gap-4 px-4 py-6"
+            >
+              <div className="text-center">
+                <motion.p
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="font-script text-lg italic text-dusty-rose"
                 >
-                  {t.label}
-                </button>
-              ))}
-            </div>
-            <div className="max-h-[65vh] overflow-y-auto pr-1">
-              <EditorPanelContent tab={desktopTab} {...panelProps} />
-            </div>
-          </div>
-        </aside>
-
-        {/* Center: canvas */}
-        <div className="flex flex-1 flex-col items-center gap-4">
-          <p className="text-center text-xs text-charcoal-soft/60">
-            Tap a flower to edit it &middot; drag or arrow keys to move it &middot; try &ldquo;Arrange for
-            me&rdquo;
-          </p>
-          <div className="w-full max-w-md md:max-w-lg">
-            <BouquetCanvas
-              bouquet={bouquet}
-              interactive
-              selectedId={selectedId}
-              onSelect={setSelectedId}
-              onMove={(id, x, y) => dispatch({ type: "MOVE_ELEMENT", id, x, y })}
-            />
-          </div>
-
-          <AnimatePresence>
-            {selected && (
-              <motion.div
-                initial={{ opacity: 0, y: 12 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: 12 }}
-                className="fixed bottom-20 left-1/2 z-20 -translate-x-1/2 md:static md:translate-x-0"
-              >
-                <FloatingControls
-                  element={selected}
-                  onRotate={(d) => dispatch({ type: "ROTATE_ELEMENT", id: selected.id, rotation: selected.rotation + d })}
-                  onScale={(d) => dispatch({ type: "SCALE_ELEMENT", id: selected.id, scale: selected.scale + d })}
-                  onDuplicate={() => dispatch({ type: "DUPLICATE_ELEMENT", id: selected.id })}
-                  onDelete={deleteSelected}
-                  onBringForward={() => dispatch({ type: "BRING_FORWARD", id: selected.id })}
-                  onSendBackward={() => dispatch({ type: "SEND_BACKWARD", id: selected.id })}
-                />
-              </motion.div>
-            )}
-          </AnimatePresence>
-
-          <button
-            type="button"
-            onClick={arrangeForMe}
-            className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy sm:hidden"
-          >
-            <Sparkles size={14} /> Arrange for me
-          </button>
-
-          <AdSlot position="creator-bottom" className="mt-2" />
-        </div>
-
-        {/* Desktop right: properties, split into the same Details/Style
-            sections mobile uses instead of stacking all seven decisions
-            at once. */}
-        <aside className="hidden w-72 shrink-0 md:block">
-          <div className="sticky top-6 rounded-2xl border border-charcoal/8 bg-white/60 p-4">
-            <div className="mb-4 flex gap-2">
-              {(["details", "style"] as const).map((s) => (
-                <button
-                  key={s}
-                  type="button"
-                  onClick={() => setRightPanelSection(s)}
-                  className={cn(
-                    "flex-1 rounded-full px-3.5 py-2 text-xs font-medium capitalize transition",
-                    rightPanelSection === s
-                      ? "bg-burgundy text-ivory"
-                      : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
-                  )}
+                  Hand-tie the bouquet
+                </motion.p>
+                <motion.h2
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ delay: 0.1 }}
+                  className="mt-2 font-display text-3xl text-charcoal sm:text-4xl"
                 >
-                  {s}
+                  Choose the flowers and wrap
+                </motion.h2>
+                <p className="mt-2 text-sm text-charcoal-soft/60">
+                  {signature.name}: {signature.tagline}
+                </p>
+              </div>
+
+              <div className="grid w-full max-w-5xl gap-6 md:grid-cols-[minmax(0,1fr)_18rem]">
+                <div className="flex flex-1 flex-col items-center gap-4">
+                  <div className="w-full max-w-sm md:max-w-md">
+                    <BouquetCanvas
+                      bouquet={bouquet}
+                      interactive
+                      selectedId={selectedId}
+                      onSelect={setSelectedId}
+                      onMove={(id, x, y) => bouquetDispatch({ type: "MOVE_ELEMENT", id, x, y })}
+                      cardRecipient={wizard.recipientName}
+                      cardMessage={wizard.message}
+                      cardSender={wizard.senderName}
+                    />
+                  </div>
+
+                  <AnimatePresence>
+                    {selected && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 12 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: 12 }}
+                        className="fixed bottom-24 left-1/2 z-20 -translate-x-1/2 md:static md:translate-x-0"
+                      >
+                        <FloatingControls
+                          element={selected}
+                          onRotate={(d) => bouquetDispatch({ type: "ROTATE_ELEMENT", id: selected.id, rotation: selected.rotation + d })}
+                          onScale={(d) => bouquetDispatch({ type: "SCALE_ELEMENT", id: selected.id, scale: selected.scale + d })}
+                          onDelete={deleteSelected}
+                        />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+
+                  <button
+                    type="button"
+                    onClick={arrangeForMe}
+                    className="flex items-center gap-1.5 rounded-full border border-charcoal/15 px-3.5 py-1.5 text-xs font-medium text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy sm:hidden"
+                  >
+                    <Sparkles size={14} /> Arrange for me
+                  </button>
+
+                  <p className="text-center text-xs text-charcoal-soft/60">
+                    Your bouquet: {counts.flower} flowers, {counts.foliage} foliage
+                  </p>
+
+                  <div className="w-full max-w-md rounded-xl border border-charcoal/8 bg-white/70 p-3 md:hidden">
+                    <div className="mb-3 grid grid-cols-4 gap-1">
+                      {EDITOR_TABS.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setDesktopTab(t.id)}
+                          className={cn(
+                            "rounded-lg px-2 py-2 text-xs transition",
+                            desktopTab === t.id
+                              ? "bg-burgundy text-ivory"
+                              : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
+                          )}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    <EditorPanelContent tab={desktopTab} {...panelProps} />
+                  </div>
+                </div>
+
+                <aside className="hidden md:block">
+                  <div className="sticky top-6 rounded-xl border border-charcoal/8 bg-white/70 p-4">
+                    <div className="mb-3 grid grid-cols-2 gap-2">
+                      {EDITOR_TABS.map((t) => (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setDesktopTab(t.id)}
+                          className={cn(
+                            "rounded-lg px-3 py-2 text-xs transition",
+                            desktopTab === t.id
+                              ? "bg-burgundy text-ivory"
+                              : "bg-charcoal/5 text-charcoal-soft hover:bg-charcoal/10"
+                          )}
+                        >
+                          {t.label}
+                        </button>
+                      ))}
+                    </div>
+                    <div className="max-h-[55vh] overflow-y-auto pr-1">
+                      <EditorPanelContent tab={desktopTab} {...panelProps} />
+                    </div>
+                  </div>
+                </aside>
+              </div>
+            </motion.div>
+          )}
+
+          {step === 5 && (
+            <motion.div
+              key="message"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+            >
+              <MessageEditor
+                recipientName={wizard.recipientName}
+                senderName={wizard.senderName}
+                message={wizard.message}
+                signature={signature}
+                onChangeMessage={(msg) => wizardDispatch({ type: "SET_MESSAGE", message: msg })}
+              />
+            </motion.div>
+          )}
+
+          {step === 6 && (
+            <motion.div
+              key="reveal"
+              initial={{ opacity: 0, x: 30 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: -30 }}
+              transition={{ duration: 0.3 }}
+            >
+              <PresentationSelector
+                selected={wizard.presentationTheme}
+                onSelect={(id) => wizardDispatch({ type: "SET_PRESENTATION", presentationTheme: id })}
+              />
+
+              <div className="flex flex-col items-center gap-6 px-4 pb-12 pt-4">
+                <div className="w-full max-w-sm">
+                  <BouquetCanvas
+                    bouquet={bouquet}
+                    envelope={{
+                      recipient: wizard.recipientName,
+                      title: wizard.messageTitle,
+                      message: wizard.message,
+                      sender: wizard.senderName,
+                      emotion: signature.emotion,
+                    }}
+                  />
+                </div>
+
+                <div className="w-full max-w-md rounded-2xl border border-charcoal/8 bg-paper p-6 text-center shadow-[0_18px_48px_rgba(40,25,20,0.08)]">
+                  <p className="mb-2 text-xs uppercase tracking-widest text-charcoal-soft/50">
+                    {signature.emoji} {signature.name}
+                  </p>
+                  {wizard.recipientName && (
+                    <p className="font-script text-xl italic text-burgundy">
+                      For {wizard.recipientName}
+                    </p>
+                  )}
+                  {wizard.message && (
+                    <p className="mt-3 text-sm leading-relaxed text-charcoal-soft">
+                      &ldquo;{wizard.message}&rdquo;
+                    </p>
+                  )}
+                  {wizard.senderName && (
+                    <p className="mt-3 text-sm text-charcoal-soft/70">&mdash; {wizard.senderName}</p>
+                  )}
+                </div>
+
+                <button
+                  type="button"
+                  onClick={handleFinish}
+                  disabled={generating || !wizard.presentationTheme}
+                  className="flex items-center gap-2 rounded-full bg-burgundy px-8 py-4 text-sm font-medium text-ivory shadow-sm transition hover:bg-burgundy-dark disabled:opacity-60"
+                >
+                  {generating && <Loader2 size={16} className="animate-spin" />}
+                  Create My Bouquet ✨
                 </button>
-              ))}
-            </div>
-            <PropertiesPanel bouquet={bouquet} section={rightPanelSection} {...propertiesHandlers} />
-          </div>
-        </aside>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* Mobile bottom nav: more tabs than fit on a narrow phone, so this
-          scrolls horizontally. justify-around fights overflow-x-auto (it
-          only distributes items that already fit), so this uses a plain
-          flex row with snap points and an edge fade so "more tabs" reads as
-          scrollable instead of just cut off. */}
-      <nav
-        className="no-scrollbar fixed inset-x-0 bottom-0 z-20 flex gap-1 overflow-x-auto border-t border-charcoal/10 bg-paper/95 px-2 py-2 backdrop-blur [mask-image:linear-gradient(to_right,black,black_calc(100%-20px),transparent)] snap-x snap-mandatory md:hidden"
-      >
-        {MOBILE_NAV_TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setMobileTab(t.id)}
-            className="flex min-h-11 shrink-0 snap-start items-center rounded-full px-3.5 py-2 text-xs font-medium text-charcoal-soft transition hover:bg-charcoal/5"
-          >
-            {t.label}
-          </button>
-        ))}
-      </nav>
+      {step < 6 && (
+        <div className="relative z-10 border-t border-charcoal/8 bg-paper/80 px-4 py-4 backdrop-blur">
+          <div className="mx-auto flex max-w-2xl items-center justify-between">
+            <button
+              type="button"
+              onClick={goBack}
+              disabled={step === 1}
+              className={cn(
+                "flex items-center gap-2 rounded-full border border-charcoal/15 px-5 py-2.5 text-sm font-medium text-charcoal-soft transition",
+                step === 1
+                  ? "cursor-not-allowed opacity-30"
+                  : "hover:border-burgundy/40 hover:text-burgundy"
+              )}
+            >
+              <ArrowLeft size={16} /> Back
+            </button>
 
-      <AnimatePresence>
-        {mobileTab && (
-          <motion.div
-            initial={{ y: "100%" }}
-            animate={{ y: 0 }}
-            exit={{ y: "100%" }}
-            transition={{ type: "spring", damping: 28, stiffness: 260 }}
-            className="fixed inset-x-0 bottom-0 z-30 max-h-[70vh] overflow-y-auto rounded-t-3xl bg-paper p-5 shadow-2xl md:hidden"
-          >
-            <div className="mx-auto mb-4 h-1 w-10 rounded-full bg-charcoal/15" />
-            <div className="mb-4 flex items-center justify-between">
-              <h2 className="font-display text-lg">
-                {MOBILE_NAV_TABS.find((t) => t.id === mobileTab)?.label}
-              </h2>
-              <button type="button" onClick={() => setMobileTab(null)} className="text-sm text-charcoal-soft">
-                Done
-              </button>
-            </div>
-            {mobileTab === "details" ? (
-              <div className="flex flex-col gap-6">
-                <PropertiesPanel
-                bouquet={bouquet}
-                section="details"
-                onRecipient={propertiesHandlers.onRecipient}
-                onSender={propertiesHandlers.onSender}
-                onMessage={propertiesHandlers.onMessage}
-                onReveal={propertiesHandlers.onReveal}
-                onBackground={propertiesHandlers.onBackground}
-                onMono={propertiesHandlers.onMono}
-                onCardPaper={propertiesHandlers.onCardPaper}
-              />
-            </div>
-          ) : mobileTab === "style" ? (
-              <PropertiesPanel
-                bouquet={bouquet}
-                section="style"
-                onRecipient={propertiesHandlers.onRecipient}
-                onSender={propertiesHandlers.onSender}
-                onMessage={propertiesHandlers.onMessage}
-                onReveal={propertiesHandlers.onReveal}
-                onBackground={propertiesHandlers.onBackground}
-                onMono={propertiesHandlers.onMono}
-                onCardPaper={propertiesHandlers.onCardPaper}
-              />
-            ) : (
-              <EditorPanelContent tab={mobileTab as EditorTab} {...panelProps} />
-            )}
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <p className="text-xs text-charcoal-soft/50">
+              Step {step} of 6
+            </p>
+
+            <button
+              type="button"
+              onClick={goNext}
+              disabled={!canContinue()}
+              className={cn(
+                "flex items-center gap-2 rounded-full px-6 py-2.5 text-sm font-medium transition",
+                canContinue()
+                  ? "bg-burgundy text-ivory hover:bg-burgundy-dark"
+                  : "cursor-not-allowed bg-charcoal/10 text-charcoal-soft/40"
+              )}
+            >
+              Continue <ArrowRight size={16} />
+            </button>
+          </div>
+        </div>
+      )}
 
       <AnimatePresence>
         {toast && (

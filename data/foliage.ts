@@ -17,6 +17,8 @@ export const FOLIAGE: AssetDef[] = [
   { id: "leaf", name: "Simple Leaf", category: "foliage", shape: "leaf", colors: { primary: "#5f8a5a", secondary: "#4a7346" }, defaultScale: 1.1, defaultRotation: 0, tags: ["filler", "green"], layerHint: 1 },
 ];
 
+export const REALISTIC_FOLIAGE = FOLIAGE.filter((foliage) => Boolean(foliage.image));
+
 export function getFoliage(id: string) {
   return FOLIAGE.find((f) => f.id === id);
 }

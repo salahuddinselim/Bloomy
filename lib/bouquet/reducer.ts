@@ -24,6 +24,7 @@ export type BouquetAction =
   | { type: "SET_CARD_PAPER"; cardPaper: CardPaper }
   | { type: "ARRANGE_FOR_ME" }
   | { type: "APPLY_PRESET"; elements: BouquetElement[]; wrapper: string; ribbon: string }
+  | { type: "APPLY_THEME"; flowers: string[]; wrapper: string; ribbon: string; background: string; cardPaper: CardPaper }
   | { type: "RESET_BOUQUET"; bouquet: Bouquet }
   | { type: "LOAD_BOUQUET"; bouquet: Bouquet };
 
@@ -129,6 +130,20 @@ export function bouquetReducer(state: Bouquet, action: BouquetAction): Bouquet {
     }
     case "APPLY_PRESET":
       return { ...state, elements: action.elements, wrapper: action.wrapper, ribbon: action.ribbon };
+    case "APPLY_THEME": {
+      const items = action.flowers
+        .map((id) => ({ def: getAssetDef(id) }))
+        .filter((i): i is { def: NonNullable<typeof i.def> } => Boolean(i.def));
+      if (items.length === 0) return state;
+      return {
+        ...state,
+        elements: autoArrange(items),
+        wrapper: action.wrapper,
+        ribbon: action.ribbon,
+        background: action.background,
+        cardPaper: action.cardPaper,
+      };
+    }
     case "RESET_BOUQUET":
     case "LOAD_BOUQUET":
       return action.bouquet;

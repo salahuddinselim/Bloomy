@@ -1,6 +1,6 @@
 "use client";
 
-import { RotateCw, ZoomIn, ZoomOut, Copy, Trash2, ArrowUpToLine, ArrowDownToLine } from "lucide-react";
+import { RotateCw, ZoomIn, ZoomOut, Trash2 } from "lucide-react";
 import type { BouquetElement } from "@/lib/bouquet/types";
 import { getAssetDef } from "@/components/bouquet/BouquetAsset";
 
@@ -8,10 +8,7 @@ interface FloatingControlsProps {
   element: BouquetElement;
   onRotate: (delta: number) => void;
   onScale: (delta: number) => void;
-  onDuplicate: () => void;
   onDelete: () => void;
-  onBringForward: () => void;
-  onSendBackward: () => void;
 }
 
 const buttonClass =
@@ -21,10 +18,7 @@ export function FloatingControls({
   element,
   onRotate,
   onScale,
-  onDuplicate,
   onDelete,
-  onBringForward,
-  onSendBackward,
 }: FloatingControlsProps) {
   const def = getAssetDef(element.type);
   return (
@@ -41,15 +35,6 @@ export function FloatingControls({
         </button>
         <button type="button" className={buttonClass} aria-label="Decrease size" onClick={() => onScale(-0.1)}>
           <ZoomOut size={16} />
-        </button>
-        <button type="button" className={buttonClass} aria-label="Bring forward" onClick={onBringForward}>
-          <ArrowUpToLine size={16} />
-        </button>
-        <button type="button" className={buttonClass} aria-label="Send backward" onClick={onSendBackward}>
-          <ArrowDownToLine size={16} />
-        </button>
-        <button type="button" className={buttonClass} aria-label="Duplicate" onClick={onDuplicate}>
-          <Copy size={16} />
         </button>
         <span aria-hidden="true" className="mx-0.5 h-6 w-px bg-charcoal/15" />
         <button
