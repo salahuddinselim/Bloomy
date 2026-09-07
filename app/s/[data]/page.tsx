@@ -35,7 +35,33 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setOrigin(window.location.origin);
   }, []);
-  const url = `${origin}/b/${token}`;
+
+  // The long `/b/[data]` link always works on its own — the whole bouquet is
+  // encoded in it. A short code is a nice-to-have on top: best-effort, and
+  // silently absent if no store is configured for this deployment (local
+  // dev, or a deliberately serverless deploy), in which case the long link
+  // is exactly what gets shared.
+  const [shortCode, setShortCode] = useState<string | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetch("/api/links", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    })
+      .then((res) => (res.ok ? res.json() : null))
+      .then((data: { code?: string } | null) => {
+        if (!cancelled && data?.code) setShortCode(data.code);
+      })
+      .catch(() => {
+        // No connectivity or no store configured — the long link still works.
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token]);
+
+  const url = `${origin}/${shortCode ? `x/${shortCode}` : `b/${token}`}`;
 
   if (!result.ok || !result.bouquet) {
     return (
@@ -125,7 +151,11 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       <AdSlot position="share-bottom" className="mt-4" />
 
       <div className="flex flex-col items-center gap-2 pt-6 text-center">
-        <p className="text-sm text-charcoal-soft/70">Your bouquet lives inside this link — nothing is stored on a server.</p>
+        <p className="text-sm text-charcoal-soft/70">
+          {shortCode
+            ? "Your bouquet lives in the link itself — the short link just points to it."
+            : "Your bouquet lives inside this link — nothing is stored on a server."}
+        </p>
         <Link href="/create" className="text-sm font-medium text-burgundy hover:underline">
           Create another bouquet
         </Link>

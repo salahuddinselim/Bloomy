@@ -3,11 +3,16 @@ import { ArrowRight } from "lucide-react";
 import { Footer } from "@/components/landing/Footer";
 import { SiteHeader } from "@/components/landing/SiteHeader";
 
+const title = "About BloomStory";
+const description =
+  "BloomStory is a digital bouquet studio: arrange real flowers, write a note, and send it all as a single link — no account required, free forever.";
+
 export const metadata = {
-  title: "About Bloomly",
-  description:
-    "Bloomly is a digital bouquet studio: arrange real flowers, write a note, and send it all as a single link — no account, no database, free forever.",
+  title,
+  description,
   alternates: { canonical: "/about" },
+  openGraph: { title, description },
+  twitter: { card: "summary_large_image", title, description },
 };
 
 const moments = [
@@ -34,24 +39,25 @@ export default function AboutPage() {
     <main className="flex flex-col">
       <SiteHeader />
       <div className="mx-auto w-full max-w-3xl px-6 py-16 md:py-24">
-        <p className="font-script text-lg italic text-dusty-rose">about bloomly</p>
+        <p className="font-script text-lg italic text-dusty-rose">about bloomstory</p>
         <h1 className="mt-2 font-display text-4xl text-charcoal sm:text-5xl">
           A gesture, not a checkout.
         </h1>
         <p className="mt-6 max-w-2xl text-base leading-relaxed text-charcoal-soft sm:text-lg">
-          Bloomly sits in the space between a text message and a delivered gift. It gives a warm
+          BloomStory sits in the space between a text message and a delivered gift. It gives a warm
           thought some shape — real flowers to arrange, a note that doesn&apos;t fade, and a
           single link that opens beautifully wherever it&apos;s sent.
         </p>
 
         <div className="mt-14">
-          <h2 className="font-display text-2xl text-charcoal">Why a link instead of a database</h2>
+          <h2 className="font-display text-2xl text-charcoal">Why a link instead of an account</h2>
           <p className="mt-3 text-sm leading-relaxed text-charcoal-soft">
             Every bouquet — its flowers, wrapping, ribbon, recipient, and message — is encoded
-            directly into the URL you share. There&apos;s no account to create and no server
-            storing what you send. That makes Bloomly free to run forever, and it means the only
-            copy of your bouquet is the one in the link itself, so share it only with the person
-            it&apos;s meant for.
+            directly into the URL you share, and that long link always works entirely on its own.
+            There&apos;s no account to create, ever. When you share a bouquet, BloomStory also
+            offers a shorter version of the link — that one keeps a lightweight, temporary pointer
+            back to the same encoded data, nothing more. Either way, the bouquet itself only ever
+            lives in the link, so share it only with the person it&apos;s meant for.
           </p>
         </div>
 

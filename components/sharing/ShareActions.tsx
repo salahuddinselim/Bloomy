@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { Check, Copy, Download, Film, QrCode, Share2 } from "lucide-react";
 import QRCode from "qrcode";
 import { toPng, toCanvas } from "html-to-image";
@@ -101,6 +102,11 @@ export function QrCodeButton({ url }: { url: string }) {
       margin: 1,
       width: 480,
       color: { dark: "#2a2521", light: "#faf6ef" },
+      // Bouquet links can run long (the whole bouquet is encoded in the
+      // URL), which already pushes the QR to a dense, hard-to-scan grid.
+      // High error correction gives real phone cameras more room to resolve
+      // it despite that density, print smudges, or an off-angle scan.
+      errorCorrectionLevel: "H",
     });
     setSrc(dataUrl);
     setOpen(true);
@@ -115,51 +121,60 @@ export function QrCodeButton({ url }: { url: string }) {
       >
         <QrCode size={16} /> Show QR
       </button>
-      {open && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 p-6"
-          role="dialog"
-          aria-modal="true"
-          aria-label="QR code"
-          onClick={() => setOpen(false)}
-        >
+      {open &&
+        createPortal(
+          // Portaled to <body>: the bouquet canvas draws several of its own
+          // layers at z-50 (see BouquetCanvas's front WrapperGraphic), each
+          // in its own stacking context via `position` + `filter`. A modal
+          // nested in the normal tree can lose to those regardless of its
+          // own z-index once ancestor stacking contexts are involved, which
+          // showed up as flower art and card text bleeding on top of the QR.
+          // Rendering outside the whole component tree sidesteps that.
           <div
-            className="w-full max-w-xs rounded-2xl bg-paper p-6 text-center shadow-2xl"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-label="QR code"
+            onClick={() => setOpen(false)}
           >
-            {src && (
-              // eslint-disable-next-line @next/next/no-img-element -- data: URI generated client-side, not an optimizable network image
-              <img src={src} alt="QR code linking to this bouquet" className="mx-auto rounded-lg" />
-            )}
-            <p className="mt-4 text-sm text-charcoal-soft">Scan to open this bouquet</p>
-            <div className="mt-4 flex justify-center gap-2">
+            <div
+              className="w-full max-w-xs rounded-2xl bg-paper p-6 text-center shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
               {src && (
-                <a
-                  href={src}
-                  download="bloomly-qr.png"
-                  className="rounded-full border border-charcoal/15 px-4 py-2 text-xs font-medium text-charcoal-soft hover:border-burgundy/40 hover:text-burgundy"
-                >
-                  Download QR
-                </a>
+                // eslint-disable-next-line @next/next/no-img-element -- data: URI generated client-side, not an optimizable network image
+                <img src={src} alt="QR code linking to this bouquet" className="mx-auto rounded-lg" />
               )}
-              <button
-                type="button"
-                onClick={() => setOpen(false)}
-                className="rounded-full bg-charcoal px-4 py-2 text-xs font-medium text-ivory"
-              >
-                Close
-              </button>
+              <p className="mt-4 text-sm text-charcoal-soft">Scan to open this bouquet</p>
+              <div className="mt-4 flex justify-center gap-2">
+                {src && (
+                  <a
+                    href={src}
+                    download="bloomstory-qr.png"
+                    className="rounded-full border border-charcoal/15 px-4 py-2 text-xs font-medium text-charcoal-soft hover:border-burgundy/40 hover:text-burgundy"
+                  >
+                    Download QR
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setOpen(false)}
+                  className="rounded-full bg-charcoal px-4 py-2 text-xs font-medium text-ivory"
+                >
+                  Close
+                </button>
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
     </>
   );
 }
 
 export function DownloadImageButton({
   targetRef,
-  fileName = "bloomly-bouquet.png",
+  fileName = "bloomstory-bouquet.png",
 }: {
   targetRef: React.RefObject<HTMLElement | null>;
   fileName?: string;
@@ -201,7 +216,7 @@ export function useShareCardRef() {
  */
 export function GifExportButton({
   targetRef,
-  fileName = "bloomly-bouquet.gif",
+  fileName = "bloomstory-bouquet.gif",
 }: {
   targetRef: React.RefObject<HTMLElement | null>;
   fileName?: string;
