@@ -237,8 +237,8 @@ export default function LandingPage() {
         <h2 className="mt-2 font-display text-3xl text-charcoal sm:text-4xl">No accounts. Nothing standing in the way.</h2>
         <p className="mt-5 text-base leading-relaxed text-charcoal-soft">
           BloomStory has no accounts — your bouquet is encoded entirely into the link you share,
-          and that link always works completely on its own. That means nothing to maintain,
-          nothing to run, and no price that has to be paid back. The whole point is that a
+          and that link always works completely on its own, for as long as you need it. Creating
+          and sending a bouquet costs nothing, and always will. The whole point is that a
           beautiful thought reaches someone without friction.
         </p>
         <Link
