@@ -34,7 +34,7 @@ function FlipCard({ flower }: { flower: CarouselFlower }) {
             <BouquetAsset type={flower.id} category={flower.category} className="h-28 w-28" />
           </div>
           <p className="font-display text-lg text-charcoal">{flower.name}</p>
-          <p className="text-center text-[11px] uppercase tracking-widest text-charcoal-soft/50">tap to flip</p>
+          <p className="text-center text-xs uppercase tracking-widest text-charcoal-soft/50">tap to flip</p>
         </div>
 
         {/* Back — the hidden meaning */}
