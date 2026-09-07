@@ -23,10 +23,11 @@ export default function TermsPage() {
           <p>
             BloomStory is provided free of charge, as-is, with no warranty of any kind. It has no
             user accounts. Every bouquet is encoded directly into its long-form link, which always
-            works entirely on its own with nothing stored anywhere. Sharing may also generate a
-            shorter link, which stores that same encoded data (nothing more) under a random code
-            for up to 180 days purely so the link is easier to share — see the Privacy Policy for
-            details.
+            works entirely on its own with nothing stored anywhere and never expires. Sharing may
+            also generate a shorter link, which stores that same encoded data (nothing more) under
+            a random code for a limited time (currently 7 days), extendable by the sender by
+            watching a short ad on their share page (up to a one-year maximum) — see the Privacy
+            Policy for details.
           </p>
           <p>
             You are responsible for what you put into a bouquet and who you share the resulting

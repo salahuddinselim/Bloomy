@@ -2,10 +2,34 @@
 
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Check, Copy, Download, Film, QrCode, Share2 } from "lucide-react";
+import { Check, Copy, Download, Film, QrCode, Share2, Clock, Sparkles } from "lucide-react";
 import QRCode from "qrcode";
 import { toPng, toCanvas } from "html-to-image";
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
+import { AdSlot } from "@/components/ads/AdSlot";
+
+/**
+ * Locks page scroll while `active`. A modal's backdrop is `fixed`, which
+ * only covers the current viewport, not the full (taller, scrollable) page
+ * — without this, scrolling while a modal is open reveals un-dimmed content
+ * below the fold. Locks both <html> and <body>: this app's root <html>
+ * carries `h-full`, which can make it (not <body>) the actual scrolling box
+ * depending on page height, so locking only one is unreliable.
+ */
+function useScrollLock(active: boolean) {
+  useEffect(() => {
+    if (!active) return;
+    const html = document.documentElement;
+    const prevBody = document.body.style.overflow;
+    const prevHtml = html.style.overflow;
+    document.body.style.overflow = "hidden";
+    html.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevBody;
+      html.style.overflow = prevHtml;
+    };
+  }, [active]);
+}
 
 export function CopyLinkButton({ url }: { url: string }) {
   const [copied, setCopied] = useState(false);
@@ -97,24 +121,7 @@ export function QrCodeButton({ url }: { url: string }) {
   const [open, setOpen] = useState(false);
   const [src, setSrc] = useState<string | null>(null);
 
-  // The backdrop is `fixed`, which only covers the current viewport, not the
-  // full (taller, scrollable) share page — without locking scroll, scrolling
-  // while the modal is open reveals un-dimmed page content below the fold.
-  useEffect(() => {
-    if (!open) return;
-    // Lock both: this app's root <html> carries `h-full`, which can make it
-    // (not <body>) the actual scrolling box depending on content height, so
-    // locking only one or the other is unreliable across pages.
-    const html = document.documentElement;
-    const prevBody = document.body.style.overflow;
-    const prevHtml = html.style.overflow;
-    document.body.style.overflow = "hidden";
-    html.style.overflow = "hidden";
-    return () => {
-      document.body.style.overflow = prevBody;
-      html.style.overflow = prevHtml;
-    };
-  }, [open]);
+  useScrollLock(open);
 
   async function openModal() {
     const dataUrl = await QRCode.toDataURL(url, {
@@ -183,6 +190,144 @@ export function QrCodeButton({ url }: { url: string }) {
                   Close
                 </button>
               </div>
+            </div>
+          </div>,
+          document.body
+        )}
+    </>
+  );
+}
+
+const AD_VIEW_SECONDS = 20;
+
+/**
+ * Lets the sender extend a short link's life by watching an ad. This is a
+ * timed gate, not a real rewarded-ads integration — there's no way to
+ * cryptographically confirm an ad was actually watched from a static
+ * AdSense placement, so the "reward" is honestly just "the ad stayed on
+ * screen for 20 seconds." Only the short link's lifespan changes here; the
+ * long-form `/b/` link this points to never expires regardless.
+ */
+export function ExtendLinkButton({
+  code,
+  expiresAt,
+  onExtended,
+}: {
+  code: string;
+  expiresAt: string;
+  onExtended: (newExpiresAt: string) => void;
+}) {
+  const [open, setOpen] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(AD_VIEW_SECONDS);
+  const [status, setStatus] = useState<"watching" | "ready" | "extending" | "done" | "error">("watching");
+
+  useScrollLock(open);
+
+  useEffect(() => {
+    if (!open || status !== "watching") return;
+    if (secondsLeft <= 0) {
+      setStatus("ready");
+      return;
+    }
+    const timer = setTimeout(() => setSecondsLeft((s) => s - 1), 1000);
+    return () => clearTimeout(timer);
+  }, [open, status, secondsLeft]);
+
+  function openModal() {
+    setSecondsLeft(AD_VIEW_SECONDS);
+    setStatus("watching");
+    setOpen(true);
+  }
+
+  async function handleExtend() {
+    setStatus("extending");
+    try {
+      const res = await fetch(`/api/links/${code}/extend`, { method: "POST" });
+      if (!res.ok) throw new Error("extend failed");
+      const data: { expiresAt: string } = await res.json();
+      onExtended(data.expiresAt);
+      setStatus("done");
+    } catch {
+      setStatus("error");
+    }
+  }
+
+  const daysLeft = Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
+
+  return (
+    <>
+      <button
+        type="button"
+        onClick={openModal}
+        className="flex items-center gap-2 rounded-full border border-charcoal/15 px-4 py-2.5 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
+      >
+        <Clock size={16} /> Extend link ({daysLeft}d left)
+      </button>
+      {open &&
+        createPortal(
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-charcoal/60 p-6"
+            role="dialog"
+            aria-modal="true"
+            aria-label="Extend your bouquet's short link"
+            onClick={() => status !== "extending" && setOpen(false)}
+          >
+            <div
+              className="w-full max-w-sm rounded-2xl bg-paper p-6 text-center shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {status === "done" ? (
+                <>
+                  <Sparkles className="mx-auto mb-3 text-burgundy" size={28} />
+                  <p className="font-display text-lg text-charcoal">Link extended</p>
+                  <p className="mt-1 text-sm text-charcoal-soft">Thanks for keeping it going a little longer.</p>
+                  <button
+                    type="button"
+                    onClick={() => setOpen(false)}
+                    className="mt-5 rounded-full bg-charcoal px-5 py-2 text-sm font-medium text-ivory"
+                  >
+                    Close
+                  </button>
+                </>
+              ) : (
+                <>
+                  <p className="font-display text-lg text-charcoal">Extend your short link</p>
+                  <p className="mt-1 text-sm text-charcoal-soft">
+                    Watching a short ad adds 30 days to how long the short link stays valid. Your full bouquet link
+                    never expires either way.
+                  </p>
+                  <div className="mt-4">
+                    <AdSlot position="extend-link-modal" size="square" className="mx-auto" />
+                  </div>
+                  {status === "error" && (
+                    <p className="mt-3 text-xs text-burgundy" role="alert">
+                      Something went wrong extending the link. Please try again.
+                    </p>
+                  )}
+                  <div className="mt-5 flex justify-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => setOpen(false)}
+                      disabled={status === "extending"}
+                      className="rounded-full border border-charcoal/15 px-4 py-2 text-xs font-medium text-charcoal-soft disabled:opacity-50"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleExtend}
+                      disabled={status === "watching" || status === "extending"}
+                      className="rounded-full bg-burgundy px-5 py-2 text-xs font-medium text-ivory transition hover:bg-burgundy-dark disabled:cursor-not-allowed disabled:opacity-50"
+                    >
+                      {status === "watching"
+                        ? `Extend in ${secondsLeft}s…`
+                        : status === "extending"
+                        ? "Extending…"
+                        : "Extend +30 days"}
+                    </button>
+                  </div>
+                </>
+              )}
             </div>
           </div>,
           document.body

@@ -10,6 +10,7 @@ import {
   WebShareButton,
   SocialShareRow,
   QrCodeButton,
+  ExtendLinkButton,
   DownloadImageButton,
   GifExportButton,
   useShareCardRef,
@@ -42,6 +43,10 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
   // dev, or a deliberately serverless deploy), in which case the long link
   // is exactly what gets shared.
   const [shortCode, setShortCode] = useState<string | null>(null);
+  // A short code starts with a real, limited lifespan (see
+  // lib/links/store.ts) rather than the long link's permanent one — this is
+  // when it expires, shown on this page and extendable from here.
+  const [expiresAt, setExpiresAt] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
     fetch("/api/links", {
@@ -50,8 +55,10 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
       body: JSON.stringify({ token }),
     })
       .then((res) => (res.ok ? res.json() : null))
-      .then((data: { code?: string } | null) => {
-        if (!cancelled && data?.code) setShortCode(data.code);
+      .then((data: { code?: string; expiresAt?: string } | null) => {
+        if (cancelled || !data?.code) return;
+        setShortCode(data.code);
+        if (data.expiresAt) setExpiresAt(data.expiresAt);
       })
       .catch(() => {
         // No connectivity or no store configured — the long link still works.
@@ -142,6 +149,9 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
         <CopyLinkButton url={url} />
         <WebShareButton url={url} title="A bouquet for you" />
         <QrCodeButton url={url} />
+        {shortCode && expiresAt && (
+          <ExtendLinkButton code={shortCode} expiresAt={expiresAt} onExtended={setExpiresAt} />
+        )}
         <DownloadImageButton targetRef={cardRef} fileName={downloadName} />
         <GifExportButton targetRef={cardRef} fileName={gifName} />
       </div>
@@ -156,6 +166,15 @@ export default function SharePage({ params }: { params: Promise<{ data: string }
             ? "Your bouquet lives in the link itself — the short link just points to it."
             : "Your bouquet lives inside this link — nothing is stored on a server."}
         </p>
+        {shortCode && expiresAt && (
+          <p className="text-xs text-charcoal-soft/50">
+            Short link valid until {new Date(expiresAt).toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" })}.{" "}
+            <Link href={`/b/${token}`} className="underline underline-offset-2 hover:text-burgundy">
+              The full link
+            </Link>{" "}
+            never expires.
+          </p>
+        )}
         <Link href="/create" className="text-sm font-medium text-burgundy hover:underline">
           Create another bouquet
         </Link>

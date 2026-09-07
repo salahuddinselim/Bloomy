@@ -32,10 +32,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "invalid_token" }, { status: 400 });
   }
 
-  const code = await createShortLink(token);
-  if (!code) {
+  const created = await createShortLink(token);
+  if (!created) {
     return NextResponse.json({ error: "unavailable" }, { status: 503 });
   }
 
-  return NextResponse.json({ code });
+  return NextResponse.json({
+    code: created.code,
+    expiresAt: new Date(Date.now() + created.expiresInSeconds * 1000).toISOString(),
+  });
 }

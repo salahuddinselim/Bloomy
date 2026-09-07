@@ -1,18 +1,16 @@
 import { createClient, type RedisClientType } from "redis";
+import { createHash } from "node:crypto";
 
 /*
  * Short links are the one piece of Bloomly that genuinely needs a server:
  * a short code has to point somewhere, and "somewhere" has to be something
  * that remembers it. Everything else about a bouquet still lives entirely
- * in the long-form `/b/[data]` link (the encoded bouquet itself) — this
- * store only maps a short code to that long token, nothing more. No names,
- * no messages are stored under any other key, and a code is only ever
- * looked up by the exact string a visitor's link contains.
- *
- * Connects to whatever REDIS_URL points at (a Vercel Marketplace Redis
- * instance in production, or a local/dev Redis if you set one). Missing
- * env var or a connection failure both mean "no short links this request" —
- * every caller falls back to the long link rather than erroring.
+ * in the long-form `/b/[data]` link (the encoded bouquet itself) — that
+ * long link NEVER expires and this store never touches it. This store only
+ * maps a short code to that long token, nothing more, and now also tracks
+ * how long that mapping lives: a short code starts with a real lifespan and
+ * the sender can extend it (see `extendShortLink`) — the long link is the
+ * permanent fallback underneath it the whole time.
  */
 
 const url = process.env.REDIS_URL;
@@ -52,10 +50,15 @@ export const shortLinksAvailable = Boolean(url);
 const CODE_ALPHABET = "23456789abcdefghjkmnpqrstuvwxyzABCDEFGHJKMNPQRSTUVWXYZ"; // no 0/O/1/l/I — avoids look-alike codes in a shared link
 const CODE_LENGTH = 8;
 const MAX_ATTEMPTS = 5;
-// Short links are a convenience, not the source of truth — the long `/b/`
-// link never expires. Six months keeps the store from growing forever
-// while comfortably outlasting how long anyone keeps a gift link around.
-const TTL_SECONDS = 60 * 60 * 24 * 180;
+// A short link starts with a real, visible lifespan — long enough that
+// nobody's gift link dies on them by surprise, short enough that "extend it"
+// is a meaningful, honest offer rather than a fake button. The sender can
+// extend it (see EXTENSION_SECONDS) as many times as they come back to do
+// so; the long-form `/b/` link underneath never expires regardless.
+const INITIAL_TTL_SECONDS = 60 * 60 * 24 * 7; // 7 days
+const EXTENSION_SECONDS = 60 * 60 * 24 * 30; // +30 days per extension
+// Hard ceiling so an unbounded extend loop can't grow one entry forever.
+const MAX_TTL_SECONDS = 60 * 60 * 24 * 365; // 1 year
 
 function randomCode(): string {
   let code = "";
@@ -65,23 +68,52 @@ function randomCode(): string {
   return code;
 }
 
+/** Stable, non-reversible key for "has this exact bouquet token already been given a short code?" */
+function tokenKey(longToken: string): string {
+  return `token:${createHash("sha256").update(longToken).digest("hex")}`;
+}
+
+export interface ShortLinkResult {
+  code: string;
+  /** Seconds remaining until this short code expires. */
+  expiresInSeconds: number;
+}
+
 /**
- * Stores a bouquet's long-form token under a fresh short code and returns
- * the code. Returns null if no store is configured or reachable (dev
- * without Redis, or a transient outage) — callers fall back to sharing the
- * long link, which always works.
+ * Stores a bouquet's long-form token under a short code and returns it.
+ * Idempotent: re-sharing the same bouquet (e.g. revisiting its share page)
+ * reuses the code already minted for that exact token instead of spawning a
+ * fresh one every time, so "extend this link" means something — there's one
+ * code per bouquet to extend, not a new orphaned one on every visit.
+ *
+ * Returns null if no store is configured or reachable (dev without Redis,
+ * or a transient outage) — callers fall back to sharing the long link,
+ * which always works.
  */
-export async function createShortLink(longToken: string): Promise<string | null> {
+export async function createShortLink(longToken: string): Promise<ShortLinkResult | null> {
   const client = await getClient();
   if (!client) return null;
   try {
+    const tKey = tokenKey(longToken);
+    const existingCode = await client.get(tKey);
+    if (existingCode) {
+      const ttl = await client.ttl(`link:${existingCode}`);
+      if (ttl > 0) return { code: existingCode, expiresInSeconds: ttl };
+      // Reverse index outlived the forward key somehow (clock skew, manual
+      // deletion) — fall through and mint a fresh code rather than return a
+      // dangling one.
+    }
+
     for (let attempt = 0; attempt < MAX_ATTEMPTS; attempt++) {
       const code = randomCode();
       // NX: only set if the code doesn't already exist, so a random collision
       // (astronomically unlikely at 8 chars, but checked anyway) never
       // silently overwrites someone else's bouquet.
-      const ok = await client.set(`link:${code}`, longToken, { NX: true, EX: TTL_SECONDS });
-      if (ok) return code;
+      const ok = await client.set(`link:${code}`, longToken, { NX: true, EX: INITIAL_TTL_SECONDS });
+      if (ok) {
+        await client.set(tKey, code, { EX: INITIAL_TTL_SECONDS });
+        return { code, expiresInSeconds: INITIAL_TTL_SECONDS };
+      }
     }
     return null;
   } catch (err) {
@@ -102,6 +134,41 @@ export async function resolveShortLink(code: string): Promise<string | null> {
   }
 }
 
+export interface ExtendResult {
+  expiresInSeconds: number;
+  /** True if the extension was capped by MAX_TTL_SECONDS rather than applied in full. */
+  cappedAtMax: boolean;
+}
+
+/**
+ * Adds EXTENSION_SECONDS to a short code's remaining life (not a flat reset
+ * — a link extended with a week left keeps that week, plus 30 more days).
+ * Returns null if the code doesn't exist (already expired, or never did).
+ */
+export async function extendShortLink(code: string): Promise<ExtendResult | null> {
+  const client = await getClient();
+  if (!client) return null;
+  try {
+    const linkKey = `link:${code}`;
+    const currentTtl = await client.ttl(linkKey);
+    if (currentTtl <= 0) return null; // expired or unknown — nothing to extend
+
+    const longToken = await client.get(linkKey);
+    if (!longToken) return null;
+
+    const cappedAtMax = currentTtl + EXTENSION_SECONDS > MAX_TTL_SECONDS;
+    const newTtl = Math.min(currentTtl + EXTENSION_SECONDS, MAX_TTL_SECONDS);
+
+    await client.expire(linkKey, newTtl);
+    await client.expire(tokenKey(longToken), newTtl);
+
+    return { expiresInSeconds: newTtl, cappedAtMax };
+  } catch (err) {
+    console.error("[links/store] extendShortLink failed:", err);
+    return null;
+  }
+}
+
 /**
  * Removes a short code's entry (e.g. in response to an abuse report). The
  * long-form `/b/[data]` link a short code points to is never affected —
@@ -111,7 +178,9 @@ export async function deleteShortLink(code: string): Promise<void> {
   const client = await getClient();
   if (!client) return;
   try {
+    const longToken = await client.get(`link:${code}`);
     await client.del(`link:${code}`);
+    if (longToken) await client.del(tokenKey(longToken));
   } catch (err) {
     console.error("[links/store] deleteShortLink failed:", err);
   }

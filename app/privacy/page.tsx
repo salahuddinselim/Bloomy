@@ -30,10 +30,15 @@ export default function PrivacyPage() {
             When you generate a share link, BloomStory also tries to create a shorter version of
             it. Doing that means briefly storing that same encoded bouquet data — nothing more,
             no separate copy of your name or message — under a random short code, so the short
-            link can be looked up and expanded back to the original. That entry is automatically
-            deleted after 180 days, and is never used for anything besides answering &quot;what
-            bouquet does this code point to?&quot; If short-link storage isn&apos;t available for any
-            reason, the long link is shared instead and nothing is stored at all.
+            link can be looked up and expanded back to the original. That entry starts with a
+            limited lifespan (currently 7 days) and is automatically deleted once it runs out; the
+            sender can extend it from their share page, up to a maximum of one year total, by
+            watching a short ad — this is a simple timed gate on our own AdSense placement, not a
+            rewarded-ads network, and confirms nothing beyond &quot;the ad stayed on screen for
+            about 20 seconds.&quot; A short-code entry is never used for anything besides answering
+            &quot;what bouquet does this code point to?&quot; The long-form link is never affected by any
+            of this and never expires. If short-link storage isn&apos;t available for any reason, the
+            long link is shared instead and nothing is stored at all.
           </p>
           <p>
             Whoever holds a bouquet link — long or short — can view its contents, so only share it
