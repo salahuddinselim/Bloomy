@@ -10,6 +10,7 @@ import { Footer } from "@/components/landing/Footer";
 import { HowItWorks } from "@/components/landing/HowItWorks";
 import { FlowerCarousel } from "@/components/landing/FlowerCarousel";
 import { SolarSystem } from "@/components/landing/SolarSystem";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { siteUrl } from "@/lib/siteUrl";
 
 const heroBouquet = {
@@ -190,6 +191,10 @@ export default function LandingPage() {
             </div>
           ))}
         </div>
+      </section>
+
+      <section className="mx-auto flex w-full max-w-6xl justify-center px-6 py-8">
+        <AdSlot position="landing-mid" />
       </section>
 
       {/* Presets */}

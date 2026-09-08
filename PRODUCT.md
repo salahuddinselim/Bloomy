@@ -35,7 +35,7 @@ No account, no login, no database, no backend storage — the entire bouquet (fl
 - Flower/foliage/wrapper/ribbon/decoration visuals are original hand-built layered SVG illustrations (gradients, seeded organic variation) rather than photography — no photo asset pipeline exists.
 - URL-supplied data is untrusted: decoding validates and clamps every field (asset ids, numeric ranges, text length) rather than trusting it, and fails gracefully to an "invalid link" state rather than crashing.
 - Optional localStorage may support in-progress creator drafts, but a shared bouquet link must work standalone — no cookies, no storage dependency for the recipient.
-- Ad slots are reserved (not implemented) at creator-bottom, share-bottom, landing-mid, and reveal-bottom — the product must stay free without those slots existing yet.
+- Ad slots (AdSense, via `components/ads/AdSlot`) are live at creator-bottom (`/create` step 6, after the "Create My Bouquet" button), share-bottom (`/s/[data]`), landing-mid (homepage, between "A gift, not a message" and "Start from a preset"), reveal-bottom (recipient reveal), and extend-link-modal (the short-link extend dialog) — placed after the page's primary moment/CTA, never interrupting a task in progress. In development, `AdSlot` renders a dashed placeholder instead of calling AdSense.
 
 ## Brand Commitments
 

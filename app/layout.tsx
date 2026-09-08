@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Script from "next/script";
 import { Playfair_Display, Cormorant_Garamond, Inter } from "next/font/google";
 import { siteUrl } from "@/lib/siteUrl";
 import "./globals.css";
@@ -68,11 +67,15 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       className={`${display.variable} ${script.variable} ${body.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-ivory text-charcoal font-body">
-        <Script
+        {/* Plain <script>, not next/script: next/script stamps a data-nscript
+            attribute on every tag it renders, which AdSense's own runtime
+            diagnostics don't recognize and logs a console warning about.
+            This script is rendered exactly once in the root layout, so we
+            don't need next/script's dedup-across-navigation behavior. */}
+        <script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
           crossOrigin="anonymous"
-          strategy="afterInteractive"
         />
         {children}
       </body>

@@ -24,6 +24,7 @@ import { VibeSelector } from "@/components/wizard/VibeSelector";
 import { MessageEditor } from "@/components/wizard/MessageEditor";
 import { PresentationSelector } from "@/components/wizard/PresentationSelector";
 import { FloatingPetals } from "@/components/wizard/FloatingPetals";
+import { AdSlot } from "@/components/ads/AdSlot";
 import { cn } from "@/lib/utils";
 
 function getRevealForPresentation(presentationId: string | null): Bouquet["revealStyle"] {
@@ -630,6 +631,8 @@ function CreatePageInner() {
                   {generating && <Loader2 size={16} className="animate-spin" />}
                   Create My Bouquet ✨
                 </button>
+
+                <AdSlot position="creator-bottom" className="w-full max-w-sm" />
               </div>
             </motion.div>
           )}
