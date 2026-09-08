@@ -46,3 +46,4 @@ next-env.d.ts
 .impeccable/
 dev-server.log
 dev-server-err.log
+.polish-shots/

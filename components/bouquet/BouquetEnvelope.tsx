@@ -78,12 +78,15 @@ export function BouquetEnvelope({
       }
     >
       <div className="relative aspect-[5/3.4] w-full" style={{ perspective: 900 }}>
-        {/* The letter, waiting inside */}
+        {/* The letter, waiting inside. z-index sits below the envelope back
+            panel while closed — the flap's triangular clip-path leaves gaps
+            beside it that would otherwise let the letter show through — and
+            jumps above the flap/pocket once opened so it can slide free. */}
         <motion.div
-          className="absolute inset-x-1 bottom-[30%] top-[6%] z-[2] overflow-hidden rounded-[4px] px-2 py-1.5 shadow-md"
+          className="absolute inset-x-1 bottom-[30%] top-[6%] overflow-hidden rounded-[4px] px-2 py-1.5 shadow-md"
           style={{ background: "#fffdf7" }}
           initial={false}
-          animate={{ y: open ? "-78%" : 14, rotate: open ? 0 : -1 }}
+          animate={{ y: open ? "-78%" : 14, rotate: open ? 0 : -1, zIndex: open ? 6 : 0 }}
           transition={{ type: "spring", stiffness: 260, damping: 24 }}
         >
           <div
