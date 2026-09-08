@@ -1,4 +1,5 @@
 import { describe, expect, it } from "vitest";
+import { compressToEncodedURIComponent } from "lz-string";
 import { encodeBouquet, decodeBouquet } from "./encoder";
 import { createEmptyBouquet, LIMITS, type Bouquet, type BouquetElement } from "./types";
 import { REALISTIC_FLOWERS } from "@/data/flowers";
@@ -43,7 +44,6 @@ describe("encodeBouquet size", () => {
     // What the previous implementation produced: full elements (id, category,
     // full-precision numbers) compressed the same way.
     const naiveJson = JSON.stringify(bouquet);
-    const { compressToEncodedURIComponent } = require("lz-string");
     const naive = compressToEncodedURIComponent(naiveJson) as string;
 
     expect(tightened.data!.length).toBeLessThan(naive.length);
@@ -55,7 +55,6 @@ describe("encodeBouquet size", () => {
     expect(tightened.ok).toBe(true);
 
     const naiveJson = JSON.stringify(bouquet);
-    const { compressToEncodedURIComponent } = require("lz-string");
     const naive = compressToEncodedURIComponent(naiveJson) as string;
 
     expect(tightened.data!.length).toBeLessThan(naive.length);
@@ -102,7 +101,6 @@ describe("encodeBouquet / decodeBouquet round-trip", () => {
 
   it("still decodes an old-format link that carries id/category/full-precision numbers", () => {
     // Simulates a link generated before this change.
-    const { compressToEncodedURIComponent } = require("lz-string");
     const oldShapeBouquet = makeBouquet(2, 1, "hi");
     const oldToken = compressToEncodedURIComponent(JSON.stringify(oldShapeBouquet)) as string;
 

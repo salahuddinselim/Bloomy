@@ -220,12 +220,21 @@ export function ExtendLinkButton({
   const [open, setOpen] = useState(false);
   const [secondsLeft, setSecondsLeft] = useState(AD_VIEW_SECONDS);
   const [status, setStatus] = useState<"watching" | "ready" | "extending" | "done" | "error">("watching");
+  // Date.now() disagrees between server render time and client mount time, so
+  // it can't be called during render (hydration mismatch + non-pure render).
+  // Compute it client-side after mount instead, like the particle/petal fills.
+  const [daysLeft, setDaysLeft] = useState<number | null>(null);
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberate client-only Date.now() read, see comment above
+    setDaysLeft(Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24))));
+  }, [expiresAt]);
 
   useScrollLock(open);
 
   useEffect(() => {
     if (!open || status !== "watching") return;
     if (secondsLeft <= 0) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- countdown-driven state machine transition, not derivable from props
       setStatus("ready");
       return;
     }
@@ -252,8 +261,6 @@ export function ExtendLinkButton({
     }
   }
 
-  const daysLeft = Math.max(0, Math.ceil((new Date(expiresAt).getTime() - Date.now()) / (1000 * 60 * 60 * 24)));
-
   return (
     <>
       <button
@@ -261,7 +268,7 @@ export function ExtendLinkButton({
         onClick={openModal}
         className="flex items-center gap-2 rounded-full border border-charcoal/15 px-4 py-2.5 text-sm text-charcoal-soft transition hover:border-burgundy/40 hover:text-burgundy"
       >
-        <Clock size={16} /> Extend link ({daysLeft}d left)
+        <Clock size={16} /> Extend link{daysLeft !== null ? ` (${daysLeft}d left)` : ""}
       </button>
       {open &&
         createPortal(

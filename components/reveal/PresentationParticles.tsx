@@ -189,6 +189,7 @@ export function PresentationParticles({ themeId }: { themeId: string }) {
 
   useEffect(() => {
     if (!theme) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberate hydration-safe fill, see comment above
       setParticles([]);
       return;
     }

@@ -36,7 +36,7 @@ export default function TermsPage() {
           <p>
             Because bouquets are encoded entirely in the URL, anyone with the link can view it.
             BloomStory does not review bouquet content and has no practical way to recover a
-            bouquet if its link is lost. A short link's underlying entry can be removed on request
+            bouquet if its link is lost. A short link&apos;s underlying entry can be removed on request
             (e.g. for abuse) — doing so does not affect the long-form link, which keeps working
             wherever it has already been shared.
           </p>

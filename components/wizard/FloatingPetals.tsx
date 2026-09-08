@@ -33,6 +33,7 @@ export function FloatingPetals() {
   const [petals, setPetals] = useState<Petal[]>([]);
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- deliberate hydration-safe fill, see comment above
     setPetals(generatePetals());
   }, []);
 
