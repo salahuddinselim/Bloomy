@@ -353,7 +353,7 @@ function CreatePageInner() {
         </div>
       )}
 
-      <div className="relative z-10 flex-1">
+      <div className="relative z-10 flex-1 overflow-x-hidden">
         <AnimatePresence mode="wait">
           {step === 1 && (
             <motion.div
@@ -644,7 +644,7 @@ function CreatePageInner() {
               onClick={goBack}
               disabled={step === 1}
               className={cn(
-                "flex items-center gap-2 rounded-full border border-charcoal/15 px-5 py-3 text-sm font-medium text-charcoal-soft transition",
+                "flex shrink-0 items-center gap-2 rounded-full border border-charcoal/15 px-3 py-3 text-sm font-medium text-charcoal-soft transition sm:px-5",
                 step === 1
                   ? "cursor-not-allowed opacity-30"
                   : "hover:border-burgundy/40 hover:text-burgundy"
@@ -653,7 +653,7 @@ function CreatePageInner() {
               <ArrowLeft size={16} /> Back
             </button>
 
-            <p className="text-xs text-charcoal-muted">
+            <p className="shrink-0 whitespace-nowrap px-2 text-xs text-charcoal-muted">
               Step {step} of 6
             </p>
 
@@ -662,7 +662,7 @@ function CreatePageInner() {
               onClick={goNext}
               disabled={!canContinue()}
               className={cn(
-                "flex items-center gap-2 rounded-full px-6 py-3 text-sm font-medium transition",
+                "flex shrink-0 items-center gap-2 rounded-full px-4 py-3 text-sm font-medium transition sm:px-6",
                 canContinue()
                   ? "bg-burgundy text-ivory hover:bg-burgundy-dark"
                   : "cursor-not-allowed bg-charcoal/10 text-charcoal-muted"

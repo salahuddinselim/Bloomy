@@ -11,7 +11,7 @@ interface ProgressBarProps {
 
 export function ProgressBar({ currentStep, onStepClick }: ProgressBarProps) {
   return (
-    <div className="w-full px-4 py-4">
+    <div className="w-full px-2 py-4 sm:px-4">
       <div className="mx-auto flex max-w-2xl items-center justify-between">
         {WIZARD_STEPS.map((step, index) => {
           const isActive = step.id === currentStep;
@@ -39,7 +39,7 @@ export function ProgressBar({ currentStep, onStepClick }: ProgressBarProps) {
                         : "var(--color-ivory-deep)",
                   }}
                   className={cn(
-                    "flex h-9 w-9 items-center justify-center rounded-full text-xs font-medium transition-all duration-300",
+                    "flex h-8 w-8 items-center justify-center rounded-full text-xs font-medium transition-all duration-300 sm:h-9 sm:w-9",
                     isCompleted || isActive
                       ? "text-ivory"
                       : "text-charcoal-soft"
@@ -64,7 +64,7 @@ export function ProgressBar({ currentStep, onStepClick }: ProgressBarProps) {
               </button>
 
               {index < WIZARD_STEPS.length - 1 && (
-                <div className="relative mx-1 h-px w-4 sm:mx-2 sm:w-8 md:w-12">
+                <div className="relative mx-0.5 h-px w-3 sm:mx-2 sm:w-8 md:w-12">
                   <div className="absolute inset-0 bg-charcoal/10" />
                   <motion.div
                     initial={{ scaleX: 0 }}
