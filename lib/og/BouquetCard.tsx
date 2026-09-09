@@ -21,12 +21,12 @@ import { GATHER_Y } from "@/lib/bouquet/composer";
 export const CARD_W = 1200;
 export const CARD_H = 630;
 
-/* Multiplier on top of the canvas's box basis (34 * scale * [2.5 | 3.1]).
+/* Multiplier on top of the canvas's box basis (34 * scale * [2.7 | 3.4]).
    Flowers read large and prominent on the wide card; greenery — already a
    much bigger basis box — gets less so its branch tips stay below the
    eyebrow. */
-const SIZE_FACTOR = 2.6;
-const FOLIAGE_FACTOR = 1.9;
+const SIZE_FACTOR = 2.5;
+const FOLIAGE_FACTOR = 1.8;
 
 /* The card replays the SAME composition the editor renders: the wrapped-cone
    artwork is the identical component, so the cone mouth here sits where the
@@ -53,7 +53,7 @@ function fitLayout(elements: BouquetElement[]): Map<string, Line> {
     const def = getAssetDef(el.type);
     const anchorY = def?.anchorY ?? 0.5;
     const factor = el.category === "foliage" ? FOLIAGE_FACTOR : SIZE_FACTOR;
-    const size = 34 * el.scale * (el.category === "foliage" ? 3.1 : 2.5) * factor;
+    const size = 34 * el.scale * (el.category === "foliage" ? 3.4 : 2.7) * factor;
     out.set(el.id, {
       left: (el.x / 100) * CARD_W - size / 2,
       top: MOUTH_Y + (el.y - GATHER_Y) * Y_PX - anchorY * size,

@@ -200,7 +200,7 @@ export function BouquetCanvas({
         // identical accessible name, leaving screen-reader users unable to
         // tell them apart or know which one is focused.
         const elementLabel = `${def ? def.name : "Bouquet element"}, ${i + 1} of ${elements.length}`;
-        const sizePx = 34 * el.scale * (def?.category === "foliage" ? 3.1 : 2.5);
+        const sizePx = 34 * el.scale * (def?.category === "foliage" ? 3.4 : 2.7);
         // Cutouts are head+stem portraits (verified against the source art:
         // each bloom's crop extends all the way to the bottom of its frame).
         // The element anchor sits on the bloom HEAD (anchorY), so rotate

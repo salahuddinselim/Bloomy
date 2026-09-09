@@ -20,15 +20,24 @@ export function genId() {
  * portraits — see anchorY in types.ts). Appex heads peak at the gather minus
  * the dome's rise; RIM heads sit just below peak, tucked so their petals
  * peek over the lip and only their stems hide inside the cone.
+ *
+ * The geometry mirrors digibouquet's finished bouquets: a wide, low, solid
+ * round bunch — flat crown, near-vertical sides, greenery ringing the base —
+ * instead of a tall pointy fan. Heads are packed tight (small jitter) and run
+ * large so the mass reads continuous, the way photographed blooms interlock.
  */
 export const GATHER_X = 50;
-export const GATHER_Y = 57;
+export const GATHER_Y = 60;
 /** Lateral half-span of the dome in canvas width %. */
-export const SPAN_X = 27;
+export const SPAN_X = 30;
 /** Rise from the gather to the dome apex in canvas height %. */
-export const APEX_H = 12;
+export const APEX_H = 9;
 /** Canvas height % per canvas width % at 4:5, for angle-free placement math. */
 const Y_PER_X = 0.8;
+/** Center y% of the flat crown. */
+const DOME_TOP = 44;
+/** Center y% of the rim blossoms — just above the cone's paper fold lip. */
+const RIM_Y = 62;
 
 // Bloom anchors progress center-first so every bouquet builds into the same
 // dome silhouette: apex bloom first, then shoulders, then flanks, then rims.
@@ -37,7 +46,7 @@ const FLOWER_TS = [
   0, -0.5, 0.5, -0.78, 0.78, -0.25, 0.25, -1, 1, -1.18, 1.18, -0.62, 0.62, -0.9, 0.9, -1.3, 1.3,
 ];
 
-const FOLIAGE_TS = [-1.15, 0, 1.15];
+const FOLIAGE_TS = [-1.2, 0, 1.2];
 
 /** Base z ordering: foliage below flowers below decorations, large flowers below small. */
 function baseZ(def: AssetDef) {
@@ -48,15 +57,17 @@ function seeded(def: AssetDef, index: number, context: number) {
   return mulberry32(hashString(def.id) + index * 977 + context * 31);
 }
 
-/** The y of a dome lateral position t: apex at t=0, rim at |t|≈1 hugs the mouth. */
+/**
+ * The y of a mound lateral position t: a flat crown plateau at t≈0 that climbs
+ * linearly to the rim at |t|≈1, then hangs past the rim into the skirt. Bloom
+ * head centers therefore spread top-to-bottom (crown ≈44, rim ≈62, skirt ≈80)
+ * exactly like a photographed bunch instead of pinning every head to one band.
+ */
 function domeY(t: number) {
-  const at = Math.min(Math.abs(t), 1);
-  const rise = APEX_H * Math.pow(1 - at, 1.15);
-  let y = GATHER_Y - rise;
-  // Rim blossoms (and anything pushed past ±1) keep their heads just above
-  // the cone's lip so petals peek out and only stems disappear inside.
-  if (Math.abs(t) > 0.92) y = GATHER_Y - 1.6;
-  return clamp(y, 42, 58);
+  const at = Math.abs(t);
+  if (at <= 0.25) return DOME_TOP;
+  if (at <= 1.15) return DOME_TOP + ((at - 0.25) / 0.9) * (RIM_Y - DOME_TOP);
+  return clamp(RIM_Y + (at - 1.15) * 34, RIM_Y, 80);
 }
 
 /** Payload of one placement — same shape smartPlacement has always returned. */
@@ -68,18 +79,19 @@ function place(
   scaleAmplify = 1
 ): { x: number; y: number; rotation: number; scale: number; z: number } {
   const rand = seeded(def, index, context);
-  const x = round(clamp(GATHER_X + t * SPAN_X + (rand() - 0.5) * 2.4, 10, 90));
-  const y = round(domeY(t) + (rand() - 0.5) * 2.2);
+  const x = round(clamp(GATHER_X + t * SPAN_X + (rand() - 0.5) * 1.8, 10, 90));
+  const y = round(domeY(t) + (rand() - 0.5) * 1.4);
   // Blooms closer to the apex read as the focal point of a real bouquet and
   // sit in front; rim blooms recede. Stays within this category's 0-9 band.
   const z = baseZ(def) + clamp(Math.round(9 - 9 * Math.min(Math.abs(t), 1)), 0, 9);
   // Center blooms carry the bouquet; rims shrink slightly toward the mouth.
-  const sizeFactor = 1.08 - 0.07 * Math.min(Math.abs(t), 1.2);
+  // Heads run large overall so the whole mass reads solid and interlocked.
+  const sizeFactor = 1.22 - 0.08 * Math.min(Math.abs(t), 1.2);
   const scale = round(def.defaultScale * (scaleAmplify * sizeFactor * (0.98 + rand() * 0.08)), 2);
   // A hand-tied bouquet's stems lean inward toward the gather point; rotation
   // leans with the horizontal offset, capped so outer blooms don't over-rotate.
   const lean = clamp((x - GATHER_X) * 0.55, -18, 18);
-  const rotation = Math.round(def.defaultRotation + lean + (rand() - 0.5) * 8);
+  const rotation = Math.round(def.defaultRotation + lean + (rand() - 0.5) * 6);
   return { x, y, rotation, scale, z };
 }
 
@@ -103,7 +115,7 @@ export function smartPlacement(
     const ring = Math.floor(index / FOLIAGE_TS.length);
     const spread = t * (1 + ring * 0.5);
     const t2 = ring % 2 === 1 ? Math.sign(spread) * 1.3 : spread;
-    return place(def, t2, index, context, 1.12);
+    return place(def, t2, index, context, 1.3);
   }
 
   if (def.category === "decoration") {

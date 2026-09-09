@@ -1,5 +1,6 @@
 import type { Bouquet } from "@/lib/bouquet/types";
 import { elementsFromIds } from "@/lib/bouquet/build";
+import { DEFAULT_BOUQUET_FLOWER_IDS } from "@/lib/bouquet/build";
 
 /**
  * The bouquet shown on the site-wide social card (`/og`) and as the fallback
@@ -13,21 +14,7 @@ export function sampleBouquet(): Bouquet {
     recipient: "a very special person",
     sender: "a secret admirer",
     message: "Some flowers fade, but what I feel for you never will.",
-    elements: elementsFromIds([
-      "eucalyptus",
-      "eucalyptus",
-      "babys_breath",
-      "babys_breath",
-      "rose",
-      "rose",
-      "rose",
-      "rose",
-      "rose",
-      "peony",
-      "peony",
-      "carnation",
-      "ranunculus",
-    ]),
+    elements: elementsFromIds(DEFAULT_BOUQUET_FLOWER_IDS),
     wrapper: "cream_paper",
     ribbon: "silk_burgundy",
     background: "warm_ivory",
