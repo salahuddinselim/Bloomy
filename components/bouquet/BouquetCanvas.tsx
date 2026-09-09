@@ -201,9 +201,15 @@ export function BouquetCanvas({
         // tell them apart or know which one is focused.
         const elementLabel = `${def ? def.name : "Bouquet element"}, ${i + 1} of ${elements.length}`;
         const sizePx = 34 * el.scale * (def?.category === "foliage" ? 3.1 : 2.5);
-        // Raster cutouts already carry their own stems and leaves, so a
-        // synthetic stem is only drawn for the procedural vector shapes.
+        // Cutouts are head+stem portraits (verified against the source art:
+        // each bloom's crop extends all the way to the bottom of its frame).
+        // The element anchor sits on the bloom HEAD (anchorY), so rotate
+        // happens around the head and the baked-in stem continues down into
+        // the wrap — a real hand-tied bouquet. Only legacy vector shapes,
+        // which have no stem artwork of their own, get a synthetic line.
         const hasStem = el.category !== "decoration" && !def?.image;
+        // Element x/y point at the bloom head unless the asset says otherwise.
+        const anchorY = def?.anchorY ?? 0.5;
 
         return (
           <div
@@ -253,7 +259,8 @@ export function BouquetCanvas({
                   top: `${el.y}%`,
                   width: sizePx,
                   height: sizePx,
-                  transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
+                  transform: `translate(-50%, ${-anchorY * 100}%) rotate(${el.rotation}deg)`,
+                  transformOrigin: `50% ${anchorY * 100}%`,
                   touchAction: "none",
                 }}
                 onPointerDown={(e) => handlePointerDown(e, el)}
@@ -286,7 +293,8 @@ export function BouquetCanvas({
                   top: `${el.y}%`,
                   width: sizePx,
                   height: sizePx,
-                  transform: `translate(-50%, -50%) rotate(${el.rotation}deg)`,
+                  transform: `translate(-50%, ${-anchorY * 100}%) rotate(${el.rotation}deg)`,
+                  transformOrigin: `50% ${anchorY * 100}%`,
                 }}
               >
                 <motion.div

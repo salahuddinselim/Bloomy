@@ -9,18 +9,21 @@ import type { AssetDef } from "@/lib/bouquet/types";
  */
 
 export const FLOWERS: AssetDef[] = [
-  BL_("rose", "Rose", "/flora/bloom-rose.webp", "#b82e3c", "#8c1f2e", 1.05, ["romantic", "classic"], 2),
-  BL_("peony", "Peony", "/flora/bloom-peony.webp", "#d97b86", "#c25a6b", 1.15, ["lush", "romantic"], 2),
-  BL_("dahlia", "Dahlia", "/flora/bloom-dahlia.webp", "#c74a2e", "#a83a24", 1.05, ["bold", "dramatic"], 2),
-  BL_("anemone", "Anemone", "/flora/bloom-anemone.webp", "#6c5b9e", "#5a4a8c", 0.95, ["spring", "elegant"], 3),
-  BL_("ranunculus", "Ranunculus", "/flora/bloom-ranunculus.webp", "#f4b37a", "#e28f57", 1.05, ["charming", "spring"], 2),
-  BL_("orchid", "Orchid", "/flora/bloom-orchid.webp", "#c58bd1", "#a35bb5", 0.95, ["exotic", "elegant"], 3),
-  BL_("carnation", "Carnation", "/flora/bloom-carnation.webp", "#e79a92", "#d1726e", 0.9, ["classic", "romantic"], 3),
-  BL_("zinnia", "Zinnia", "/flora/bloom-zinnia.webp", "#d03a2e", "#b02d24", 1.0, ["cheerful", "bold"], 2),
-  BL_("daisy", "Daisy", "/flora/bloom-daisy.webp", "#f4f1e6", "#e2dccc", 0.85, ["cheerful", "simple"], 4),
-  BL_("sunflower", "Sunflower", "/flora/bloom-sunflower.webp", "#eec33e", "#d9a92f", 1.15, ["sunny", "happy"], 2),
-  BL_("tulip", "Tulip", "/flora/bloom-tulip.webp", "#e96d63", "#d14f4a", 0.95, ["spring", "romantic"], 3),
-  BL_("lily", "Lily", "/flora/bloom-lily.webp", "#d9d3b0", "#c4bd94", 1.05, ["elegant", "classic"], 2),
+  // Anchor (anchorY) is the bloom head's center inside the 700×700 crop,
+  // measured from each cutout's widest row so rotation spins around the head
+  // rather than the whole portrait (head + stem).
+  BL_("rose", "Rose", "/flora/bloom-rose.webp", "#b82e3c", "#8c1f2e", 1.05, ["romantic", "classic"], 2, 0.6),
+  BL_("peony", "Peony", "/flora/bloom-peony.webp", "#d97b86", "#c25a6b", 1.15, ["lush", "romantic"], 2, 0.5),
+  BL_("dahlia", "Dahlia", "/flora/bloom-dahlia.webp", "#c74a2e", "#a83a24", 1.05, ["bold", "dramatic"], 2, 0.45),
+  BL_("anemone", "Anemone", "/flora/bloom-anemone.webp", "#6c5b9e", "#5a4a8c", 0.95, ["spring", "elegant"], 3, 0.45),
+  BL_("ranunculus", "Ranunculus", "/flora/bloom-ranunculus.webp", "#f4b37a", "#e28f57", 1.05, ["charming", "spring"], 2, 0.54),
+  BL_("orchid", "Orchid", "/flora/bloom-orchid.webp", "#c58bd1", "#a35bb5", 0.95, ["exotic", "elegant"], 3, 0.54),
+  BL_("carnation", "Carnation", "/flora/bloom-carnation.webp", "#e79a92", "#d1726e", 0.9, ["classic", "romantic"], 3, 0.55),
+  BL_("zinnia", "Zinnia", "/flora/bloom-zinnia.webp", "#d03a2e", "#b02d24", 1.0, ["cheerful", "bold"], 2, 0.5),
+  BL_("daisy", "Daisy", "/flora/bloom-daisy.webp", "#f4f1e6", "#e2dccc", 0.85, ["cheerful", "simple"], 4, 0.51),
+  BL_("sunflower", "Sunflower", "/flora/bloom-sunflower.webp", "#eec33e", "#d9a92f", 1.15, ["sunny", "happy"], 2, 0.55),
+  BL_("tulip", "Tulip", "/flora/bloom-tulip.webp", "#e96d63", "#d14f4a", 0.95, ["spring", "romantic"], 3, 0.27),
+  BL_("lily", "Lily", "/flora/bloom-lily.webp", "#d9d3b0", "#c4bd94", 1.05, ["elegant", "classic"], 2, 0.38),
   // These four don't have a raster cutout yet, so they fall back to the
   // app's procedural SVG shapes (components/bouquet/shapes.tsx).
   V_("hydrangea", "Hydrangea", "hydrangea", "#8fa8d1", "#b98fc9", 1.1, ["lush", "garden"], 2),
@@ -40,9 +43,9 @@ export const FLOWERS: AssetDef[] = [
   // cutouts (like the twelve above) rather than vector shapes, both for
   // painterly realism and so they carry their own baked-in stem/cluster like
   // every other photographed bloom — no synthetic stem line needed.
-  BL_("shapla", "Water Lily", "/flora/bloom-shapla.webp", "#f2ede0", "#e8c85a", 1.1, ["national", "serene"], 2),
-  BL_("rojonigondha", "Tuberose", "/flora/bloom-rojonigondha.webp", "#f2ecd6", "#d8c68a", 0.95, ["fragrant", "elegant"], 3),
-  BL_("joba", "Hibiscus", "/flora/bloom-joba.webp", "#e0293d", "#b81f30", 1.05, ["bold", "tropical"], 2),
+  BL_("shapla", "Water Lily", "/flora/bloom-shapla.webp", "#f2ede0", "#e8c85a", 1.1, ["national", "serene"], 2, 0.39),
+  BL_("rojonigondha", "Tuberose", "/flora/bloom-rojonigondha.webp", "#f2ecd6", "#d8c68a", 0.95, ["fragrant", "elegant"], 3, 0.58),
+  BL_("joba", "Hibiscus", "/flora/bloom-joba.webp", "#e0293d", "#b81f30", 1.05, ["bold", "tropical"], 2, 0.58),
 ];
 
 function BL_(
@@ -53,9 +56,10 @@ function BL_(
   secondary: string,
   defaultScale: number,
   tags: string[],
-  layerHint: AssetDef["layerHint"]
+  layerHint: AssetDef["layerHint"],
+  anchorY?: number
 ): AssetDef {
-  return { id, name, category: "flower", shape: id as AssetDef["shape"], image, colors: { primary, secondary }, defaultScale, defaultRotation: 0, tags, layerHint };
+  return { id, name, category: "flower", shape: id as AssetDef["shape"], image, colors: { primary, secondary }, defaultScale, defaultRotation: 0, tags, layerHint, ...(anchorY !== undefined ? { anchorY } : {}) };
 }
 
 /** Same as BL_ but without a raster image, so it renders as an SVG shape. */

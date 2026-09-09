@@ -14,12 +14,22 @@ export function elementsFromPreset(preset: BouquetPreset): BouquetElement[] {
   return elementsFromIds([...preset.foliage, ...preset.flowers]);
 }
 
+// A full, hand-tied dome: greenery out back, a big romantic head in front,
+// filler in the shoulders and a few taller stems at the mouth rim — ~14
+// stems like a florist's "full hand-tied" bunch.
 export const DEFAULT_BOUQUET_FLOWER_IDS = [
   "eucalyptus",
   "eucalyptus",
-  "rose",
-  "rose",
-  "rose",
   "babys_breath",
   "babys_breath",
+  "rose",
+  "rose",
+  "rose",
+  "rose",
+  "rose",
+  "peony",
+  "peony",
+  "carnation",
+  "tulip",
+  "ranunculus",
 ];

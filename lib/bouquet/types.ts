@@ -41,6 +41,11 @@ export interface AssetDef {
   shape: FlowerShape | FoliageShape | DecorationShape;
   /** Raster artwork (a transparent webp cutout) used instead of the vector shape. */
   image?: string;
+  /** Vertical position of the bloom head inside its crop, as a fraction from
+   *  the top. Cutouts are full-frame portraits (head + stem), so the element
+   *  anchor must land on the HEAD, not the crop center, or rotation swings
+   *  the bloom around its stem. Derived from each asset's widest row. */
+  anchorY?: number;
   colors: {
     primary: string;
     secondary?: string;

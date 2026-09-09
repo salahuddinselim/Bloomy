@@ -1,9 +1,11 @@
 import type { Bouquet, BouquetElement } from "@/lib/bouquet/types";
+import { getAssetDef } from "@/components/bouquet/BouquetAsset";
 import { getBackground } from "@/data/backgrounds";
 import { getCardPaper } from "@/data/cardPaper";
 import { WrapperGraphic } from "@/components/bouquet/Wrapper";
 import { BouquetAsset } from "@/components/bouquet/BouquetAsset";
 import { clipText } from "@/lib/utils";
+import { GATHER_Y } from "@/lib/bouquet/composer";
 
 /*
  * Social preview card for ImageResponse (satori). The flower/wrapper SVGs are
@@ -19,61 +21,44 @@ import { clipText } from "@/lib/utils";
 export const CARD_W = 1200;
 export const CARD_H = 630;
 
-/* Flowers must sit between the eyebrow (~80) and the caption plate (~458). */
-const TOP_LIM = 140;
-const BOT_LIM = 455;
-
-/* Multiplier on top of the canvas's box basis (34 * scale * [2.5 | 3.1]). */
+/* Multiplier on top of the canvas's box basis (34 * scale * [2.5 | 3.1]).
+   Flowers read large and prominent on the wide card; greenery — already a
+   much bigger basis box — gets less so its branch tips stay below the
+   eyebrow. */
 const SIZE_FACTOR = 2.6;
+const FOLIAGE_FACTOR = 1.9;
 
-type Line = { left: number; top: number; size: number };
+/* The card replays the SAME composition the editor renders: the wrapped-cone
+   artwork is the identical component, so the cone mouth here sits where the
+   editor's gather point (GATHER_Y) does. The card wrapper box is 640x480 at
+   top 168 (scale 1.6), so the fold lip (viewBox y≈110) lands at card y≈344
+   and the opening's center — where stems disappear — is at y≈306. */
+const MOUTH_Y = 306;
+/* Vertical card px per canvas-%-point beyond the mouth line. Horizontally a
+   canvas % is 12px (CARD_W/100); vertically the card is short, so roughly
+   half keeps an element's head on the same visual line as in the editor. */
+const Y_PX = 6.8;
+
+type Line = { left: number; top: number; size: number; origin: string };
 
 /**
- * Lay the bouquet's flowers out so its bounding box fits between TOP_LIM and
- * BOT_LIM regardless of how tall/wide the bouquet is, keeping the arrangement
- * horizontally centred on the stage the way the editor arranges it.
+ * Replay the editor's hand-tied dome onto the wide card: every bloom head is
+ * anchored on the cone mouth line exactly like the canvas anchors it on the
+ * gather, so the bouquet reads as one dome emerging from the wrap instead of
+ * a band of flowers floating above it.
  */
 function fitLayout(elements: BouquetElement[]): Map<string, Line> {
-  const sizes = new Map<string, number>();
-  for (const el of elements) {
-    const basis = el.category === "foliage" ? 3.1 : 2.5;
-    sizes.set(el.id, 34 * el.scale * basis * SIZE_FACTOR);
-  }
-  if (elements.length === 0) return new Map();
-
-  /* Largest A that leaves a 2px slack above and below the whole arrangement. */
-  let a = 0;
-  for (let candidate = 20; candidate >= 0.05; candidate -= 0.05) {
-    let topMin = Infinity;
-    let botMax = -Infinity;
-    for (const el of elements) {
-      const half = (sizes.get(el.id) ?? 0) / 2;
-      topMin = Math.min(topMin, candidate * el.y - half);
-      botMax = Math.max(botMax, candidate * el.y + half);
-    }
-    if (TOP_LIM - topMin <= BOT_LIM - botMax) {
-      a = candidate;
-      break;
-    }
-  }
-  if (a === 0) a = 0.5;
-
-  let topMin = Infinity;
-  let botMax = -Infinity;
-  for (const el of elements) {
-    const half = (sizes.get(el.id) ?? 0) / 2;
-    topMin = Math.min(topMin, a * el.y - half);
-    botMax = Math.max(botMax, a * el.y + half);
-  }
-  const b = (TOP_LIM - topMin + (BOT_LIM - botMax)) / 2;
-
   const out = new Map<string, Line>();
   for (const el of elements) {
-    const size = sizes.get(el.id) ?? 0;
+    const def = getAssetDef(el.type);
+    const anchorY = def?.anchorY ?? 0.5;
+    const factor = el.category === "foliage" ? FOLIAGE_FACTOR : SIZE_FACTOR;
+    const size = 34 * el.scale * (el.category === "foliage" ? 3.1 : 2.5) * factor;
     out.set(el.id, {
       left: (el.x / 100) * CARD_W - size / 2,
-      top: a * el.y + b - size / 2,
+      top: MOUTH_Y + (el.y - GATHER_Y) * Y_PX - anchorY * size,
       size,
+      origin: `50% ${(anchorY * 100).toFixed(1)}%`,
     });
   }
   return out;
@@ -128,6 +113,7 @@ export function BouquetCard({
               width: line.size,
               height: line.size,
               transform: `rotate(${el.rotation}deg)`,
+              transformOrigin: line.origin,
             }}
           >
             <BouquetAsset

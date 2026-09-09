@@ -503,35 +503,59 @@ function Iris({ colors, seed = "iris" }: ShapeProps) {
 
 function Gerbera({ colors, seed = "gerbera" }: ShapeProps) {
   const c1 = colors.primary;
-  const c2 = colors.secondary ?? colors.primary;
-  const center = colors.center ?? "#7a5c2e";
+  const center = colors.center ?? "#3d2415";
   const g1 = gin(seed, "a");
   const g2 = gin(seed, "b");
-  const rand = mulberry32(hashString(`gerbera-${seed}`));
-  const dots = Array.from({ length: 12 }, () => {
-    const t = rand() * Math.PI * 2;
-    const r = Math.sqrt(rand()) * 8;
-    return { x: round(50 + Math.cos(t) * r), y: round(50 + Math.sin(t) * r) };
-  });
   return (
     <g>
       <defs>
-        <radialGradient id={g1} cx="0.5" cy="0.3" r="0.75">
-          <stop offset="0%" stopColor={shade(c1, 0.28)} />
-          <stop offset="100%" stopColor={shade(c1, -0.15)} />
+        <radialGradient id={g1} cx="0.5" cy="0.32" r="0.8">
+          <stop offset="0%" stopColor={shade(c1, 0.3)} />
+          <stop offset="65%" stopColor={c1} />
+          <stop offset="100%" stopColor={shade(c1, -0.22)} />
         </radialGradient>
-        <radialGradient id={g2} cx="0.5" cy="0.4" r="0.7">
-          <stop offset="0%" stopColor={shade(center, 0.3)} />
-          <stop offset="100%" stopColor={shade(center, -0.22)} />
+        <radialGradient id={g2} cx="0.5" cy="0.4" r="0.75">
+          <stop offset="0%" stopColor={shade(center, 0.5)} />
+          <stop offset="55%" stopColor={shade(center, 0.05)} />
+          <stop offset="100%" stopColor={shade(center, -0.3)} />
         </radialGradient>
       </defs>
-      {ring(22, 30, 9, `url(#${g1})`, 0, 0.5)}
-      {ring(22, 25, 7, shade(c2, 0.08), 8, 0.5, 0.85)}
-      <circle cx={50} cy={50} r={12} fill={`url(#${g2})`} />
-      <circle cx={47} cy={45} r={2.5} fill={shade(center, 0.4)} opacity={0.7} />
-      {dots.map((p, i) => (
-        <circle key={i} cx={p.x} cy={p.y} r={0.9} fill={shade(center, 0.2)} opacity={0.8} />
+      {/* a fuller, broader-petalled daisy reads as a real gerbera; the old
+          thin spiky ring + flat dot-speckled disc read as a printed sticker */}
+      {ring(13, 32, 15, shade(c1, -0.14), 13.8, 0.55, 0.95)}
+      {ring(13, 36, 18, `url(#${g1})`, 0, 0.48)}
+      {Array.from({ length: 13 }, (_, i) => (
+        <line
+          key={i}
+          x1={50}
+          y1={50}
+          x2={50}
+          y2={17}
+          stroke={shade(c1, -0.3)}
+          strokeWidth={0.4}
+          opacity={0.3}
+          transform={`rotate(${(360 / 13) * i} 50 50)`}
+        />
       ))}
+      <circle cx={50} cy={50} r={11} fill={`url(#${g2})`} />
+      {Array.from({ length: 24 }, (_, i) => {
+        const outer = i < 14;
+        const count = outer ? 14 : 10;
+        const idx = outer ? i : i - 14;
+        const r = outer ? 8 : 4.2;
+        const a = (idx / count) * Math.PI * 2 + (outer ? 0 : 0.3);
+        return (
+          <circle
+            key={i}
+            cx={round(50 + Math.cos(a) * r)}
+            cy={round(50 + Math.sin(a) * r)}
+            r={0.85}
+            fill={shade(center, outer ? -0.1 : 0.3)}
+            opacity={0.85}
+          />
+        );
+      })}
+      <circle cx={47} cy={45.5} r={2} fill="#fff" opacity={0.35} />
     </g>
   );
 }
@@ -540,15 +564,43 @@ function Camellia({ colors, seed = "camellia" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const g1 = gin(seed, "a");
+  const g2 = gin(seed, "b");
   return (
     <g>
-      <defs>{volumeGradient(g1, c1)}</defs>
-      {ring(7, 32, 20, `url(#${g1})`, 0, 0.9)}
-      {ring(6, 24, 17, shade(c2, 0.05), 26, 0.95, 0.9)}
-      {ring(5, 15, 12, c1, 12, 1, 0.92)}
-      {ring(4, 8, 8, shade(c2, 0.15), 40, 1.1)}
-      <circle cx={50} cy={50} r={3} fill={shade(c2, 0.2)} />
-      <circle cx={48} cy={47.5} r={1.2} fill="#fff" opacity={0.6} />
+      <defs>
+        {volumeGradient(g1, c1)}
+        {volumeGradient(g2, shade(c2, 0.05))}
+      </defs>
+      {/* one more layered ring + soft golden stamens (a real camellia's
+          signature) gives this the roundness the flatter old version lacked */}
+      {ring(9, 34, 19, shade(c1, -0.15), 10, 0.95, 0.85)}
+      {ring(8, 27, 18, `url(#${g1})`, 32, 1)}
+      {ring(7, 19, 15, `url(#${g2})`, 8, 1.05, 0.95)}
+      {ring(5, 11, 10, shade(c1, 0.1), 30, 1.1)}
+      <circle cx={50} cy={49} r={3.2} fill={shade(c2, 0.3)} />
+      {Array.from({ length: 8 }, (_, i) => (
+        <circle
+          key={i}
+          cx={round(50 + Math.cos((i / 8) * Math.PI * 2) * 2.4)}
+          cy={round(49 + Math.sin((i / 8) * Math.PI * 2) * 2.4)}
+          r={0.5}
+          fill="#e8b93a"
+          opacity={0.85}
+        />
+      ))}
+      <circle cx={47.5} cy={45.5} r={1.6} fill="#fff" opacity={0.55} />
+    </g>
+  );
+}
+
+/** A tiny 4-petaled star floret, the building block of a lilac panicle. */
+function lilacFloret(cx: number, cy: number, r: number, fill: string) {
+  return (
+    <g key={`${cx}-${cy}`} transform={`translate(${cx} ${cy})`}>
+      {[0, 90, 180, 270].map((a) => (
+        <ellipse key={a} rx={r * 0.5} ry={r} fill={fill} transform={`rotate(${a})`} />
+      ))}
+      <circle r={r * 0.32} fill={shade(fill, 0.4)} />
     </g>
   );
 }
@@ -559,26 +611,39 @@ function Lilac({ colors, seed = "lilac" }: ShapeProps) {
   const c2 = colors.secondary ?? colors.primary;
   const g1 = gin(seed, "a");
   const g2 = gin(seed, "b");
-  const tubers = Array.from({ length: 9 }, (_, i) => {
-    const offX = (rand() - 0.5) * 6;
-    const offY = 14 + i * 7.5;
-    const r = 2.8 + rand() * 1.8;
-    const useA = i % 2 === 0;
-    return (
-      <g key={i} transform={`translate(${50 + offX} ${offY})`}>
-        <circle r={r} fill={useA ? `url(#${g1})` : `url(#${g2})`} opacity={0.92} />
-        <circle cx={-r * 0.3} cy={-r * 0.3} r={r * 0.4} fill="#fff" opacity={0.5} />
-      </g>
-    );
-  });
+  // A real lilac bloom is a dense pyramidal panicle of dozens of tiny
+  // 4-petaled florets, not a sparse vertical string of plain dots — that
+  // read as beads on a thread rather than a flower.
+  const rows = 9;
+  const florets = [];
+  for (let row = 0; row < rows; row++) {
+    const t = row / (rows - 1);
+    const y = round(14 + t * 62);
+    const width = 3 + t * 15;
+    const count = Math.round(3 + t * 6);
+    for (let i = 0; i < count; i++) {
+      const spread = count === 1 ? 0 : (i / (count - 1)) * 2 - 1;
+      const x = round(50 + spread * width + (rand() - 0.5) * 2.5);
+      const yy = round(y + (rand() - 0.5) * 3);
+      const r = round(2 + rand() * 1.1, 2);
+      const fill = rand() > 0.5 ? `url(#${g1})` : `url(#${g2})`;
+      florets.push(lilacFloret(x, yy, r, fill));
+    }
+  }
   return (
     <g>
       <defs>
-        <radialGradient id={g1} cx="0.4" cy="0.35" r="0.7"><stop offset="0%" stopColor={shade(c1, 0.35)} /><stop offset="100%" stopColor={c1} /></radialGradient>
-        <radialGradient id={g2} cx="0.4" cy="0.35" r="0.7"><stop offset="0%" stopColor={shade(c2, 0.35)} /><stop offset="100%" stopColor={c2} /></radialGradient>
+        <radialGradient id={g1} cx="0.35" cy="0.3" r="0.75">
+          <stop offset="0%" stopColor={shade(c1, 0.4)} />
+          <stop offset="100%" stopColor={c1} />
+        </radialGradient>
+        <radialGradient id={g2} cx="0.35" cy="0.3" r="0.75">
+          <stop offset="0%" stopColor={shade(c2, 0.4)} />
+          <stop offset="100%" stopColor={c2} />
+        </radialGradient>
       </defs>
-      <line x1={50} y1={12} x2={50} y2={86} stroke={shade(c2, -0.25)} strokeWidth={1} opacity={0.5} />
-      {tubers}
+      <line x1={50} y1={10} x2={50} y2={82} stroke={shade(c2, -0.3)} strokeWidth={1} opacity={0.4} />
+      {florets}
     </g>
   );
 }
@@ -587,24 +652,41 @@ function Gladiolus({ colors, seed = "gladiolus" }: ShapeProps) {
   const c1 = colors.primary;
   const c2 = colors.secondary ?? colors.primary;
   const g1 = gin(seed, "a");
-  const blooms = Array.from({ length: 7 }, (_, i) => {
-    const y = 16 + i * 10;
+  // The previous teardrop-path version blended into one dark, leaf-shaped
+  // blob whenever primary/secondary were close in hue (as gladiolus's red
+  // tones are) — no petal ever separated visually from its neighbor. Six
+  // individually-rotated tepals (three broad outer, three narrower inner,
+  // reusing the same petalPath() as iris/orchid) plus a strongly lightened
+  // throat mark forces the contrast a real trumpet-flower reads by, no
+  // matter how close the two base colors are.
+  const blooms = Array.from({ length: 5 }, (_, i) => {
+    const y = 14 + i * 16;
     const side = i % 2 === 0 ? -1 : 1;
-    const inner = i % 3 === 0;
+    const bloomScale = round(0.5 - i * 0.045, 2);
     return (
-      <g key={i} transform={`translate(${50 + side * 2} ${y}) rotate(${side * 22}) scale(0.32)`}>
-        <path
-          d="M30,80 C22,60 26,40 40,30 C52,42 58,56 60,72 C52,78 42,78 30,80 Z"
-          fill={inner ? shade(c2, 0.05) : `url(#${g1})`}
-        />
-        <path d="M40,34 C44,44 46,52 46,60 C42,64 38,66 34,66 L40,34 Z" fill="#fff" opacity={0.4} />
+      <g key={i} transform={`translate(${50 + side * 4} ${y}) rotate(${side * 28}) scale(${bloomScale})`}>
+        {[-55, 0, 55].map((a) => (
+          <path key={`o${a}`} d={petalPath(34, 20, 0.75)} fill={shade(c1, -0.12)} transform={`rotate(${a} 50 50)`} />
+        ))}
+        {[-28, 28, 90].map((a) => (
+          <path key={`i${a}`} d={petalPath(27, 15, 0.85)} fill={`url(#${g1})`} transform={`rotate(${a} 50 50)`} />
+        ))}
+        <path d="M50,50 L46,29 L50,18 L54,29 Z" fill={shade(c2, 0.45)} opacity={0.85} />
+        {Array.from({ length: 3 }, (_, k) => (
+          <circle key={k} cx={49 + (k % 2)} cy={38 - k * 6} r={1.1} fill={shade(c2, -0.2)} opacity={0.65} />
+        ))}
       </g>
     );
   });
   return (
     <g>
-      <defs><radialGradient id={g1} cx="0.5" cy="0.4" r="0.7"><stop offset="0%" stopColor={shade(c1, 0.25)} /><stop offset="100%" stopColor={shade(c1, -0.15)} /></radialGradient></defs>
-      <line x1={50} y1={14} x2={50} y2={86} stroke={shade(c2, -0.25)} strokeWidth={0.9} opacity={0.6} />
+      <defs>
+        <radialGradient id={g1} cx="0.5" cy="0.3" r="0.8">
+          <stop offset="0%" stopColor={shade(c1, 0.4)} />
+          <stop offset="100%" stopColor={c1} />
+        </radialGradient>
+      </defs>
+      <line x1={50} y1={8} x2={50} y2={90} stroke={shade(c2, -0.25)} strokeWidth={1.1} opacity={0.6} />
       {blooms}
     </g>
   );
