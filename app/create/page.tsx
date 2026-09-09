@@ -9,7 +9,7 @@ import { wizardReducer } from "@/data/wizardReducer";
 import { INITIAL_WIZARD_STATE } from "@/data/wizard";
 import { bouquetReducer } from "@/lib/bouquet/reducer";
 import { createEmptyBouquet, LIMITS, type Bouquet } from "@/lib/bouquet/types";
-import { elementsFromIds, elementsFromPreset, DEFAULT_BOUQUET_FLOWER_IDS } from "@/lib/bouquet/build";
+import { elementsFromIds, elementsFromPreset, expandThemeFlowers, expandThemeFoliage, DEFAULT_BOUQUET_FLOWER_IDS } from "@/lib/bouquet/build";
 import { encodeBouquet } from "@/lib/bouquet/encoder";
 import { resolveSignatureTheme } from "@/data/signatureThemes";
 import { getPreset } from "@/data/presets";
@@ -178,8 +178,11 @@ function CreatePageInner() {
     pushHistory(bouquet);
     bouquetDispatch({
       type: "APPLY_THEME",
-      flowers: signature.flowers,
-      foliage: signature.foliage,
+      // The theme's palette is a recipe, not a finished dome — expand it to a
+      // florist's full hand-tied bunch so a themed bouquet reads as lush and
+      // round as the homepage hero instead of a sparse handful of stems.
+      flowers: expandThemeFlowers(signature.flowers),
+      foliage: expandThemeFoliage(signature.foliage),
       wrapper: signature.wrapper,
       ribbon: signature.ribbon,
       background: signature.background,
