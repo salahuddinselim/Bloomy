@@ -6,7 +6,6 @@ import { Check, Copy, Download, Film, QrCode, Share2, Clock, Sparkles } from "lu
 import QRCode from "qrcode";
 import { toPng, toCanvas } from "html-to-image";
 import { GIFEncoder, quantize, applyPalette } from "gifenc";
-import { AdSlot } from "@/components/ads/AdSlot";
 
 /**
  * Locks page scroll while `active`. A modal's backdrop is `fixed`, which
@@ -303,9 +302,6 @@ export function ExtendLinkButton({
                     Watching a short ad adds 30 days to how long the short link stays valid. Your full bouquet link
                     never expires either way.
                   </p>
-                  <div className="mt-4">
-                    <AdSlot position="extend-link-modal" size="square" className="mx-auto" />
-                  </div>
                   {status === "error" && (
                     <p className="mt-3 text-xs text-burgundy" role="alert">
                       Something went wrong extending the link. Please try again.

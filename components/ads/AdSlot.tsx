@@ -47,7 +47,7 @@ export function AdSlot({
   if (process.env.NODE_ENV !== "development") {
     return (
       <ins
-        className={cn("adsbygoogle", className)}
+        className={cn("adsbygoogle", SIZES[size], className)}
         style={{ display: "block" }}
         data-ad-client={AD_CLIENT}
         data-ad-slot={AD_SLOT}
